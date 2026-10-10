@@ -37,20 +37,24 @@ async function apiPost(path, body){
    músicas e disco de vinil nos álbuns — veja ARTIST_ICON / SONG_ICON /
    ALBUM_ICON mais abaixo caso queira trocar algum desses ícones.
    O campo "bio" aparece quando o visitante clica no artista/música — troque
-   o texto toda semana junto com o resto dos dados. ======================== */
+   o texto toda semana junto com o resto dos dados.
+
+   ATENÇÃO com aspas: o texto da bio fica entre aspas duplas ("..."). Se
+   você quiser usar aspas DENTRO do texto (ex: o nome de uma música), escreva
+   \" no lugar de ", assim: bio:"A música \"Garota\" é ..." — sem isso o
+   site inteiro para de funcionar. ======================== */
 const TOP_ARTISTAS = [
   {name:"Froid", sub:"Hip-hop", img:"", bio:"Renato Alves Menezes Barreto, o Froid, nasceu em Belo Horizonte (MG) em 1993 e começou a carreira em Brasília no grupo Um Barril de Rap, ao lado de Sampa e Yank, ganhando notoriedade nas batalhas de rima da capital. Solo desde 2017, transita entre rap, trap e batidas mais melódicas, com letras que misturam crítica social e reflexão pessoal — traço marcante desde o hit \"Pseudosocial\". Tem certificações de ouro e platina com singles como \"SK8 do Matheus\" e \"Lamentável, pt. III\"."},
-  {name:"Dominic Fike", sub:"Pop/Alternativo", img:"", bio:"Nascido em Naples, na Flórida, em 1995, Dominic Fike começou postando músicas no SoundCloud antes de assinar com a Columbia Records em 2018. Seu som mistura pop, rock alternativo, hip-hop e R&B, com letras confessionais sobre identidade e relacionamentos. Ficou conhecido mundialmente com \"3 Nights\" e também construiu carreira como ator, estrelando a série \"Euphoria\"."},
   {name:"Tyler, The Creator", sub:"Hip-hop", img:"", bio:"Tyler Gregory Okonma nasceu em Los Angeles em 1991 e fundou o coletivo Odd Future no fim dos anos 2000, que também revelou Frank Ocean e Earl Sweatshirt. Começou com um rap cru e provocador em discos como \"Goblin\" e evoluiu para produções mais sofisticadas, somando jazz, funk e soul em álbuns como \"Flower Boy\", \"IGOR\" e \"Call Me If You Get Lost\" — este último vencedor do Grammy de Melhor Álbum de Rap."},
+  {name:"Fleetwood Mac", sub:"Rock/Pop Rock", img:"", bio:"Fleetwood Mac é uma das bandas de rock mais influentes e bem-sucedidas da história da música. Formada em Londres em 1967, o grupo passou por profundas transformações musicais e formações de integrantes, evoluindo do blues rock britânico até se tornar um fenômeno global do pop-rock."},
   {name:"Zé Ramalho", sub:"MPB / Nordestino", img:"", bio:"José Ramalho Neto nasceu em Brejo do Cruz (PB) em 1949 e começou escrevendo versos de cordel antes de fundir rock progressivo com ritmos nordestinos como baião e embolada. Seu disco de estreia, \"Paêbiru\" (1975), com Lula Côrtes, é hoje um clássico cult da MPB. Composições como \"Admirável Gado Novo\" e \"Avôhai\" o consolidaram como uma das vozes mais marcantes da música nordestina."},
-  {name:"Alceu Valença", sub:"MPB / Frevo", img:"", bio:"Nascido em São Bento do Una (PE) em 1946, Alceu Valença cresceu cercado de violeiros e poetas de cordel e subiu aos palcos ainda criança cantando frevo. Sua carreira funde rock com frevo, coco, maracatu e forró, antecipando em décadas a estética que o manguebeat popularizaria em Pernambuco. Hits como \"Anunciação\" e \"La Belle de Jour\" o tornaram um dos maiores nomes da música nordestina."},
+  {name:"Rita Lee", sub:"Rock / MPB", img:"", bio:"Rita Lee Jones nasceu em São Paulo em 1947 e começou nos anos 1960 no grupo Os Mutantes, um dos pilares da Tropicália. Depois formou a banda Tutti Frutti e seguiu em carreira solo, misturando rock, pop e humor irreverente. Clássicos como \"Ovelha Negra\", \"Mania de Você\" e \"Lança Perfume\" a consagraram como a rainha do rock brasileiro."},
 ];
 const TOP_MUSICAS = [
-  {title:"Inverno Cigano", sub:"Froid", img:"", bio:"Faixa que mostra a fase mais introspectiva de Froid, equilibrando rap e melodia em versos sobre amadurecimento e passagem do tempo."},
-  {title:"How Much Is Weed", sub:"Dominic Fike", img:"", bio:"Single que mistura groove pop-rock com letra bem-humorada e confessional, típica do estilo despojado de Dominic Fike."},
+  {title:"Garota", sub:"Froid, Cynthia Luz", img:"", bio:"\"Garota\", lançada em parceria com Cynthia Luz, é uma das faixas mais marcantes do repertório do rapper brasileiro Froid. A música combina elementos do hip-hop/rap com uma sonoridade leve e envolvente, unindo melancolia, romance, reflexão sobre estilo de vida e o desejo de evasão."},
   {title:"MASSA", sub:"Tyler, The Creator", img:"", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
-  {title:"Vila do Sossego", sub:"Zé Ramalho", img:"", bio:"Composição que carrega a poesia nordestina característica de Zé Ramalho, com imagens do sertão e da vida simples do interior."},
-  {title:"Girassol", sub:"Alceu Valença", img:"", bio:"Uma das canções que reforça a fusão de forró e pop romântico que marca a fase mais popular da carreira de Alceu Valença."},
+  {title:"Chão de giz", sub:"Zé Ramalho", img:"", bio:"\"Chão de Giz\", lançada em 1978 no álbum de estreia de Zé Ramalho, é uma das obras-primas da música popular brasileira. Conhecida por sua melodia marcante e letra altamente poética e enigmática, a canção retrata o término doloroso de um amor proibido e idealizado."},
+  {title:"Ovelha negra", sub:"Rita Lee", img:"", bio:"\"Ovelha Negra\", lançada em 1975 no álbum Fruto Proibido (com a banda Tutti Frutti), é uma das canções mais emblemáticas de Rita Lee e um verdadeiro hino de libertação e rebeldia do rock brasileiro."},
 ];
 const RECOMENDACOES = [
   {lead:"Se você curte ", strong:"Outkast", rest:", que tal JID?"},
@@ -116,29 +120,6 @@ const TIMELINE = [
   {decada:"Anos 2000", titulo:"A internet muda tudo", social:"Napster e o compartilhamento digital abalam a indústria fonográfica; o funk carioca ganha as ruas.", genres:["Funk carioca","Indie rock","Reggaeton","Emo"]},
   {decada:"Anos 2010", titulo:"Streaming e a globalização instantânea", social:"Spotify e redes sociais tornam qualquer gênero acessível em qualquer lugar do mundo ao mesmo tempo.", genres:["Trap","K-pop","Sertanejo universitário","EDM"]},
   {decada:"Anos 2020", titulo:"Fragmentação de nichos e viralização", social:"TikTok redefine como uma música vira hit; microgêneros nascem e se espalham globalmente em semanas.", genres:["Piseiro","Hyperpop","Drill","Afrobeats"]},
-];
-
-/* Onde nasceu esse som: cada entrada é uma cidade onde um gênero nasceu ou
-   ganhou forma. "lat" e "lon" são a latitude e longitude reais da cidade —
-   é o que posiciona o pino no mapa automaticamente. Para adicionar uma nova
-   cidade, basta buscar as coordenadas dela (ex: "latitude longitude Recife")
-   e criar uma nova entrada no mesmo formato. */
-const ORIGENS = [
-  {cidade:"Nova Orleans, EUA", genero:"Jazz", ano:"Início do séc. XX", texto:"Na mistura de blues, ragtime e bandas militares das ruas e bordéis da cidade, nasceu a improvisação e a síncope que definem o jazz até hoje.", lat:29.95, lon:-90.07},
-  {cidade:"Bronx, Nova York, EUA", genero:"Hip-hop", ano:"Anos 1970", texto:"Em festas de rua e prédios comunitários do Bronx, DJs e MCs criaram um novo jeito de fazer música em cima dos breaks de discos de funk e soul.", lat:40.85, lon:-73.87},
-  {cidade:"Rio de Janeiro, Brasil", genero:"Samba", ano:"Início do séc. XX", texto:"Com raízes africanas trazidas por migrantes baianos, o samba nasceu nos morros cariocas e se tornou um dos símbolos da identidade musical brasileira.", lat:-22.91, lon:-43.17},
-  {cidade:"Rio de Janeiro, Brasil", genero:"Bossa Nova", ano:"Final dos anos 1950", texto:"Nascida na Zona Sul carioca, principalmente em Copacabana e Ipanema, a Bossa Nova trouxe um canto mais intimista, quase falado, e harmonias sofisticadas inspiradas no jazz, unidas à leveza do violão do samba.", lat:-22.97, lon:-43.19},
-  {cidade:"Recife, Brasil", genero:"Manguebeat", ano:"Anos 1990", texto:"Chico Science e a Nação Zumbi fundiram o maracatu de terreiro com rock e hip-hop, criando um movimento que colocou Pernambuco no mapa musical mundial.", lat:-8.05, lon:-34.90},
-  {cidade:"Kingston, Jamaica", genero:"Reggae", ano:"Anos 1960", texto:"Do ska e do rocksteady jamaicanos surgiu o reggae, ritmo mais lento e pesado que virou voz de resistência e espiritualidade rastafári.", lat:17.97, lon:-76.79},
-  {cidade:"Kingston, Jamaica", genero:"Dub", ano:"Final dos anos 1960 / início dos 1970", texto:"Nos estúdios de gravação de Kingston, engenheiros de som começaram a retirar as vozes das faixas originais e aplicar eco, reverb e cortes repentinos, criando uma atmosfera psicodélica que deu origem aos remixes modernos.", lat:18.02, lon:-76.83},
-  {cidade:"Detroit, EUA", genero:"Techno", ano:"Anos 1980", texto:"Em meio ao declínio industrial da cidade, jovens produtores negros criaram batidas eletrônicas futuristas que deram origem ao techno.", lat:42.33, lon:-83.05},
-  {cidade:"Chicago, EUA", genero:"House", ano:"Anos 1980", texto:"Em clubes underground como o Warehouse, DJs criaram o house: batidas eletrônicas repetitivas feitas para dançar a noite inteira.", lat:41.88, lon:-87.63},
-  {cidade:"Salvador, Brasil", genero:"Axé", ano:"Anos 1980", texto:"A fusão de ritmos afro-baianos com pop, reggae e frevo nos trios elétricos do Carnaval deu origem ao axé music.", lat:-12.97, lon:-38.50},
-  {cidade:"Seattle, EUA", genero:"Grunge", ano:"Final dos anos 1980 / início dos 1990", texto:"Combinando a crueza do punk rock com o peso do heavy metal, o grunge nasceu em Seattle com guitarras distorcidas e letras melancólicas, revelando bandas como Nirvana, Pearl Jam e Soundgarden.", lat:47.61, lon:-122.33},
-  {cidade:"Sevilha (Andaluzia), Espanha", genero:"Flamenco", ano:"Séc. XVIII–XIX", texto:"No sul da Espanha, tradições ciganas, mouriscas, judaico-sefarditas e andaluzas se fundiram para criar o flamenco, com seu canto intenso, o violão complexo e a dança cheia de expressão.", lat:37.39, lon:-5.99},
-  {cidade:"Nashville, EUA", genero:"Country", ano:"Séc. XX", texto:"Com raízes na música folclórica dos Apalaches, Nashville se consolidou como a capital comercial do country, transformando violão, banjo e narrativas cotidianas em uma indústria cultural mundial.", lat:36.16, lon:-86.78},
-  {cidade:"Seul, Coreia do Sul", genero:"K-pop", ano:"Anos 1990–2000", texto:"Nos estúdios e agências de entretenimento de Seul, o K-pop combinou pop ocidental, hip-hop, R&B e música eletrônica com superprodução visual, coreografias complexas e forte conexão com os fãs.", lat:37.57, lon:126.98},
-  {cidade:"Lagos, Nigéria", genero:"Afrobeats", ano:"Anos 1960–1970", texto:"Lendas como Fela Kuti misturaram o highlife ganês e o fuji nigeriano com jazz americano, funk e cantos em iorubá e pidgin, criando batidas contagiantes que deram origem ao Afrobeats.", lat:6.52, lon:3.38},
 ];
 /* ======================================================================= */
 
@@ -267,7 +248,7 @@ RECOMENDACOES.forEach(r=>{
     </div>`);
 });
 
-// Render Álbuns
+// Render Álbuns (agora dentro da aba "Linha do Tempo")
 const albumGrid = document.getElementById('albumGrid');
 ALBUNS.forEach(al=>{
   albumGrid.insertAdjacentHTML('beforeend', `
@@ -411,57 +392,6 @@ TIMELINE.forEach((t,i)=>{
   timelineTrack.appendChild(btn);
 });
 renderTimelineDetail(0);
-
-/* ===================== ONDE NASCEU ESSE SOM ===================== */
-const originPins = document.getElementById('originPins');
-const originDetail = document.getElementById('originDetail');
-
-// Converte latitude/longitude em posição percentual sobre o mapa
-// (projeção equirretangular, igual à usada pela imagem do mapa).
-function latLonToPercent(lat, lon){
-  return {
-    left: ((lon + 180) / 360 * 100).toFixed(2) + '%',
-    top: ((90 - lat) / 180 * 100).toFixed(2) + '%',
-  };
-}
-
-function renderOriginDetail(index){
-  const o = ORIGENS[index];
-  originDetail.innerHTML = `
-    <span class="origin-pin-ic"><i class="fa-solid fa-location-dot"></i></span>
-    <div>
-      <div class="origin-item-head">
-        <span class="origin-city">${o.cidade}</span>
-        <span class="origin-genre-chip">${o.genero}</span>
-        <span class="origin-year">${o.ano}</span>
-      </div>
-      <p class="origin-text">${o.texto}</p>
-    </div>`;
-}
-
-function highlightOrigin(index){
-  originPins.querySelectorAll('.origin-pin').forEach((el,i)=>{
-    el.classList.toggle('active', i===index);
-  });
-  renderOriginDetail(index);
-}
-
-ORIGENS.forEach((o,i)=>{
-  const pos = latLonToPercent(o.lat, o.lon);
-
-  // Pino no mapa
-  const pin = document.createElement('button');
-  pin.type = 'button';
-  pin.className = 'origin-pin';
-  pin.style.left = pos.left;
-  pin.style.top = pos.top;
-  pin.setAttribute('aria-label', `${o.cidade} — ${o.genero}`);
-  pin.innerHTML = `<span class="origin-pin-dot"></span><span class="origin-pin-tip">${o.genero}</span>`;
-  pin.addEventListener('click', ()=>highlightOrigin(i));
-  originPins.appendChild(pin);
-});
-
-highlightOrigin(0);
 
 /* ===================== VOTAÇÃO (dados vêm da API do Flask) =====================
    "tipo" precisa bater com o que é gravado no backend ('artista' ou 'musica').

@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="styles/style.css">
+<link rel="stylesheet" href="styles/mobile.css">
 </head>
 <body>
 
@@ -22,9 +23,8 @@
     </a>
     <nav class="main-nav" id="mainNav">
       <button data-target="sobre" class="active">Sobre Música</button>
-      <button data-target="albuns">Álbuns Importantes</button>
-      <button data-target="descoberta">Descoberta Musical</button>
       <button data-target="timeline">Linha do Tempo</button>
+      <button data-target="descoberta">Descoberta Musical</button>
       <button data-target="votacao">Votação &amp; Comunidade</button>
     </nav>
     <div class="header-actions">
@@ -227,9 +227,19 @@
     </div>
   </section>
 
-  <!-- ================= ÁLBUNS IMPORTANTES ================= -->
-  <section class="section tab-section" id="albuns">
+  <!-- ================= LINHA DO TEMPO (agora com os álbuns) ================= -->
+  <section class="section tab-section" id="timeline">
     <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">LINHA DO TEMPO</span>
+          <h2>Décadas que moldaram a música</h2>
+          <p class="section-sub">Uma linha do tempo interativa conectando décadas, movimentos sociais e o surgimento de gêneros musicais.</p>
+        </div>
+      </div>
+      <div class="timeline-track" id="timelineTrack"></div>
+      <div class="timeline-detail" id="timelineDetail"></div>
+
       <div class="section-head">
         <div>
           <span class="eyebrow">ÁLBUNS IMPORTANTES</span>
@@ -265,37 +275,6 @@
           <div class="panel-head"><h3>RECOMENDAÇÕES PARA VOCÊ</h3></div>
           <div id="recList"></div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= LINHA DO TEMPO ================= -->
-  <section class="section tab-section" id="timeline">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">LINHA DO TEMPO</span>
-          <h2>Décadas que moldaram a música</h2>
-          <p class="section-sub">Uma linha do tempo interativa conectando décadas, movimentos sociais e o surgimento de gêneros musicais. Edite o array <code>TIMELINE</code> no script para adicionar ou mudar décadas.</p>
-        </div>
-      </div>
-      <div class="timeline-track" id="timelineTrack"></div>
-      <div class="timeline-detail" id="timelineDetail"></div>
-
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">ONDE NASCEU ESSE SOM</span>
-          <h2>Cidades que deram origem a um gênero</h2>
-          <p class="section-sub">Clique em um ponto do mapa para ver onde e como cada gênero nasceu. Edite o array <code>ORIGENS</code> no script para adicionar ou mudar cidades.</p>
-        </div>
-      </div>
-      <div class="origin-layout">
-        <div class="origin-map">
-          <img id="originMapImg" src="https://commons.wikimedia.org/wiki/Special:FilePath/BlankMap-Equirectangular.svg" alt="Mapa múndi" loading="lazy">
-          <div class="origin-pins" id="originPins"></div>
-        </div>
-        <p class="origin-map-credit">Mapa-base: <a href="https://commons.wikimedia.org/wiki/File:BlankMap-Equirectangular.svg" target="_blank" rel="noopener">Wikimedia Commons</a> (CC BY-SA)</p>
-        <div class="origin-detail" id="originDetail"></div>
       </div>
     </div>
   </section>
