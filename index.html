@@ -10,6 +10,11 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="styles/style.css">
 <link rel="stylesheet" href="styles/mobile.css">
+<style>
+.about-card{cursor:pointer;}
+.about-card.active{outline:2px solid #6b7bb5;outline-offset:2px;}
+.about-card.active .tag{opacity:1;}
+</style>
 </head>
 <body>
 
@@ -84,14 +89,6 @@
   <!-- ================= SOBRE MÚSICA ================= -->
   <section class="section tab-section tab-open" id="sobre">
     <div class="wrap">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">SOBRE MÚSICA</span>
-          <h2>Gêneros, instrumentos e curiosidades</h2>
-          <p class="section-sub">Um panorama de como a música se organiza em estilos, quais instrumentos moldam cada som e os fatos que marcaram sua história.</p>
-        </div>
-      </div>
-
       <div class="efemeride-band" id="efemerideBand" style="display:none;"></div>
 
       <div class="about-grid">
@@ -129,14 +126,7 @@
         </div>
       </div>
 
-      <div class="tabs2" id="aboutTabs">
-        <button data-pane="genero" class="active">Gêneros</button>
-        <button data-pane="inst">Instrumentos</button>
-        <button data-pane="cur">Curiosidades</button>
-        <button data-pane="gloss">Glossário</button>
-      </div>
-
-      <div class="pane active" id="pane-genero">
+      <div class="pane" id="pane-genero">
         <div class="accordion">
           <div class="acc-item" id="genero-1">
             <button class="acc-trigger"><span class="num">01</span><span class="t">Rock</span><span class="plus"></span></button>

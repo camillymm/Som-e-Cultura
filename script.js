@@ -306,29 +306,42 @@ navButtons.forEach(btn=>{
   });
 });
 
-// About hero cards -> open accordion + switch tab + land right on the content
-document.querySelectorAll('.about-card').forEach(card=>{
+// Cards "Sobre Música": cada card abre o seu conteúdo logo abaixo (clicar de novo fecha)
+const aboutCards = document.querySelectorAll('.about-card');
+
+function closeAboutPanes(){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  aboutCards.forEach(c=>c.classList.remove('active'));
+}
+function switchAboutTab(name){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('active', p.id==='pane-'+name));
+}
+
+aboutCards.forEach(card=>{
   card.addEventListener('click', ()=>{
     const targetId = card.dataset.open;
     const pane = targetId.startsWith('genero') ? 'genero' : targetId.startsWith('inst') ? 'inst' : targetId.startsWith('gloss') ? 'gloss' : 'cur';
+    const paneEl = document.getElementById('pane-'+pane);
+
+    // clicou no card que já está aberto: fecha
+    if(paneEl.classList.contains('active')){
+      closeAboutPanes();
+      return;
+    }
+
+    closeAboutPanes();
     switchAboutTab(pane);
+    card.classList.add('active');
+
+    // abre o primeiro item do painel
     const item = document.getElementById(targetId);
     if(item && !item.classList.contains('open')){
       item.querySelector('.acc-trigger').click();
     }
     requestAnimationFrame(()=>{
-      item.scrollIntoView({behavior:'smooth', block:'start'});
+      paneEl.scrollIntoView({behavior:'smooth', block:'start'});
     });
   });
-});
-
-// About tabs
-function switchAboutTab(name){
-  document.querySelectorAll('#aboutTabs button').forEach(b=>b.classList.toggle('active', b.dataset.pane===name));
-  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('active', p.id==='pane-'+name));
-}
-document.querySelectorAll('#aboutTabs button').forEach(b=>{
-  b.addEventListener('click', ()=>switchAboutTab(b.dataset.pane));
 });
 
 // Accordion
