@@ -477,7 +477,7 @@ const VOTE_CONFIGS = {
     options: [
       {id:'froid', name:'Froid', sub:'Hip-hop', img:''},
       {id:'tyler', name:'Tyler, The Creator', sub:'Hip-hop', img:''},
-      {id:'mac', name:'Fleetwood Mac', sub:'Rock/ Pop rock', img:''}
+      {id:'mac', name:'Fleetwood Mac', sub:'Rock/ Pop rock', img:''},
       {id:'zeramalho', name:'Zé Ramalho', sub:'MPB / Nordestino', img:''},
       {id:'lee', name:'Rita Lee', sub:'Rock / MPB', img:''},
     ],
