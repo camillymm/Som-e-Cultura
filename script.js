@@ -44,22 +44,18 @@ async function apiPost(path, body){
    \" no lugar de ", assim: bio:"A música \"Garota\" é ..." — sem isso o
    site inteiro para de funcionar. ======================== */
 const TOP_ARTISTAS = [
-  {name:"Froid", sub:"Hip-hop", img:"", bio:"Renato Alves Menezes Barreto, o Froid, nasceu em Belo Horizonte (MG) em 1993 e começou a carreira em Brasília no grupo Um Barril de Rap, ao lado de Sampa e Yank, ganhando notoriedade nas batalhas de rima da capital. Solo desde 2017, transita entre rap, trap e batidas mais melódicas, com letras que misturam crítica social e reflexão pessoal — traço marcante desde o hit \"Pseudosocial\". Tem certificações de ouro e platina com singles como \"SK8 do Matheus\" e \"Lamentável, pt. III\"."},
-  {name:"Tyler, The Creator", sub:"Hip-hop", img:"", bio:"Tyler Gregory Okonma nasceu em Los Angeles em 1991 e fundou o coletivo Odd Future no fim dos anos 2000, que também revelou Frank Ocean e Earl Sweatshirt. Começou com um rap cru e provocador em discos como \"Goblin\" e evoluiu para produções mais sofisticadas, somando jazz, funk e soul em álbuns como \"Flower Boy\", \"IGOR\" e \"Call Me If You Get Lost\" — este último vencedor do Grammy de Melhor Álbum de Rap."},
-  {name:"Fleetwood Mac", sub:"Rock/Pop Rock", img:"", bio:"Fleetwood Mac é uma das bandas de rock mais influentes e bem-sucedidas da história da música. Formada em Londres em 1967, o grupo passou por profundas transformações musicais e formações de integrantes, evoluindo do blues rock britânico até se tornar um fenômeno global do pop-rock."},
-  {name:"Zé Ramalho", sub:"MPB / Nordestino", img:"", bio:"José Ramalho Neto nasceu em Brejo do Cruz (PB) em 1949 e começou escrevendo versos de cordel antes de fundir rock progressivo com ritmos nordestinos como baião e embolada. Seu disco de estreia, \"Paêbiru\" (1975), com Lula Côrtes, é hoje um clássico cult da MPB. Composições como \"Admirável Gado Novo\" e \"Avôhai\" o consolidaram como uma das vozes mais marcantes da música nordestina."},
-  {name:"Rita Lee", sub:"Rock / MPB", img:"", bio:"Rita Lee Jones nasceu em São Paulo em 1947 e começou nos anos 1960 no grupo Os Mutantes, um dos pilares da Tropicália. Depois formou a banda Tutti Frutti e seguiu em carreira solo, misturando rock, pop e humor irreverente. Clássicos como \"Ovelha Negra\", \"Mania de Você\" e \"Lança Perfume\" a consagraram como a rainha do rock brasileiro."},
+  {name:"Froid", sub:"Hip-hop", bio:"Renato Alves Menezes Barreto, o Froid, nasceu em Belo Horizonte (MG) em 1993 e começou a carreira em Brasília no grupo Um Barril de Rap, ao lado de Sampa e Yank, ganhando notoriedade nas batalhas de rima da capital. Solo desde 2017, transita entre rap, trap e batidas mais melódicas, com letras que misturam crítica social e reflexão pessoal — traço marcante desde o hit \"Pseudosocial\". Tem certificações de ouro e platina com singles como \"SK8 do Matheus\" e \"Lamentável, pt. III\"."},
+  {name:"Tyler, The Creator", sub:"Hip-hop", bio:"Tyler Gregory Okonma nasceu em Los Angeles em 1991 e fundou o coletivo Odd Future no fim dos anos 2000, que também revelou Frank Ocean e Earl Sweatshirt. Começou com um rap cru e provocador em discos como \"Goblin\" e evoluiu para produções mais sofisticadas, somando jazz, funk e soul em álbuns como \"Flower Boy\", \"IGOR\" e \"Call Me If You Get Lost\" — este último vencedor do Grammy de Melhor Álbum de Rap."},
+  {name:"Fleetwood Mac", sub:"Rock/Pop Rock",bio:"Fleetwood Mac é uma das bandas de rock mais influentes e bem-sucedidas da história da música. Formada em Londres em 1967, o grupo passou por profundas transformações musicais e formações de integrantes, evoluindo do blues rock britânico até se tornar um fenômeno global do pop-rock."},
+  {name:"Zé Ramalho", sub:"MPB / Nordestino", bio:"José Ramalho Neto nasceu em Brejo do Cruz (PB) em 1949 e começou escrevendo versos de cordel antes de fundir rock progressivo com ritmos nordestinos como baião e embolada. Seu disco de estreia, \"Paêbiru\" (1975), com Lula Côrtes, é hoje um clássico cult da MPB. Composições como \"Admirável Gado Novo\" e \"Avôhai\" o consolidaram como uma das vozes mais marcantes da música nordestina."},
+  {name:"Rita Lee", sub:"Rock / MPB", bio:"Rita Lee Jones nasceu em São Paulo em 1947 e começou nos anos 1960 no grupo Os Mutantes, um dos pilares da Tropicália. Depois formou a banda Tutti Frutti e seguiu em carreira solo, misturando rock, pop e humor irreverente. Clássicos como \"Ovelha Negra\", \"Mania de Você\" e \"Lança Perfume\" a consagraram como a rainha do rock brasileiro."},
 ];
 const TOP_MUSICAS = [
-  {title:"Garota", sub:"Froid, Cynthia Luz", img:"", bio:"\"Garota\", lançada em parceria com Cynthia Luz, é uma das faixas mais marcantes do repertório do rapper brasileiro Froid. A música combina elementos do hip-hop/rap com uma sonoridade leve e envolvente, unindo melancolia, romance, reflexão sobre estilo de vida e o desejo de evasão."},
-  {title:"MASSA", sub:"Tyler, The Creator", img:"", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
-  {title:"Chão de giz", sub:"Zé Ramalho", img:"", bio:"\"Chão de Giz\", lançada em 1978 no álbum de estreia de Zé Ramalho, é uma das obras-primas da música popular brasileira. Conhecida por sua melodia marcante e letra altamente poética e enigmática, a canção retrata o término doloroso de um amor proibido e idealizado."},
-  {title:"Ovelha negra", sub:"Rita Lee", img:"", bio:"\"Ovelha Negra\", lançada em 1975 no álbum Fruto Proibido (com a banda Tutti Frutti), é uma das canções mais emblemáticas de Rita Lee e um verdadeiro hino de libertação e rebeldia do rock brasileiro."},
-];
-const RECOMENDACOES = [
-  {lead:"Se você curte ", strong:"Outkast", rest:", que tal JID?"},
-  {lead:"Se você curte ", strong:"rap consciente", rest:", que tal Sabotage?"},
-  {lead:"Se você curte ", strong:"MPB clássica", rest:", que tal Chico Buarque?"},
+  {title:"Garota", sub:"Froid, Cynthia Luz", bio:"\"Garota\", lançada em parceria com Cynthia Luz, é uma das faixas mais marcantes do repertório do rapper brasileiro Froid. A música combina elementos do hip-hop/rap com uma sonoridade leve e envolvente, unindo melancolia, romance, reflexão sobre estilo de vida e o desejo de evasão."},
+  {title:"MASSA", sub:"Tyler, The Creator", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
+  {title:"The Chain", sub:"Fleetwood Mac", bio:"\"The Chain\", lançada em 1977 no aclamado álbum Rumours, é uma das faixas mais icônicas, intensas e emblemáticas do Fleetwood Mac. A música tornou-se um símbolo da própria existência do grupo: uma promessa de união inquebrável mantida no meio do caos pessoal e afetivo."},
+  {title:"Chão de giz", sub:"Zé Ramalho", bio:"\"Chão de Giz\", lançada em 1978 no álbum de estreia de Zé Ramalho, é uma das obras-primas da música popular brasileira. Conhecida por sua melodia marcante e letra altamente poética e enigmática, a canção retrata o término doloroso de um amor proibido e idealizado."},
+  {title:"Ovelha negra", sub:"Rita Lee", bio:"\"Ovelha Negra\", lançada em 1975 no álbum Fruto Proibido (com a banda Tutti Frutti), é uma das canções mais emblemáticas de Rita Lee e um verdadeiro hino de libertação e rebeldia do rock brasileiro."},
 ];
 /* "genre" é usado nos filtros da seção Álbuns Importantes — use o mesmo nome de
    gênero em vários álbuns para que eles caiam no mesmo filtro. */
@@ -237,16 +233,6 @@ TOP_MUSICAS.forEach(m=>{
     </div>`);
 });
 initRankAccordion(songList);
-
-// Render Recomendações
-const recList = document.getElementById('recList');
-RECOMENDACOES.forEach(r=>{
-  recList.insertAdjacentHTML('beforeend', `
-    <div class="rec-row">
-      <div class="rec-thumb"></div>
-      <p>${r.lead}<b>${r.strong}</b>${r.rest}</p>
-    </div>`);
-});
 
 // Render Álbuns (agora dentro da aba "Linha do Tempo")
 const albumGrid = document.getElementById('albumGrid');
