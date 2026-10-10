@@ -617,7 +617,7 @@ async function loadComments(){
   comentarios.forEach(c=>{
     commentList.insertAdjacentHTML('beforeend', `
       <li>
-        <div class="c-head"><span class="c-name">${escapeHtml(c.nome)}</span><span class="c-time">${formatCommentDate(c.data)}</span></div>
+        <div class="c-head"><span class="c-name">${escapeHtml(c.nome)}</span></div>
         <div class="c-text">${escapeHtml(c.texto)}</div>
       </li>`);
   });
