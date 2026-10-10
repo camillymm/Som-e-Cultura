@@ -485,6 +485,7 @@ async function renderVoteCard(containerId, cfg, votedKey){
       el.classList.add('voted');
       el.style.cursor = 'default';
     });
+    container.classList.remove('results-hidden');
     setSelected(voted);
     submitBtn.disabled = true;
     submitBtn.textContent = 'Seu voto foi registrado ✓';
@@ -494,6 +495,7 @@ async function renderVoteCard(containerId, cfg, votedKey){
   if(voted){
     lockAsVoted();
   } else {
+    container.classList.add('results-hidden');
     submitBtn.textContent = 'Votar';
   }
 
