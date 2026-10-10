@@ -476,10 +476,10 @@ const VOTE_CONFIGS = {
     title: 'VOTE NO ARTISTA DA SEMANA',
     options: [
       {id:'froid', name:'Froid', sub:'Hip-hop', img:''},
-      {id:'fike', name:'Dominic Fike', sub:'Pop/Alternativo', img:''},
       {id:'tyler', name:'Tyler, The Creator', sub:'Hip-hop', img:''},
+      {id:'mac', name:'Fleetwood Mac', sub:'Rock/ Pop rock', img:''}
       {id:'zeramalho', name:'Zé Ramalho', sub:'MPB / Nordestino', img:''},
-      {id:'alceu', name:'Rita Lee', sub:'Rock / MPB', img:''},
+      {id:'lee', name:'Rita Lee', sub:'Rock / MPB', img:''},
     ],
   },
   musica: {
@@ -487,11 +487,11 @@ const VOTE_CONFIGS = {
     tipo: 'musica',
     title: 'VOTE NA MÚSICA DA SEMANA',
     options: [
-      {id:'inverno', name:'Garota', sub:'Froid', img:''},
-      {id:'weed', name:'How Much Is Weed', sub:'Dominic Fike', img:''},
+      {id:'garota', name:'Garota', sub:'Froid', img:''},
       {id:'massa', name:'MASSA', sub:'Tyler, The Creator', img:''},
-      {id:'sossego', name:'Chão de giz', sub:'Zé Ramalho', img:''},
-      {id:'girassol', name:'Ovelha Negra', sub:'Rita Lee', img:''},
+      {id:'chain', name:'The Chain', sub:'Fleetwood Mac', img:''},
+      {id:'giz', name:'Chão de giz', sub:'Zé Ramalho', img:''},
+      {id:'negra', name:'Ovelha Negra', sub:'Rita Lee', img:''},
     ],
   }
 };
