@@ -5,8 +5,8 @@ except ModuleNotFoundError as exc:
         "Flask não está instalado. Instale com: pip install flask"
     ) from exc
 
-import sqlite3
 import os
+import sqlite3
 
 # O main.py está na pasta "py/", mas o index.html, script.js e a pasta
 # "styles/" ficam um nível acima (na pasta "Site"). Por isso apontamos o
@@ -24,30 +24,54 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
     return response
 
-DB_NAME = "database.db"
+# ===================== BANCO DE DADOS =====================
+# Se existir a variável de ambiente DATABASE_URL (configurada no Render),
+# usa Postgres — os dados ficam guardados fora do servidor e NÃO se perdem
+# quando o site reinicia ou recebe um novo deploy.
+# Se ela não existir (rodando no seu computador), usa o SQLite local.
+DATABASE_URL = os.environ.get("DATABASE_URL")
+USE_POSTGRES = bool(DATABASE_URL)
+DB_NAME = os.path.join(BASE_DIR, "database.db")
+
+if USE_POSTGRES:
+    import psycopg2  # type: ignore[import-not-found]
+
+
+def get_conn():
+    if USE_POSTGRES:
+        return psycopg2.connect(DATABASE_URL)
+    return sqlite3.connect(DB_NAME)
+
+
+def q(sql):
+    """Troca o marcador de parâmetro: SQLite usa ?, Postgres usa %s."""
+    return sql.replace("?", "%s") if USE_POSTGRES else sql
+
 
 # --- Rota que serve a página principal ---
 @app.route('/')
 def index():
     return send_from_directory(app.static_folder, 'index.html')
 
+
 def init_db():
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_conn()
     cursor = conn.cursor()
+    pk = "SERIAL PRIMARY KEY" if USE_POSTGRES else "INTEGER PRIMARY KEY AUTOINCREMENT"
     # Tabela de Comentários
-    cursor.execute('''
+    cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS comentarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id {pk},
             nome TEXT,
             texto TEXT,
             data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    # Tabela de Votos
-    cursor.execute('''
+    # Tabela de Votos ('artista' ou 'musica')
+    cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS votos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            tipo TEXT, -- 'artista' ou 'musica'
+            id {pk},
+            tipo TEXT,
             item_nome TEXT UNIQUE,
             total INTEGER DEFAULT 0
         )
@@ -55,32 +79,36 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 init_db()
 
 # --- Rotas de Comentários ---
 @app.route('/api/comentarios', methods=['GET'])
 def get_comentarios():
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("SELECT id, nome, texto, data FROM comentarios ORDER BY id DESC")
     rows = cursor.fetchall()
     conn.close()
 
-    comentarios = [{"id": r[0], "nome": r[1] or "Anônimo", "texto": r[2], "data": r[3]} for r in rows]
+    comentarios = [
+        {"id": r[0], "nome": r[1] or "Anônimo", "texto": r[2], "data": str(r[3]) if r[3] else ""}
+        for r in rows
+    ]
     return jsonify(comentarios)
 
 @app.route('/api/comentarios', methods=['POST'])
 def add_comentario():
-    data = request.json
+    data = request.get_json(silent=True) or {}
     nome = data.get('nome')
     texto = data.get('texto')
 
     if not texto:
         return jsonify({"error": "O texto é obrigatório"}), 400
 
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO comentarios (nome, texto) VALUES (?, ?)", (nome, texto))
+    cursor.execute(q("INSERT INTO comentarios (nome, texto) VALUES (?, ?)"), (nome, texto))
     conn.commit()
     conn.close()
 
@@ -89,7 +117,7 @@ def add_comentario():
 # --- Rotas de Votação ---
 @app.route('/api/votos', methods=['GET'])
 def get_votos():
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("SELECT tipo, item_nome, total FROM votos")
     rows = cursor.fetchall()
@@ -100,24 +128,24 @@ def get_votos():
 
 @app.route('/api/votos', methods=['POST'])
 def registrar_voto():
-    data = request.json
+    data = request.get_json(silent=True) or {}
     tipo = data.get('tipo')  # 'artista' ou 'musica'
     item_nome = data.get('item_nome')
 
     if not tipo or not item_nome:
         return jsonify({"error": "Dados incompletos"}), 400
 
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_conn()
     cursor = conn.cursor()
 
-    # Verifica se já existe voto computado para esse item
-    cursor.execute("SELECT total FROM votos WHERE item_nome = ?", (item_nome,))
-    row = cursor.fetchone()
-
-    if row:
-        cursor.execute("UPDATE votos SET total = total + 1 WHERE item_nome = ?", (item_nome,))
-    else:
-        cursor.execute("INSERT INTO votos (tipo, item_nome, total) VALUES (?, ?, 1)", (tipo, item_nome))
+    # Soma 1 voto de forma atômica (cria o item se ainda não existir).
+    cursor.execute(
+        q('''
+            INSERT INTO votos (tipo, item_nome, total) VALUES (?, ?, 1)
+            ON CONFLICT (item_nome) DO UPDATE SET total = votos.total + 1
+        '''),
+        (tipo, item_nome),
+    )
 
     conn.commit()
     conn.close()
