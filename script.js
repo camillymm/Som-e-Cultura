@@ -51,8 +51,8 @@ const TOP_ARTISTAS = [
   {name:"Rita Lee", sub:"Rock / MPB", bio:"Rita Lee Jones nasceu em São Paulo em 1947 e começou nos anos 1960 no grupo Os Mutantes, um dos pilares da Tropicália. Depois formou a banda Tutti Frutti e seguiu em carreira solo, misturando rock, pop e humor irreverente. Clássicos como \"Ovelha Negra\", \"Mania de Você\" e \"Lança Perfume\" a consagraram como a rainha do rock brasileiro."},
 ];
 const TOP_MUSICAS = [
-  {title:"Garota", sub:"Froid, Cynthia Luz", bio:"\"Garota\", lançada em parceria com Cynthia Luz, é uma das faixas mais marcantes do repertório do rapper brasileiro Froid. A música combina elementos do hip-hop/rap com uma sonoridade leve e envolvente, unindo melancolia, romance, reflexão sobre estilo de vida e o desejo de evasão."},
-  {title:"MASSA", sub:"Tyler, The Creator", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
+  {title:"Lamentável, Pt. III", sub:"Froid, Cynthia Luz", bio:"\"Lamentável, Pt. III\ é uma das faixas mais marcantes do rapper Froid em parceria com Cynthia Luz, lançada em 2017 e integrante do aclamado álbum solo de estreia do artista, O Pior Disco do Ano."},
+  {title:"MASSA", sub:"Tyler, The Creator", bio:\"Faixa de Tyler\, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
   {title:"The Chain", sub:"Fleetwood Mac", bio:"\"The Chain\", lançada em 1977 no aclamado álbum Rumours, é uma das faixas mais icônicas, intensas e emblemáticas do Fleetwood Mac. A música tornou-se um símbolo da própria existência do grupo: uma promessa de união inquebrável mantida no meio do caos pessoal e afetivo."},
   {title:"Chão de giz", sub:"Zé Ramalho", bio:"\"Chão de Giz\", lançada em 1978 no álbum de estreia de Zé Ramalho, é uma das obras-primas da música popular brasileira. Conhecida por sua melodia marcante e letra altamente poética e enigmática, a canção retrata o término doloroso de um amor proibido e idealizado."},
   {title:"Ovelha negra", sub:"Rita Lee", bio:"\"Ovelha Negra\", lançada em 1975 no álbum Fruto Proibido (com a banda Tutti Frutti), é uma das canções mais emblemáticas de Rita Lee e um verdadeiro hino de libertação e rebeldia do rock brasileiro."},
@@ -416,7 +416,7 @@ const VOTE_CONFIGS = {
     tipo: 'musica',
     title: 'VOTE NA MÚSICA DA SEMANA',
     options: [
-      {id:'garota', name:'Garota', sub:'Froid', img:''},
+      {id:'garota', name:'Lamentável, Pt. III', sub:'Froid, Cynthia Luz', img:''},
       {id:'massa', name:'MASSA', sub:'Tyler, The Creator', img:''},
       {id:'chain', name:'The Chain', sub:'Fleetwood Mac', img:''},
       {id:'giz', name:'Chão de giz', sub:'Zé Ramalho', img:''},
