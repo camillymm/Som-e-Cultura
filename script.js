@@ -306,11 +306,29 @@ navButtons.forEach(btn=>{
   });
 });
 
-// Cards "Sobre Música": cada card abre o seu conteúdo logo abaixo (clicar de novo fecha)
+// Cards "Sobre Música": cada card abre o seu conteúdo (clicar de novo fecha).
+// No celular o conteúdo aparece logo abaixo do card clicado; no computador,
+// abaixo da grade de cards.
 const aboutCards = document.querySelectorAll('.about-card');
+const isMobileView = () => window.matchMedia('(max-width: 768px)').matches;
+
+// Guarda a posição original de cada painel, para devolvê-lo ao fechar
+const paneHome = new Map();
+document.querySelectorAll('.pane').forEach(p=>{
+  const marker = document.createComment('pane-home');
+  p.before(marker);
+  paneHome.set(p, marker);
+});
+function returnPaneHome(p){
+  const marker = paneHome.get(p);
+  if(marker && marker.nextSibling !== p) marker.after(p);
+}
 
 function closeAboutPanes(){
-  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>{
+    p.classList.remove('active');
+    returnPaneHome(p);
+  });
   aboutCards.forEach(c=>c.classList.remove('active'));
 }
 function switchAboutTab(name){
@@ -330,6 +348,7 @@ aboutCards.forEach(card=>{
     }
 
     closeAboutPanes();
+    if(isMobileView()) card.after(paneEl);   // celular: logo abaixo do card
     switchAboutTab(pane);
     card.classList.add('active');
 
@@ -339,7 +358,7 @@ aboutCards.forEach(card=>{
       item.querySelector('.acc-trigger').click();
     }
     requestAnimationFrame(()=>{
-      paneEl.scrollIntoView({behavior:'smooth', block:'start'});
+      (isMobileView() ? card : paneEl).scrollIntoView({behavior:'smooth', block:'start'});
     });
   });
 });
