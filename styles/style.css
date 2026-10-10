@@ -379,13 +379,14 @@
 
   /* ---------- FOOTER ---------- */
   .site-footer{background:var(--navy-950);color:var(--cream);padding:48px 0 30px;margin-top:0;}
-  .footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+  .footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:20px;}
+  .footer-inner .logo{flex-shrink:0;}
   .site-footer .logo-mark{background:var(--cream);}
   .site-footer .logo-mark svg{stroke:var(--navy-950);}
   .site-footer .logo-text b{color:var(--cream);}
   .site-footer .logo-text small{color:#9ea2ba;}
-  .rights{font-size:12px;color:#9ea2ba;}
-  .socials{display:flex;align-items:center;gap:14px;}
+  .rights{font-size:12px;color:#9ea2ba;flex:1;text-align:center;min-width:0;}
+  .socials{display:flex;align-items:center;gap:14px;flex-shrink:0;}
   .socials span{font-size:11px;letter-spacing:.06em;color:#9ea2ba;margin-right:4px;}
   .social-ic{
     width:36px;height:36px;border-radius:50%;border:1px solid #2b3352;
@@ -420,6 +421,12 @@
     .vo-track-wrap{width:70px;}
     .vote-pct{width:28px;}
     .origin-detail{padding:18px;}
+
+    /* Rodapé no celular: ícone à esquerda, direitos no meio, Spotify à direita */
+    .footer-inner{gap:10px;}
+    .rights{font-size:10.5px;line-height:1.4;}
+    .socials{gap:8px;}
+    .socials span{font-size:10px;margin-right:0;}
   }
 
   /* ---------- MODO ESCURO ---------- */
