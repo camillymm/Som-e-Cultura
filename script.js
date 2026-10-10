@@ -492,6 +492,14 @@ async function renderVoteCard(containerId, cfg, votedKey){
   }
 
   updateBars();
+
+  // Atualiza as porcentagens sozinho, para refletir votos de outras pessoas
+  setInterval(async ()=>{
+    if(document.hidden) return;
+    counts = await fetchVoteCounts(cfg);
+    updateBars();
+  }, 10000);
+
   if(voted){
     lockAsVoted();
   } else {
@@ -529,70 +537,6 @@ async function renderVoteCard(containerId, cfg, votedKey){
 
 renderVoteCard('voteArtista', VOTE_CONFIGS.artista, 'user-voted-artista');
 renderVoteCard('voteMusica', VOTE_CONFIGS.musica, 'user-voted-musica');
-
-/* ===================== HALL DA FAMA =====================
-   Observação: o backend Flask atual não tem uma tabela própria para o Hall
-   da Fama nem uma rota para "zerar" os votos. Por isso este histórico fica
-   salvo no localStorage deste navegador (não é compartilhado entre
-   visitantes) e o botão "Encerrar semana" registra o topo atual da API,
-   mas não reseta a contagem de votos no servidor. Se quiser que o Hall da
-   Fama e o reset de votos fiquem no servidor, será preciso criar novas
-   rotas no Flask (ex: uma tabela `hall_da_fama` e um endpoint de reset). */
-const HOF_KEY = 'hall-of-fame-log';
-
-async function renderHallOfFame(){
-  const hofList = document.getElementById('hofList');
-  let log = await storageGet(HOF_KEY);
-  if(!log) log = [];
-  if(!log.length){
-    hofList.innerHTML = '<p class="hof-empty">Nenhuma semana arquivada ainda. Quando a votação da semana terminar, clique em "Encerrar semana" para guardar os vencedores aqui.</p>';
-    return;
-  }
-  hofList.innerHTML = log.slice().reverse().map(w => `
-    <li>
-      <span class="hof-week">${w.week}</span>
-      <span class="hof-names"><b>${w.artist}</b> &middot; ${w.song}</span>
-    </li>`).join('');
-}
-
-function topVoteOption(cfg, counts){
-  let best = null, bestVotes = -1;
-  cfg.options.forEach(o=>{
-    const v = counts[o.id] || 0;
-    if(v > bestVotes){ bestVotes = v; best = o; }
-  });
-  return best;
-}
-
-async function archiveWeek(){
-  const artistCounts = await fetchVoteCounts(VOTE_CONFIGS.artista);
-  const songCounts = await fetchVoteCounts(VOTE_CONFIGS.musica);
-  const topArtist = topVoteOption(VOTE_CONFIGS.artista, artistCounts);
-  const topSong = topVoteOption(VOTE_CONFIGS.musica, songCounts);
-  if(!topArtist || !topSong) return;
-
-  let log = await storageGet(HOF_KEY);
-  if(!log) log = [];
-  const week = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'short', year:'numeric'});
-  log.push({week, artist: topArtist.name, song: topSong.name});
-  await storageSet(HOF_KEY, log);
-
-  // Libera o voto deste navegador para a nova semana (a contagem no
-  // servidor continua acumulada — veja a observação acima).
-  await storageSet('user-voted-artista', null);
-  await storageSet('user-voted-musica', null);
-}
-
-document.getElementById('archiveWeekBtn').addEventListener('click', async ()=>{
-  const ok = confirm('Isso vai arquivar os vencedores atuais no Hall da Fama (salvo neste navegador) e liberar seu voto para a próxima semana. Os votos no servidor não serão zerados. Confirmar?');
-  if(!ok) return;
-  await archiveWeek();
-  await renderHallOfFame();
-  await renderVoteCard('voteArtista', VOTE_CONFIGS.artista, 'user-voted-artista');
-  await renderVoteCard('voteMusica', VOTE_CONFIGS.musica, 'user-voted-musica');
-});
-
-renderHallOfFame();
 
 /* ===================== COMENTÁRIOS (via API do Flask) ===================== */
 const commentList = document.getElementById('commentList');
