@@ -5,6 +5,7 @@ except ModuleNotFoundError as exc:
         "Flask não está instalado. Instale com: pip install flask"
     ) from exc
 
+import hmac
 import os
 import sqlite3
 
@@ -20,8 +21,8 @@ app = Flask(__name__, static_folder=SITE_DIR, static_url_path='')
 @app.after_request
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-Admin-Token'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, DELETE, OPTIONS'
     return response
 
 # ===================== BANCO DE DADOS =====================
@@ -35,6 +36,11 @@ DB_NAME = os.path.join(BASE_DIR, "database.db")
 
 if USE_POSTGRES:
     import psycopg2  # type: ignore[import-not-found]
+
+# Senha de moderação (apagar comentários). Vem de uma variável de ambiente
+# configurada no Render (Environment > ADMIN_TOKEN). NUNCA escreva a senha
+# aqui no código: o repositório do GitHub pode ser público.
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN")
 
 
 def get_conn():
@@ -112,6 +118,27 @@ def add_comentario():
     conn.commit()
     conn.close()
 
+    return jsonify({"success": True})
+
+# Apagar um comentário (só com a senha de moderação no cabeçalho X-Admin-Token)
+@app.route('/api/comentarios/<int:comentario_id>', methods=['DELETE'])
+def apagar_comentario(comentario_id):
+    if not ADMIN_TOKEN:
+        return jsonify({"error": "Moderação desativada"}), 503
+
+    enviado = request.headers.get('X-Admin-Token', '')
+    if not hmac.compare_digest(enviado.encode('utf-8'), ADMIN_TOKEN.encode('utf-8')):
+        return jsonify({"error": "Não autorizado"}), 401
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(q("DELETE FROM comentarios WHERE id = ?"), (comentario_id,))
+    apagados = cursor.rowcount
+    conn.commit()
+    conn.close()
+
+    if apagados == 0:
+        return jsonify({"error": "Comentário não encontrado"}), 404
     return jsonify({"success": True})
 
 # --- Rotas de Votação ---
