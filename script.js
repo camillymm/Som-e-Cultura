@@ -176,15 +176,6 @@ themeToggleBtn.addEventListener('click', async ()=>{
   await storageSet(THEME_KEY, next);
 });
 
-function slug(str){
-  return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-}
-
-function initials(name){
-  return name.split(" ").filter(w=>w.length>1||w===w.toUpperCase()).slice(0,2).map(w=>w[0]).join("").toUpperCase().slice(0,2);
-}
-
 /* ===================== ÍCONES PADRÃO =====================
    Ícones fixos do Font Awesome (grátis): microfone para artistas, nota
    musical para músicas, disco de vinil para álbuns. Troque a classe abaixo
@@ -352,7 +343,7 @@ TOP_MUSICAS.forEach((m,i)=>{
   });
 });
 
-// Render Álbuns (agora dentro da aba "Linha do Tempo")
+// Render Álbuns (dentro da aba "Linha do Tempo")
 // Cada álbum é um link que abre no Spotify (link direto, se preenchido em
 // "spotify", ou a busca do Spotify com título + artista).
 function spotifyAlbumUrl(al){
@@ -409,11 +400,11 @@ document.getElementById('spotifyEmbed').innerHTML =
 })();
 
 // Nav = abas exclusivas: apenas a seção clicada aparece (a tela inicial some das outras abas)
-const navButtons = document.querySelectorAll('.main-nav button, .nav-link');
+const navButtons = document.querySelectorAll('.main-nav button');
 const tabSections = document.querySelectorAll('.tab-section');
 const heroSection = document.getElementById('heroSection');
 const navMap = {};
-document.querySelectorAll('.main-nav button').forEach(b=>navMap[b.dataset.target]=b);
+navButtons.forEach(b=>navMap[b.dataset.target]=b);
 
 function setActiveTab(id){
   fecharPlayerSpotify(); // fecha o player do Spotify ao trocar de aba
@@ -545,7 +536,6 @@ renderTimelineDetail(0);
    e músicas. */
 const VOTE_CONFIGS = {
   artista: {
-    key: 'votes-artista-semana',
     tipo: 'artista',
     title: 'VOTE NO ARTISTA DA SEMANA',
     options: [
@@ -557,7 +547,6 @@ const VOTE_CONFIGS = {
     ],
   },
   musica: {
-    key: 'votes-musica-semana',
     tipo: 'musica',
     title: 'VOTE NA MÚSICA DA SEMANA',
     options: [
@@ -771,15 +760,6 @@ Promise.all([
 
 /* ===================== COMENTÁRIOS (via API do Flask) ===================== */
 const commentList = document.getElementById('commentList');
-
-function formatCommentDate(sqlTimestamp){
-  if(!sqlTimestamp) return '';
-  // O SQLite grava algo como "2026-09-12 14:30:00"; convertemos para exibir
-  // no formato brasileiro.
-  const d = new Date(sqlTimestamp.replace(' ', 'T'));
-  if(isNaN(d.getTime())) return sqlTimestamp;
-  return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
-}
 
 async function loadComments(){
   const comentarios = await apiGet('/comentarios');
