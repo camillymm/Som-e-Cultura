@@ -609,3 +609,119 @@ html[data-theme="dark"] .album-listen{color:#f3f1ea;}
 .avatar .avatar-img{
   width:100%;height:100%;object-fit:cover;display:block;
 }
+/* =========================================================
+   SOM & CULTURA — profissional.css
+   Camada de acabamento: cor de destaque (azul-gelo), hovers,
+   acessibilidade e animações sutis. Carregar DEPOIS de
+   style.css e mobile.css.
+   ========================================================= */
+
+/* ---------- PALETA ---------- */
+:root{
+  --accent:#9DB8E8;            /* destaque (preenchimentos, linhas, brilhos) */
+  --accent-ink:#3D5A94;        /* versão escura, para TEXTO sobre fundo claro */
+  --accent-soft:rgba(157,184,232,.16);
+  --steel:#3A4568;             /* azul acinzentado: bordas e apoio */
+  --gray-500:#6f6c5e;          /* mais escuro que o original: melhor contraste no creme */
+}
+html[data-theme="dark"]{
+  --accent-ink:#9DB8E8;        /* no escuro, o próprio azul-gelo tem bom contraste */
+}
+::selection{background:var(--accent);color:var(--navy-950);}
+
+/* ---------- ACESSIBILIDADE: foco visível ao navegar com Tab ---------- */
+:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+  border-radius:4px;
+}
+
+/* ---------- LOGO ---------- */
+.logo-mark svg{stroke:var(--accent);}
+
+/* ---------- MENU E LINHA DO TEMPO: traço de destaque no item ativo ---------- */
+.main-nav button,
+.timeline-dot-btn{position:relative;}
+.main-nav button.active::after,
+.timeline-dot-btn.active::after{
+  content:'';position:absolute;left:30%;right:30%;bottom:4px;
+  height:2px;border-radius:2px;background:var(--accent);
+}
+html[data-theme="dark"] .main-nav button.active::after,
+html[data-theme="dark"] .timeline-dot-btn.active::after{background:#3D5A94;}
+
+/* ---------- TÍTULOS DE SEÇÃO ---------- */
+.section-head .eyebrow::before{
+  content:'';display:inline-block;width:22px;height:2px;
+  background:var(--accent);vertical-align:middle;margin-right:10px;
+}
+
+/* ---------- HERO: brilho atrás do disco e leve flutuação ---------- */
+.hero-art::before{
+  content:'';position:absolute;width:70%;aspect-ratio:1/1;border-radius:50%;
+  background:radial-gradient(circle, rgba(157,184,232,.22), transparent 65%);
+  filter:blur(10px);z-index:1;
+}
+.turntable{animation:flutuar 7s ease-in-out infinite;}
+@keyframes flutuar{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-6px);}
+}
+
+/* ---------- CARDS "SOBRE MÚSICA" ---------- */
+.about-card:hover .tag{color:var(--accent);}
+html .about-card.active{outline-color:var(--accent);}
+
+/* ---------- EFEMÉRIDE ---------- */
+.efemeride-band{border-left:3px solid var(--accent);}
+
+/* ---------- ÁLBUNS: hover mais marcante ---------- */
+a.album-card .album-cover{transition:box-shadow .2s;}
+a.album-card:hover .album-cover{box-shadow:0 14px 34px rgba(6,9,16,.35);}
+.album-card h4{transition:color .15s;}
+a.album-card:hover h4{color:var(--accent-ink);}
+
+/* ---------- RANKINGS ---------- */
+.rank-name{transition:color .15s;}
+.rank-row:hover .rank-name{color:var(--accent-ink);}
+.play-btn:hover:not(:disabled){background:var(--accent);color:var(--navy-950);}
+.play-btn.playing{outline-color:var(--accent);}
+
+/* ---------- VOTAÇÃO: líder em destaque ---------- */
+.vote-option.lider .vote-bar-fill{background:var(--accent);}
+.vote-option.lider .vote-pct{color:var(--accent-ink);}
+html[data-theme] .vote-option.selected .vote-radio{border-color:var(--accent);}
+html[data-theme] .vote-option.selected .vote-radio::after{background:var(--accent);}
+.vote-btn:hover:not(:disabled){background:var(--accent);color:var(--navy-950);}
+
+/* ---------- BOTÕES ---------- */
+.btn{transition:transform .15s, background .15s, color .15s;}
+.btn:hover{background:var(--accent);color:var(--navy-950);}
+/* no modo escuro o botão original ficava quase invisível */
+html[data-theme="dark"] .btn{background:var(--accent);color:#060910;}
+html[data-theme="dark"] .btn:hover{background:#f3f1ea;}
+html[data-theme="dark"] .btn.ghost{background:transparent;color:#f3f1ea;}
+
+/* ---------- RODAPÉ ---------- */
+.social-ic:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ---------- ENTRADA SUAVE AO TROCAR DE ABA ---------- */
+.tab-section.tab-open{animation:entrar .45s ease both;}
+@keyframes entrar{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:none;}
+}
+
+/* ---------- MAIS "AR" ENTRE AS SEÇÕES (só em telas grandes) ---------- */
+@media (min-width:1101px){
+  .section{padding:104px 0;}
+  .section-head{margin-bottom:44px;}
+  .section-head h2{font-size:32px;}
+}
+
+/* ---------- RESPEITA QUEM DESATIVA ANIMAÇÕES NO SISTEMA ---------- */
+@media (prefers-reduced-motion:reduce){
+  .tab-section.tab-open,
+  .turntable{animation:none !important;}
+  *{scroll-behavior:auto !important;transition-duration:.01ms !important;}
+}
