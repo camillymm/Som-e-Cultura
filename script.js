@@ -253,9 +253,24 @@ function resetarBotaoPlay(btn){
   btn.querySelector('i').className = 'fa-solid fa-play';
 }
 
+/* O player do Spotify toca a música INTEIRA para quem está logado no Spotify
+   (e só 30 segundos para quem não está). Para o site mostrar sempre só uma
+   prévia, usamos a API de iframe do Spotify e pausamos aos 30 segundos.
+   Para mudar o tamanho da prévia, altere LIMITE_PREVIA_SEG. */
+const LIMITE_PREVIA_SEG = 30;
+const spotifyApiPronta = new Promise(resolve=>{
+  window.onSpotifyIframeApiReady = api => resolve(api);
+  const tag = document.createElement('script');
+  tag.src = 'https://open.spotify.com/embed/iframe-api/v1';
+  tag.async = true;
+  tag.onerror = () => resolve(null);   // se não carregar, usa o player simples
+  document.head.appendChild(tag);
+});
+
 let playerAberto = null;
 function fecharPlayerSpotify(){
   if(!playerAberto) return;
+  if(playerAberto.controller){ try{ playerAberto.controller.destroy(); }catch(e){} }
   playerAberto.box.classList.remove('open');
   playerAberto.box.innerHTML = ''; // remove o iframe, o que também para a música
   resetarBotaoPlay(playerAberto.btn);
@@ -299,13 +314,41 @@ TOP_MUSICAS.forEach((m,i)=>{
     // Com link: abre/fecha o player do Spotify embaixo da música
     if(playerAberto && playerAberto.btn === btn){ fecharPlayerSpotify(); return; }
     fecharPlayerSpotify();
-    box.innerHTML = `<iframe src="https://open.spotify.com/embed/track/${idSpotify}?utm_source=generator"
-      width="100%" height="80" frameborder="0" title="Spotify: ${m.title}"
-      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+    box.innerHTML = '<div></div>';
     box.classList.add('open');
     btn.classList.add('playing');
     btn.querySelector('i').className = 'fa-solid fa-xmark';
-    playerAberto = {btn, box};
+    const atual = {btn, box, controller:null};
+    playerAberto = atual;
+
+    spotifyApiPronta.then(api=>{
+      if(playerAberto !== atual) return;   // foi fechado enquanto carregava
+
+      // Sem a API (bloqueada/offline): player simples, sem corte aos 30s
+      if(!api){
+        box.innerHTML = `<iframe src="https://open.spotify.com/embed/track/${idSpotify}?utm_source=generator"
+          width="100%" height="80" frameborder="0" title="Spotify: ${m.title}"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+        return;
+      }
+
+      api.createController(box.firstElementChild,
+        {uri:`spotify:track:${idSpotify}`, width:'100%', height:80},
+        controller=>{
+          if(playerAberto !== atual){ try{ controller.destroy(); }catch(e){} return; }
+          atual.controller = controller;
+          let cortando = false;
+          controller.addListener('playback_update', e=>{
+            if(cortando || !e.data) return;
+            if(e.data.position >= LIMITE_PREVIA_SEG * 1000){   // position vem em milissegundos
+              cortando = true;
+              controller.pause();
+              controller.seek(0);
+              setTimeout(()=>{ cortando = false; }, 1500);
+            }
+          });
+        });
+    });
   });
 });
 
