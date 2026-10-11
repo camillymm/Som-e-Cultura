@@ -60,11 +60,11 @@ const TOP_ARTISTAS = [
    Copiar link do artista). Com o link preenchido, o site busca a foto do
    artista no Spotify sozinho. Vazio = continua o ícone de microfone. */
 const ARTISTAS_SPOTIFY = {
-  "Froid": "https://open.spotify.com/intl-pt/artist/45Yz90pqjzEdJzpEQg1eIl",
+  "Froid": "https://open.spotify.com/intl-pt/artist/45Yz90pqjzEdJzpEQg1eII",
   "Tyler, The Creator": "https://open.spotify.com/intl-pt/artist/4V8LLVI7PbaPR0K2TGSxFF",
   "Fleetwood Mac": "https://open.spotify.com/intl-pt/artist/08GQAI4eElDnROBrJRGE0X",
   "Alceu Valença": "https://open.spotify.com/intl-pt/artist/559vxOLTzlAv0zB77JMcdG",
-  "Rita Lee": "https://open.spotify.com/intl-pt/artist/7dnT2FUXhjirperXaH22lJ",
+  "Rita Lee": "https://open.spotify.com/intl-pt/artist/7dnT2FUXhjirperXaH22IJ",
 };
 const TOP_MUSICAS = [
   {title:"Lamentável, Pt. III", sub:"Froid, Cynthia Luz", spotify:"https://open.spotify.com/intl-pt/track/46h2Z0b21xC1gzluNeCiVG", bio:"\"Lamentável, Pt. III\" é uma das faixas mais marcantes do rapper Froid em parceria com Cynthia Luz, lançada em 2017 e integrante do aclamado álbum solo de estreia do artista, O Pior Disco do Ano."},
