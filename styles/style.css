@@ -536,17 +536,17 @@ html[data-theme="dark"]{
 .turntable:focus-visible{outline-offset:6px;border-radius:50%;}
 .turntable .disco{
   transform-box:fill-box;transform-origin:center;
-  animation:girar 3.2s linear infinite;
-  animation-play-state:paused;      /* parado até o clique */
+  animation:flutuar 7s ease-in-out infinite;
+  overflow:visible;
+  will-change:transform;
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
 }
-.turntable.girando .disco{animation-play-state:running;}
-.turntable .braco{
-  transform-box:view-box;transform-origin:178px 42px;   /* gira em torno do pino do braço */
-  transition:transform .7s ease;
+@keyframes flutuar{
+  0%,100%{transform:translate3d(0,0,0);}
+  50%{transform:translate3d(0,-6px,0);}
 }
-.turntable.girando .braco{transform:rotate(10deg);}
-@keyframes girar{to{transform:rotate(360deg);}}
-
+.hero-art{isolation:isolate;}
 /* ---------- CARDS "SOBRE MÚSICA" ---------- */
 .about-card:hover .tag{color:var(--accent);}
 html .about-card.active{outline-color:var(--accent);}
