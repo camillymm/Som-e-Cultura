@@ -201,7 +201,7 @@ function avatarHtml(name, img, iconClass){
 function albumCoverHtml(al){
   const imgTag = al.img ? `<img class="avatar-img" src="${al.img}" alt="Capa de ${al.title}" loading="lazy">` : '';
   const iconTag = al.img ? '' : `<i class="fa-solid ${ALBUM_ICON} album-icon"></i>`;
-  return `<div class="album-cover" style="background:${al.grad}">${imgTag}${iconTag}<span class="mono">${al.title}</span></div>`;
+  return `<div class="album-cover" style="background:${al.grad}">${imgTag}${iconTag}${al.img ? '' : `<span class="mono">${al.title}</span>`}</div>`;
 }
 
 // Acordeão genérico para as listas de artistas/músicas da semana (clique = mostra bio)
@@ -663,7 +663,15 @@ function trocarCapaAlbum(coverEl, src, alt){
   if(!coverEl || !src) return;
   const icone = coverEl.querySelector('.album-icon');
   if(icone) icone.remove();
-  coverEl.insertAdjacentHTML('afterbegin', `<img class="avatar-img" src="${src}" alt="${alt}" loading="lazy">`);
+  const titulo = coverEl.querySelector('.mono'); // texto do título em volta da capa
+  if(titulo) titulo.remove();
+  // a capa passa a preencher o quadrado inteiro, sem margem
+  coverEl.classList.add('tem-capa');
+  coverEl.style.position = 'relative';
+  coverEl.style.padding = '0';
+  coverEl.style.overflow = 'hidden';
+  coverEl.insertAdjacentHTML('afterbegin',
+    `<img src="${src}" alt="${alt}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;">`);
 }
 
 const imagensPorNome = {}; // "artista:Nome" / "musica:Título" -> URL da imagem

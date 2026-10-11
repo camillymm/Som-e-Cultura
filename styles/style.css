@@ -596,3 +596,16 @@ html[data-theme="dark"] .origin-detail{background:#141b30;border-color:#232c47;}
 html[data-theme="dark"] .play-btn{background:#f3f1ea;color:#0b0f1c;}
 html[data-theme="dark"] .preview-note{color:#8489a4;}
 html[data-theme="dark"] .album-listen{color:#f3f1ea;}
+/* ---------- CAPAS E FOTOS DO SPOTIFY ---------- */
+/* Capa de álbum: preenche o quadrado todo, sem degradê por cima */
+.album-cover.tem-capa{padding:0;}
+.album-cover.tem-capa::after{display:none;}
+.album-cover .avatar-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;
+}
+
+/* Foto de artista/música nos círculos: preenche o círculo */
+.avatar .avatar-img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
