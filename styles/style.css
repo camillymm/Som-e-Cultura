@@ -502,14 +502,13 @@ html[data-theme="dark"] .album-listen{color:#f3f1ea;}
 
 /* ---------- PALETA ---------- */
 :root{
+  --accent:#9DB8E8;            /* destaque (preenchimentos, linhas, brilhos) */
   --accent-ink:#3D5A94;        /* versão escura, para TEXTO sobre fundo claro */
-  --gray-500:#6f6c5e;          /* mais escuro que o original: melhor contraste no creme */
+  --gray-500:#6f6c5e;
 }
 html[data-theme="dark"]{
-  --accent-ink:#7194bd;        
+  --accent-ink:#9DB8E8;        /* mesmo azul do botão, para o hover bater */
 }
-::selection{background:var(--accent);color:var(--navy-950);}
-
 /* ---------- ACESSIBILIDADE: foco visível ao navegar com Tab ---------- */
 :focus-visible{
   outline:2px solid var(--accent);
