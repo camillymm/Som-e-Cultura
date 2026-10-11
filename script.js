@@ -39,6 +39,10 @@ async function apiPost(path, body){
    O campo "bio" aparece quando o visitante clica no artista/música — troque
    o texto toda semana junto com o resto dos dados.
 
+   PRÉVIA DE ÁUDIO (só nas músicas): o site procura sozinho um trecho de 30
+   segundos de cada música pelo título + artista. Se a busca errar a música
+   ou não achar, cole o link de um trecho .m4a/.mp3 no campo "preview".
+
    ATENÇÃO com aspas: o texto da bio fica entre aspas duplas ("..."). Se
    você quiser usar aspas DENTRO do texto (ex: o nome de uma música), escreva
    \" no lugar de ", assim: bio:"A música \"Garota\" é ..." — sem isso o
@@ -51,25 +55,28 @@ const TOP_ARTISTAS = [
   {name:"Rita Lee", sub:"Rock / MPB", bio:"Rita Lee Jones nasceu em São Paulo em 1947 e começou nos anos 1960 no grupo Os Mutantes, um dos pilares da Tropicália. Depois formou a banda Tutti Frutti e seguiu em carreira solo, misturando rock, pop e humor irreverente. Clássicos como \"Ovelha Negra\", \"Mania de Você\" e \"Lança Perfume\" a consagraram como a rainha do rock brasileiro."},
 ];
 const TOP_MUSICAS = [
-  {title:"Lamentável, Pt. III", sub:"Froid, Cynthia Luz", bio:"\"Lamentável, Pt. III\" é uma das faixas mais marcantes do rapper Froid em parceria com Cynthia Luz, lançada em 2017 e integrante do aclamado álbum solo de estreia do artista, O Pior Disco do Ano."},
-  {title:"MASSA", sub:"Tyler, The Creator", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
-  {title:"The Chain", sub:"Fleetwood Mac", bio:"\"The Chain\", lançada em 1977 no aclamado álbum Rumours, é uma das faixas mais icônicas, intensas e emblemáticas do Fleetwood Mac. A música tornou-se um símbolo da própria existência do grupo: uma promessa de união inquebrável mantida no meio do caos pessoal e afetivo."},
-  {title:"Chão de giz", sub:"Zé Ramalho", bio:"\"Chão de Giz\", lançada em 1978 no álbum de estreia de Zé Ramalho, é uma das obras-primas da música popular brasileira. Conhecida por sua melodia marcante e letra altamente poética e enigmática, a canção retrata o término doloroso de um amor proibido e idealizado."},
-  {title:"Ovelha negra", sub:"Rita Lee", bio:"\"Ovelha Negra\", lançada em 1975 no álbum Fruto Proibido (com a banda Tutti Frutti), é uma das canções mais emblemáticas de Rita Lee e um verdadeiro hino de libertação e rebeldia do rock brasileiro."},
+  {title:"Lamentável, Pt. III", sub:"Froid, Cynthia Luz", preview:"", bio:"\"Lamentável, Pt. III\" é uma das faixas mais marcantes do rapper Froid em parceria com Cynthia Luz, lançada em 2017 e integrante do aclamado álbum solo de estreia do artista, O Pior Disco do Ano."},
+  {title:"MASSA", sub:"Tyler, The Creator", preview:"", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
+  {title:"The Chain", sub:"Fleetwood Mac", preview:"", bio:"\"The Chain\", lançada em 1977 no aclamado álbum Rumours, é uma das faixas mais icônicas, intensas e emblemáticas do Fleetwood Mac. A música tornou-se um símbolo da própria existência do grupo: uma promessa de união inquebrável mantida no meio do caos pessoal e afetivo."},
+  {title:"Chão de giz", sub:"Zé Ramalho", preview:"", bio:"\"Chão de Giz\", lançada em 1978 no álbum de estreia de Zé Ramalho, é uma das obras-primas da música popular brasileira. Conhecida por sua melodia marcante e letra altamente poética e enigmática, a canção retrata o término doloroso de um amor proibido e idealizado."},
+  {title:"Ovelha negra", sub:"Rita Lee", preview:"", bio:"\"Ovelha Negra\", lançada em 1975 no álbum Fruto Proibido (com a banda Tutti Frutti), é uma das canções mais emblemáticas de Rita Lee e um verdadeiro hino de libertação e rebeldia do rock brasileiro."},
 ];
 /* "genre" é usado nos filtros da seção Álbuns Importantes — use o mesmo nome de
-   gênero em vários álbuns para que eles caiam no mesmo filtro. */
+   gênero em vários álbuns para que eles caiam no mesmo filtro.
+   "spotify": link direto do álbum (no Spotify: ... > Compartilhar > Copiar link
+   do álbum). Se deixar vazio (""), o clique abre a busca do Spotify com o
+   nome do álbum e do artista. */
 const ALBUNS = [
-  {title:"Abbey Road", artist:"The Beatles", year:"1969", genre:"Rock", why:"Último álbum gravado pela banda; consagrou o medley do lado B.", grad:"linear-gradient(135deg,#1c2440,#0b0f1c)", img:""},
-  {title:"The Dark Side of the Moon", artist:"Pink Floyd", year:"1973", genre:"Rock", why:"741 semanas nas paradas americanas — um recorde.", grad:"linear-gradient(135deg,#232c47,#12141c)", img:""},
-  {title:"Clube da Esquina", artist:"Milton Nascimento & Lô Borges", year:"1972", genre:"MPB", why:"Marco da MPB mineira e da fusão entre pop e erudito.", grad:"linear-gradient(135deg,#141b30,#060910)", img:""},
-  {title:"What's Going On", artist:"Marvin Gaye", year:"1971", genre:"Soul", why:"Soul engajado que redefiniu o que um álbum podia dizer.", grad:"linear-gradient(135deg,#1c2440,#232c47)", img:""},
-  {title:"Thriller", artist:"Michael Jackson", year:"1982", genre:"Pop", why:"O álbum mais vendido da história, com 7 hits no top 10.", grad:"linear-gradient(135deg,#0b0f1c,#1c2440)", img:""},
-  {title:"Dois", artist:"Legião Urbana", year:"1986", genre:"Rock", why:"Retrato definitivo do rock brasileiro dos anos 80.", grad:"linear-gradient(135deg,#12141c,#232c47)", img:""},
-  {title:"Sobrevivendo no Inferno", artist:"Racionais MC's", year:"1997", genre:"Rap", why:"Marco absoluto do rap nacional e da crítica social.", grad:"linear-gradient(135deg,#060910,#141b30)", img:""},
-  {title:"To Pimp a Butterfly", artist:"Kendrick Lamar", year:"2015", genre:"Rap", why:"Fusão de jazz, funk e rap que redefiniu o hip-hop moderno.", grad:"linear-gradient(135deg,#232c47,#0b0f1c)", img:""},
-  {title:"Elis & Tom", artist:"Elis Regina & Tom Jobim", year:"1974", genre:"MPB", why:"Encontro histórico entre duas vozes centrais da MPB.", grad:"linear-gradient(135deg,#141b30,#1c2440)", img:""},
-  {title:"Nevermind", artist:"Nirvana", year:"1991", genre:"Rock", why:"Levou o grunge ao mainstream e mudou o rock dos anos 90.", grad:"linear-gradient(135deg,#0b0f1c,#232c47)", img:""},
+  {title:"Abbey Road", artist:"The Beatles", year:"1969", genre:"Rock", why:"Último álbum gravado pela banda; consagrou o medley do lado B.", grad:"linear-gradient(135deg,#1c2440,#0b0f1c)", img:"", spotify:""},
+  {title:"The Dark Side of the Moon", artist:"Pink Floyd", year:"1973", genre:"Rock", why:"741 semanas nas paradas americanas — um recorde.", grad:"linear-gradient(135deg,#232c47,#12141c)", img:"", spotify:""},
+  {title:"Clube da Esquina", artist:"Milton Nascimento & Lô Borges", year:"1972", genre:"MPB", why:"Marco da MPB mineira e da fusão entre pop e erudito.", grad:"linear-gradient(135deg,#141b30,#060910)", img:"", spotify:""},
+  {title:"What's Going On", artist:"Marvin Gaye", year:"1971", genre:"Soul", why:"Soul engajado que redefiniu o que um álbum podia dizer.", grad:"linear-gradient(135deg,#1c2440,#232c47)", img:"", spotify:""},
+  {title:"Thriller", artist:"Michael Jackson", year:"1982", genre:"Pop", why:"O álbum mais vendido da história, com 7 hits no top 10.", grad:"linear-gradient(135deg,#0b0f1c,#1c2440)", img:"", spotify:""},
+  {title:"Dois", artist:"Legião Urbana", year:"1986", genre:"Rock", why:"Retrato definitivo do rock brasileiro dos anos 80.", grad:"linear-gradient(135deg,#12141c,#232c47)", img:"", spotify:""},
+  {title:"Sobrevivendo no Inferno", artist:"Racionais MC's", year:"1997", genre:"Rap", why:"Marco absoluto do rap nacional e da crítica social.", grad:"linear-gradient(135deg,#060910,#141b30)", img:"", spotify:""},
+  {title:"To Pimp a Butterfly", artist:"Kendrick Lamar", year:"2015", genre:"Rap", why:"Fusão de jazz, funk e rap que redefiniu o hip-hop moderno.", grad:"linear-gradient(135deg,#232c47,#0b0f1c)", img:"", spotify:""},
+  {title:"Elis & Tom", artist:"Elis Regina & Tom Jobim", year:"1974", genre:"MPB", why:"Encontro histórico entre duas vozes centrais da MPB.", grad:"linear-gradient(135deg,#141b30,#1c2440)", img:"", spotify:""},
+  {title:"Nevermind", artist:"Nirvana", year:"1991", genre:"Rock", why:"Levou o grunge ao mainstream e mudou o rock dos anos 90.", grad:"linear-gradient(135deg,#0b0f1c,#232c47)", img:"", spotify:""},
 ];
 
 /* Player da semana: abra a playlist no app do Spotify > Compartilhar >
@@ -219,32 +226,120 @@ TOP_ARTISTAS.forEach((a,i)=>{
 });
 initRankAccordion(artistList);
 
-// Render Top Músicas (com bio expansível)
+/* ===================== PRÉVIAS DE ÁUDIO (Top músicas) =====================
+   Cada música ganha um botão de play que toca um trecho de 30 segundos.
+   Os trechos vêm da busca pública do iTunes/Apple Music (grátis, sem chave),
+   procurada pelo título + artista. Só uma prévia toca por vez. */
+const audioPreview = new Audio();
+audioPreview.preload = 'none';
+let botaoTocando = null;
+
+function normalizar(s){
+  return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+}
+
+async function buscarPrevia(musica){
+  if(musica.preview) return musica.preview;
+  try{
+    const artista = musica.sub.split(',')[0].trim();
+    const termo = encodeURIComponent(`${musica.title} ${artista}`);
+    const res = await fetch(`https://itunes.apple.com/search?term=${termo}&media=music&entity=song&limit=10&country=BR`);
+    if(!res.ok) throw new Error('Resposta não OK: ' + res.status);
+    const data = await res.json();
+    const alvo = normalizar(musica.title);
+    const art = normalizar(artista);
+    const achados = (data.results || []).filter(r => r.previewUrl);
+    const melhor =
+      achados.find(r => normalizar(r.trackName).includes(alvo) && normalizar(r.artistName).includes(art)) ||
+      achados.find(r => normalizar(r.trackName).includes(alvo.slice(0, 6)) && normalizar(r.artistName).includes(art));
+    return melhor ? melhor.previewUrl : null;
+  }catch(e){
+    console.error('Erro ao buscar prévia de áudio:', e);
+    return null;
+  }
+}
+
+function resetarBotaoPlay(btn){
+  if(!btn) return;
+  btn.classList.remove('playing');
+  btn.querySelector('i').className = 'fa-solid fa-play';
+}
+function pararPrevia(){
+  audioPreview.pause();
+  resetarBotaoPlay(botaoTocando);
+  botaoTocando = null;
+}
+audioPreview.addEventListener('ended', pararPrevia);
+
+// Render Top Músicas (com bio expansível e botão de prévia)
 const songList = document.getElementById('songList');
-TOP_MUSICAS.forEach(m=>{
+TOP_MUSICAS.forEach((m,i)=>{
   songList.insertAdjacentHTML('beforeend', `
     <div class="rank-item">
       <div class="rank-row">
         ${avatarHtml(m.sub, m.img, SONG_ICON)}
         <div><div class="rank-name">${m.title}</div><div class="rank-sub">${m.sub}</div></div>
+        <button type="button" class="play-btn" id="play-${i}" disabled aria-label="Carregando prévia de ${m.title}" title="Carregando prévia...">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+        </button>
         <span class="rank-chevron"></span>
       </div>
       <div class="rank-bio-panel"><div class="rank-bio-inner">${m.bio}</div></div>
     </div>`);
 });
 initRankAccordion(songList);
+songList.insertAdjacentHTML('afterend', '<p class="preview-note">Prévias de 30 segundos via Apple Music (iTunes).</p>');
+
+// Procura a prévia de cada música ao abrir o site, assim o clique no play
+// toca na hora (necessário para funcionar no iPhone).
+TOP_MUSICAS.forEach(async (m,i)=>{
+  const btn = document.getElementById(`play-${i}`);
+  const url = await buscarPrevia(m);
+  if(!url){
+    btn.querySelector('i').className = 'fa-solid fa-ban';
+    btn.title = 'Prévia indisponível';
+    btn.setAttribute('aria-label', `Prévia indisponível para ${m.title}`);
+    return;
+  }
+  btn.dataset.url = url;
+  btn.disabled = false;
+  btn.querySelector('i').className = 'fa-solid fa-play';
+  btn.title = 'Ouvir trecho';
+  btn.setAttribute('aria-label', `Ouvir trecho de ${m.title}`);
+
+  btn.addEventListener('click', e=>{
+    e.stopPropagation(); // não abre/fecha a bio ao clicar no play
+    if(botaoTocando === btn){ pararPrevia(); return; }
+    pararPrevia();
+    botaoTocando = btn;
+    audioPreview.src = btn.dataset.url;
+    const promessa = audioPreview.play();
+    btn.classList.add('playing');
+    btn.querySelector('i').className = 'fa-solid fa-pause';
+    if(promessa && promessa.catch){
+      promessa.catch(()=>{ pararPrevia(); });
+    }
+  });
+});
 
 // Render Álbuns (agora dentro da aba "Linha do Tempo")
+// Cada álbum é um link que abre no Spotify (link direto, se preenchido em
+// "spotify", ou a busca do Spotify com título + artista).
+function spotifyAlbumUrl(al){
+  if(al.spotify) return al.spotify;
+  return `https://open.spotify.com/search/${encodeURIComponent(al.title + ' ' + al.artist)}/albums`;
+}
 const albumGrid = document.getElementById('albumGrid');
 ALBUNS.forEach(al=>{
   albumGrid.insertAdjacentHTML('beforeend', `
-    <div class="album-card">
+    <a class="album-card" href="${spotifyAlbumUrl(al)}" target="_blank" rel="noopener" aria-label="Ouvir ${al.title}, de ${al.artist}, no Spotify">
       ${albumCoverHtml(al)}
       <h4>${al.title}</h4>
       <div class="artist">${al.artist}</div>
       <div class="yr">${al.year}</div>
       <div class="why">${al.why}</div>
-    </div>`);
+      <span class="album-listen"><i class="fa-brands fa-spotify"></i> Ouvir no Spotify</span>
+    </a>`);
 });
 
 // Render Glossário (dentro da aba "Sobre Música")
@@ -291,6 +386,7 @@ const navMap = {};
 document.querySelectorAll('.main-nav button').forEach(b=>navMap[b.dataset.target]=b);
 
 function setActiveTab(id){
+  pararPrevia(); // para a prévia de áudio ao trocar de aba
   tabSections.forEach(s=>s.classList.toggle('tab-open', s.id===id));
   Object.values(navMap).forEach(b=>b.classList.toggle('active', b.dataset.target===id));
   if(heroSection) heroSection.style.display = (id==='sobre') ? '' : 'none';
