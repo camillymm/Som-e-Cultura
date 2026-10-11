@@ -569,8 +569,11 @@ async function renderVoteCard(containerId, cfg, votedKey){
 
   function updateBars(){
     const total = cfg.options.reduce((s,o)=>s+(counts[o.id]||0),0);
+    const maior = Math.max(...cfg.options.map(o=>counts[o.id]||0));
     cfg.options.forEach(o=>{
       const pct = total ? Math.round((counts[o.id]/total)*100) : 0;
+      const el = container.querySelector(`.vote-option[data-id="${o.id}"]`);
+      if(el) el.classList.toggle('lider', total > 0 && (counts[o.id]||0) === maior);
       document.getElementById(`${containerId}-fill-${o.id}`).style.width = pct+'%';
       document.getElementById(`${containerId}-pct-${o.id}`).textContent = pct+'%';
     });
