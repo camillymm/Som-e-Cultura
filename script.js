@@ -39,9 +39,12 @@ async function apiPost(path, body){
    O campo "bio" aparece quando o visitante clica no artista/música — troque
    o texto toda semana junto com o resto dos dados.
 
-   PRÉVIA DE ÁUDIO (só nas músicas): o site procura sozinho um trecho de 30
-   segundos de cada música pelo título + artista. Se a busca errar a música
-   ou não achar, cole o link de um trecho .m4a/.mp3 no campo "preview".
+   PRÉVIA DE ÁUDIO (só nas músicas): preencha "spotify" com o link da música
+   no Spotify (Compartilhar > Copiar link da música). O botão ▶ abre o player
+   do Spotify: quem não está logado ouve um trecho de 30 segundos, e quem está
+   logado no Spotify ouve a música inteira. Se deixar "spotify" vazio, o site
+   usa um trecho de 30 segundos do Apple Music (iTunes) e, se a busca errar a
+   música, você pode colar um link .m4a/.mp3 no campo "preview".
 
    ATENÇÃO com aspas: o texto da bio fica entre aspas duplas ("..."). Se
    você quiser usar aspas DENTRO do texto (ex: o nome de uma música), escreva
@@ -55,11 +58,11 @@ const TOP_ARTISTAS = [
   {name:"Rita Lee", sub:"Rock / MPB", bio:"Rita Lee Jones nasceu em São Paulo em 1947 e começou nos anos 1960 no grupo Os Mutantes, um dos pilares da Tropicália. Depois formou a banda Tutti Frutti e seguiu em carreira solo, misturando rock, pop e humor irreverente. Clássicos como \"Ovelha Negra\", \"Mania de Você\" e \"Lança Perfume\" a consagraram como a rainha do rock brasileiro."},
 ];
 const TOP_MUSICAS = [
-  {title:"Lamentável, Pt. III", sub:"Froid, Cynthia Luz", preview:"", bio:"\"Lamentável, Pt. III\" é uma das faixas mais marcantes do rapper Froid em parceria com Cynthia Luz, lançada em 2017 e integrante do aclamado álbum solo de estreia do artista, O Pior Disco do Ano."},
-  {title:"MASSA", sub:"Tyler, The Creator", preview:"", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
-  {title:"The Chain", sub:"Fleetwood Mac", preview:"", bio:"\"The Chain\", lançada em 1977 no aclamado álbum Rumours, é uma das faixas mais icônicas, intensas e emblemáticas do Fleetwood Mac. A música tornou-se um símbolo da própria existência do grupo: uma promessa de união inquebrável mantida no meio do caos pessoal e afetivo."},
-  {title:"Chão de giz", sub:"Zé Ramalho", preview:"", bio:"\"Chão de Giz\", lançada em 1978 no álbum de estreia de Zé Ramalho, é uma das obras-primas da música popular brasileira. Conhecida por sua melodia marcante e letra altamente poética e enigmática, a canção retrata o término doloroso de um amor proibido e idealizado."},
-  {title:"Ovelha negra", sub:"Rita Lee", preview:"", bio:"\"Ovelha Negra\", lançada em 1975 no álbum Fruto Proibido (com a banda Tutti Frutti), é uma das canções mais emblemáticas de Rita Lee e um verdadeiro hino de libertação e rebeldia do rock brasileiro."},
+  {title:"Lamentável, Pt. III", sub:"Froid, Cynthia Luz", preview:"", spotify:"", bio:"\"Lamentável, Pt. III\" é uma das faixas mais marcantes do rapper Froid em parceria com Cynthia Luz, lançada em 2017 e integrante do aclamado álbum solo de estreia do artista, O Pior Disco do Ano."},
+  {title:"MASSA", sub:"Tyler, The Creator", preview:"", spotify:"", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
+  {title:"The Chain", sub:"Fleetwood Mac", preview:"", spotify:"", bio:"\"The Chain\", lançada em 1977 no aclamado álbum Rumours, é uma das faixas mais icônicas, intensas e emblemáticas do Fleetwood Mac. A música tornou-se um símbolo da própria existência do grupo: uma promessa de união inquebrável mantida no meio do caos pessoal e afetivo."},
+  {title:"Chão de giz", sub:"Zé Ramalho", preview:"", spotify:"", bio:"\"Chão de Giz\", lançada em 1978 no álbum de estreia de Zé Ramalho, é uma das obras-primas da música popular brasileira. Conhecida por sua melodia marcante e letra altamente poética e enigmática, a canção retrata o término doloroso de um amor proibido e idealizado."},
+  {title:"Ovelha negra", sub:"Rita Lee", preview:"", spotify:"", bio:"\"Ovelha Negra\", lançada em 1975 no álbum Fruto Proibido (com a banda Tutti Frutti), é uma das canções mais emblemáticas de Rita Lee e um verdadeiro hino de libertação e rebeldia do rock brasileiro."},
 ];
 /* "genre" é usado nos filtros da seção Álbuns Importantes — use o mesmo nome de
    gênero em vários álbuns para que eles caiam no mesmo filtro.
@@ -271,6 +274,22 @@ function pararPrevia(){
 }
 audioPreview.addEventListener('ended', pararPrevia);
 
+// Extrai o ID da música a partir do link do Spotify (open.spotify.com/track/ID?...)
+function spotifyTrackId(musica){
+  const achado = (musica.spotify || '').match(/track\/([A-Za-z0-9]+)/);
+  return achado ? achado[1] : null;
+}
+
+// Player do Spotify aberto no momento (só um por vez)
+let playerAberto = null;
+function fecharPlayerSpotify(){
+  if(!playerAberto) return;
+  playerAberto.box.classList.remove('open');
+  playerAberto.box.innerHTML = ''; // remove o iframe, o que também para a música
+  resetarBotaoPlay(playerAberto.btn);
+  playerAberto = null;
+}
+
 // Render Top Músicas (com bio expansível e botão de prévia)
 const songList = document.getElementById('songList');
 TOP_MUSICAS.forEach((m,i)=>{
@@ -284,16 +303,46 @@ TOP_MUSICAS.forEach((m,i)=>{
         </button>
         <span class="rank-chevron"></span>
       </div>
+      <div class="spotify-player" id="sp-${i}"></div>
       <div class="rank-bio-panel"><div class="rank-bio-inner">${m.bio}</div></div>
     </div>`);
 });
 initRankAccordion(songList);
-songList.insertAdjacentHTML('afterend', '<p class="preview-note">Prévias de 30 segundos via Apple Music (iTunes).</p>');
 
-// Procura a prévia de cada música ao abrir o site, assim o clique no play
-// toca na hora (necessário para funcionar no iPhone).
+const todasTemSpotify = TOP_MUSICAS.every(m => spotifyTrackId(m));
+songList.insertAdjacentHTML('afterend',
+  '<p class="preview-note">Toque em ▶ para ouvir. ' +
+  'No Spotify, quem não está logado ouve um trecho de 30 segundos e quem está logado ouve a música inteira.' +
+  (todasTemSpotify ? '' : ' Alguns trechos vêm do Apple Music (iTunes).') + '</p>');
+
 TOP_MUSICAS.forEach(async (m,i)=>{
   const btn = document.getElementById(`play-${i}`);
+  const box = document.getElementById(`sp-${i}`);
+  const idSpotify = spotifyTrackId(m);
+
+  // ---- Modo Spotify: o botão abre/fecha o player do Spotify embaixo da música ----
+  if(idSpotify){
+    btn.disabled = false;
+    btn.querySelector('i').className = 'fa-solid fa-play';
+    btn.title = 'Ouvir no Spotify';
+    btn.setAttribute('aria-label', `Ouvir ${m.title} no Spotify`);
+    btn.addEventListener('click', e=>{
+      e.stopPropagation(); // não abre/fecha a bio ao clicar no play
+      if(playerAberto && playerAberto.btn === btn){ fecharPlayerSpotify(); return; }
+      pararPrevia();
+      fecharPlayerSpotify();
+      box.innerHTML = `<iframe src="https://open.spotify.com/embed/track/${idSpotify}?utm_source=generator"
+        width="100%" height="80" frameborder="0" title="Spotify: ${m.title}"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+      box.classList.add('open');
+      btn.classList.add('playing');
+      btn.querySelector('i').className = 'fa-solid fa-xmark';
+      playerAberto = {btn, box};
+    });
+    return;
+  }
+
+  // ---- Modo iTunes (reserva): trecho de 30 segundos tocado direto no site ----
   const url = await buscarPrevia(m);
   if(!url){
     btn.querySelector('i').className = 'fa-solid fa-ban';
@@ -311,6 +360,7 @@ TOP_MUSICAS.forEach(async (m,i)=>{
     e.stopPropagation(); // não abre/fecha a bio ao clicar no play
     if(botaoTocando === btn){ pararPrevia(); return; }
     pararPrevia();
+    fecharPlayerSpotify();
     botaoTocando = btn;
     audioPreview.src = btn.dataset.url;
     const promessa = audioPreview.play();
@@ -387,6 +437,7 @@ document.querySelectorAll('.main-nav button').forEach(b=>navMap[b.dataset.target
 
 function setActiveTab(id){
   pararPrevia(); // para a prévia de áudio ao trocar de aba
+  fecharPlayerSpotify();
   tabSections.forEach(s=>s.classList.toggle('tab-open', s.id===id));
   Object.values(navMap).forEach(b=>b.classList.toggle('active', b.dataset.target===id));
   if(heroSection) heroSection.style.display = (id==='sobre') ? '' : 'none';

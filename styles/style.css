@@ -301,6 +301,10 @@ a.album-card:hover{transform:translateY(-3px);}
 .rank-row .play-btn + .rank-chevron{margin-left:0;}
 .preview-note{font-size:11px;color:var(--gray-500);margin-top:12px;}
 
+.spotify-player{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+.spotify-player.open{max-height:100px;margin-bottom:12px;}
+.spotify-player iframe{display:block;width:100%;border:0;border-radius:12px;}
+
 /* ---------- LINHA DO TEMPO ---------- */
 .timeline-track{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:28px;-ms-overflow-style:none;scrollbar-width:none;max-width:100%;}
 .timeline-track::-webkit-scrollbar{display:none;}
