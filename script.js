@@ -56,6 +56,16 @@ const TOP_ARTISTAS = [
   {name:"Zé Ramalho", sub:"MPB / Nordestino", bio:"José Ramalho Neto nasceu em Brejo do Cruz (PB) em 1949 e começou escrevendo versos de cordel antes de fundir rock progressivo com ritmos nordestinos como baião e embolada. Seu disco de estreia, \"Paêbiru\" (1975), com Lula Côrtes, é hoje um clássico cult da MPB. Composições como \"Admirável Gado Novo\" e \"Avôhai\" o consolidaram como uma das vozes mais marcantes da música nordestina."},
   {name:"Rita Lee", sub:"Rock / MPB", bio:"Rita Lee Jones nasceu em São Paulo em 1947 e começou nos anos 1960 no grupo Os Mutantes, um dos pilares da Tropicália. Depois formou a banda Tutti Frutti e seguiu em carreira solo, misturando rock, pop e humor irreverente. Clássicos como \"Ovelha Negra\", \"Mania de Você\" e \"Lança Perfume\" a consagraram como a rainha do rock brasileiro."},
 ];
+/* Links dos artistas no Spotify (no Spotify: artista > ... > Compartilhar >
+   Copiar link do artista). Com o link preenchido, o site busca a foto do
+   artista no Spotify sozinho. Vazio = continua o ícone de microfone. */
+const ARTISTAS_SPOTIFY = {
+  "Froid": "",
+  "Tyler, The Creator": "",
+  "Fleetwood Mac": "",
+  "Zé Ramalho": "",
+  "Rita Lee": "",
+};
 const TOP_MUSICAS = [
   {title:"Lamentável, Pt. III", sub:"Froid, Cynthia Luz", spotify:"https://open.spotify.com/intl-pt/track/46h2Z0b21xC1gzluNeCiVG", bio:"\"Lamentável, Pt. III\" é uma das faixas mais marcantes do rapper Froid em parceria com Cynthia Luz, lançada em 2017 e integrante do aclamado álbum solo de estreia do artista, O Pior Disco do Ano."},
   {title:"MASSA", sub:"Tyler, The Creator", spotify:"https://open.spotify.com/intl-pt/track/2goHCrsDJaflEwQ930ef0o", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
@@ -627,8 +637,83 @@ async function renderVoteCard(containerId, cfg, votedKey){
   });
 }
 
-renderVoteCard('voteArtista', VOTE_CONFIGS.artista, 'user-voted-artista');
-renderVoteCard('voteMusica', VOTE_CONFIGS.musica, 'user-voted-musica');
+/* ===================== CAPAS E FOTOS VIA SPOTIFY (oEmbed) =====================
+   Em vez de hospedar imagens copiadas, o site pede a imagem ao endpoint
+   público oEmbed do Spotify, a partir do link (música, álbum ou artista).
+   As imagens continuam hospedadas no Spotify e cada item já leva ao Spotify.
+   Sem link, ou se a busca falhar, o ícone padrão continua aparecendo.
+   Se você preencher "img" manualmente em algum item, ele tem prioridade. */
+const thumbCache = {};
+function spotifyThumb(url){
+  if(!url) return Promise.resolve('');
+  const limpo = url.split('?')[0];
+  if(!thumbCache[limpo]){
+    thumbCache[limpo] = fetch('https://open.spotify.com/oembed?url=' + encodeURIComponent(limpo))
+      .then(r => r.ok ? r.json() : null)
+      .then(d => (d && d.thumbnail_url) || '')
+      .catch(() => '');
+  }
+  return thumbCache[limpo];
+}
+function trocarAvatar(avatarEl, src, alt){
+  if(!avatarEl || !src) return;
+  avatarEl.innerHTML = `<img class="avatar-img" src="${src}" alt="${alt}" loading="lazy">`;
+}
+function trocarCapaAlbum(coverEl, src, alt){
+  if(!coverEl || !src) return;
+  const icone = coverEl.querySelector('.album-icon');
+  if(icone) icone.remove();
+  coverEl.insertAdjacentHTML('afterbegin', `<img class="avatar-img" src="${src}" alt="${alt}" loading="lazy">`);
+}
+
+const imagensPorNome = {}; // "artista:Nome" / "musica:Título" -> URL da imagem
+
+async function carregarImagensSpotify(){
+  const tarefas = [];
+
+  TOP_ARTISTAS.forEach((a,i)=>{
+    if(a.img) return;
+    tarefas.push(spotifyThumb(ARTISTAS_SPOTIFY[a.name]).then(src=>{
+      if(!src) return;
+      imagensPorNome['artista:' + a.name] = src;
+      trocarAvatar(artistList.querySelectorAll('.rank-item')[i].querySelector('.avatar'), src, a.name);
+    }));
+  });
+
+  TOP_MUSICAS.forEach((m,i)=>{
+    if(m.img) return;
+    tarefas.push(spotifyThumb(m.spotify).then(src=>{
+      if(!src) return;
+      imagensPorNome['musica:' + m.title] = src;
+      trocarAvatar(songList.querySelectorAll('.rank-item')[i].querySelector('.avatar'), src, m.title);
+    }));
+  });
+
+  ALBUNS.forEach((al,i)=>{
+    if(al.img) return;
+    tarefas.push(spotifyThumb(al.spotify).then(src=>{
+      trocarCapaAlbum(albumGrid.querySelectorAll('.album-card')[i].querySelector('.album-cover'), src, 'Capa de ' + al.title);
+    }));
+  });
+
+  await Promise.all(tarefas);
+}
+
+// Reaproveita as mesmas imagens nos cards de votação (os nomes são os mesmos das listas)
+function aplicarImagensNaVotacao(){
+  [['voteArtista', VOTE_CONFIGS.artista, 'artista:'], ['voteMusica', VOTE_CONFIGS.musica, 'musica:']].forEach(([id, cfg, prefixo])=>{
+    cfg.options.forEach(o=>{
+      const el = document.querySelector(`#${id} .vote-option[data-id="${o.id}"] .avatar`);
+      trocarAvatar(el, imagensPorNome[prefixo + o.name], o.name);
+    });
+  });
+}
+
+Promise.all([
+  renderVoteCard('voteArtista', VOTE_CONFIGS.artista, 'user-voted-artista'),
+  renderVoteCard('voteMusica', VOTE_CONFIGS.musica, 'user-voted-musica'),
+  carregarImagensSpotify(),
+]).then(aplicarImagensNaVotacao);
 
 /* ===================== COMENTÁRIOS (via API do Flask) ===================== */
 const commentList = document.getElementById('commentList');
