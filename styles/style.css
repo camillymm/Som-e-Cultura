@@ -1,4 +1,4 @@
-/* =========================================================
+ /* =========================================================
    SOM & CULTURA — style.css
    Sumário (na ordem em que aparece no arquivo)
     1. Variáveis e base
@@ -609,7 +609,7 @@ html[data-theme="dark"] .album-listen{color:#f3f1ea;}
 .avatar .avatar-img{
   width:100%;height:100%;object-fit:cover;display:block;
 }
-/* =========================================================
+ /* =========================================================
    SOM & CULTURA — profissional.css
    Camada de acabamento: cor de destaque (azul-gelo), hovers,
    acessibilidade e animações sutis. Carregar DEPOIS de
@@ -639,23 +639,6 @@ html[data-theme="dark"]{
 /* ---------- LOGO ---------- */
 .logo-mark svg{stroke:var(--accent);}
 
-/* ---------- MENU E LINHA DO TEMPO: traço de destaque no item ativo ---------- */
-.main-nav button,
-.timeline-dot-btn{position:relative;}
-.main-nav button.active::after,
-.timeline-dot-btn.active::after{
-  content:'';position:absolute;left:30%;right:30%;bottom:4px;
-  height:2px;border-radius:2px;background:var(--accent);
-}
-html[data-theme="dark"] .main-nav button.active::after,
-html[data-theme="dark"] .timeline-dot-btn.active::after{background:#3D5A94;}
-
-/* ---------- TÍTULOS DE SEÇÃO ---------- */
-.section-head .eyebrow::before{
-  content:'';display:inline-block;width:22px;height:2px;
-  background:var(--accent);vertical-align:middle;margin-right:10px;
-}
-
 /* ---------- HERO: brilho atrás do disco e leve flutuação ---------- */
 .hero-art::before{
   content:'';position:absolute;width:70%;aspect-ratio:1/1;border-radius:50%;
@@ -667,6 +650,22 @@ html[data-theme="dark"] .timeline-dot-btn.active::after{background:#3D5A94;}
   0%,100%{transform:translateY(0);}
   50%{transform:translateY(-6px);}
 }
+
+/* ---------- DISCO INTERATIVO (clique para girar) ---------- */
+.turntable{cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.turntable:focus-visible{outline-offset:6px;border-radius:50%;}
+.turntable .disco{
+  transform-box:fill-box;transform-origin:center;
+  animation:girar 3.2s linear infinite;
+  animation-play-state:paused;      /* parado até o clique */
+}
+.turntable.girando .disco{animation-play-state:running;}
+.turntable .braco{
+  transform-box:view-box;transform-origin:178px 42px;   /* gira em torno do pino do braço */
+  transition:transform .7s ease;
+}
+.turntable.girando .braco{transform:rotate(10deg);}
+@keyframes girar{to{transform:rotate(360deg);}}
 
 /* ---------- CARDS "SOBRE MÚSICA" ---------- */
 .about-card:hover .tag{color:var(--accent);}
@@ -722,6 +721,7 @@ html[data-theme="dark"] .btn.ghost{background:transparent;color:#f3f1ea;}
 /* ---------- RESPEITA QUEM DESATIVA ANIMAÇÕES NO SISTEMA ---------- */
 @media (prefers-reduced-motion:reduce){
   .tab-section.tab-open,
-  .turntable{animation:none !important;}
+  .turntable,
+  .turntable .disco{animation:none !important;}
   *{scroll-behavior:auto !important;transition-duration:.01ms !important;}
 }

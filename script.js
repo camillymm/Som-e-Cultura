@@ -783,3 +783,17 @@ document.getElementById('commentForm').addEventListener('submit', async e=>{
     alert('Não foi possível enviar seu comentário agora. Verifique se o backend Flask está rodando e tente novamente.');
   }
 });
+
+/* ===================== DISCO DO HERO: clique para girar ===================== */
+(function(){
+  const disco = document.querySelector('.turntable');
+  if(!disco) return;
+  function alternar(){
+    const girando = disco.classList.toggle('girando');
+    disco.setAttribute('aria-pressed', girando ? 'true' : 'false');
+  }
+  disco.addEventListener('click', alternar);
+  disco.addEventListener('keydown', e=>{
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); alternar(); }
+  });
+})();
