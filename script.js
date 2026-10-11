@@ -231,7 +231,7 @@ initRankAccordion(artistList);
 
 /* ===================== PRÉVIAS DE ÁUDIO (Top músicas) =====================
    Cada música ganha um botão de play que toca um trecho de 30 segundos.
-   Os trechos vêm da busca pública do iTunes/Apple Music (grátis, sem chave),
+   Os trechos vêm da busca pública do spotify(grátis, sem chave),
    procurada pelo título + artista. Só uma prévia toca por vez. */
 const audioPreview = new Audio();
 audioPreview.preload = 'none';
