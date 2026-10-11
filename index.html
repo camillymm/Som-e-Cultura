@@ -3,13 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Som & Cultura</title>
+<title>Som &amp; Cultura | Música, história e identidade</title>
+<meta name="description" content="Explore gêneros, instrumentos, álbuns e curiosidades que construíram a trilha sonora do mundo. Vote nos artistas e músicas da semana.">
+<meta name="theme-color" content="#0b0f1c">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Som &amp; Cultura">
+<meta property="og:description" content="Gêneros, álbuns, linha do tempo e votação da comunidade, tudo sobre música.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0f1c'/%3E%3Cpath d='M6 16v0M11 11v10M16 6v20M21 11v10M26 16v0' stroke='%239DB8E8' stroke-width='2.5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="styles/style.css">
 <link rel="stylesheet" href="styles/mobile.css">
+<link rel="stylesheet" href="styles/profissional.css">
 <style>
 .about-card{cursor:pointer;}
 .about-card{scroll-margin-top:150px;}
@@ -53,15 +61,23 @@
         <circle cx="300" cy="90" r="120" stroke="#f6f3ec" stroke-width="1"/>
         <circle cx="300" cy="90" r="160" stroke="#f6f3ec" stroke-width="1"/>
       </svg>
-      <svg class="turntable" viewBox="0 0 220 220" fill="none">
-        <circle cx="110" cy="110" r="100" fill="#1c2440"/>
-        <circle cx="110" cy="110" r="100" stroke="#2f3a5e" stroke-width="1"/>
-        <circle cx="110" cy="110" r="34" fill="#0b0f1c" stroke="#3a4568" stroke-width="1"/>
-        <circle cx="110" cy="110" r="5" fill="#f6f3ec"/>
-        <line x1="175" y1="45" x2="140" y2="90" stroke="#f6f3ec" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="178" cy="42" r="7" fill="#f6f3ec"/>
-        <circle cx="110" cy="110" r="70" stroke="#2a3355" stroke-width=".5"/>
-        <circle cx="110" cy="110" r="55" stroke="#2a3355" stroke-width=".5"/>
+      <svg class="turntable" viewBox="0 0 220 220" fill="none" role="button" tabindex="0" aria-pressed="false" aria-label="Disco de vinil: clique para girar">
+        <g class="disco">
+          <circle cx="110" cy="110" r="100" fill="#1c2440"/>
+          <circle cx="110" cy="110" r="100" stroke="#2f3a5e" stroke-width="1"/>
+          <circle cx="110" cy="110" r="85" stroke="#2a3355" stroke-width=".5"/>
+          <circle cx="110" cy="110" r="70" stroke="#2a3355" stroke-width=".5"/>
+          <circle cx="110" cy="110" r="55" stroke="#2a3355" stroke-width=".5"/>
+          <path d="M110 22 A88 88 0 0 1 187 66" stroke="#f6f3ec" stroke-opacity=".22" stroke-width="2" stroke-linecap="round"/>
+          <path d="M110 198 A88 88 0 0 1 33 154" stroke="#f6f3ec" stroke-opacity=".22" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="110" cy="110" r="34" fill="#0b0f1c" stroke="#3a4568" stroke-width="1"/>
+          <circle cx="110" cy="92" r="4" fill="#9DB8E8"/>
+          <circle cx="110" cy="110" r="5" fill="#f6f3ec"/>
+        </g>
+        <g class="braco">
+          <line x1="175" y1="45" x2="140" y2="90" stroke="#f6f3ec" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="178" cy="42" r="7" fill="#f6f3ec"/>
+        </g>
       </svg>
       <svg class="waveline" viewBox="0 0 300 40" preserveAspectRatio="none">
         <g stroke="#f6f3ec" stroke-width="2" stroke-linecap="round">
