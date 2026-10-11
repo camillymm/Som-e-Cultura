@@ -625,7 +625,7 @@ html[data-theme="dark"] .album-listen{color:#f3f1ea;}
   --gray-500:#6f6c5e;          /* mais escuro que o original: melhor contraste no creme */
 }
 html[data-theme="dark"]{
-  --accent-ink:#6e8c9c;        
+  --accent-ink:#7194bd;        
 }
 ::selection{background:var(--accent);color:var(--navy-950);}
 
