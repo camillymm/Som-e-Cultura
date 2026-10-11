@@ -63,14 +63,14 @@ const ARTISTAS_SPOTIFY = {
   "Froid": "",
   "Tyler, The Creator": "",
   "Fleetwood Mac": "",
-  "Zé Ramalho": "",
+  "Alceu Valença": "",
   "Rita Lee": "",
 };
 const TOP_MUSICAS = [
   {title:"Lamentável, Pt. III", sub:"Froid, Cynthia Luz", spotify:"https://open.spotify.com/intl-pt/track/46h2Z0b21xC1gzluNeCiVG", bio:"\"Lamentável, Pt. III\" é uma das faixas mais marcantes do rapper Froid em parceria com Cynthia Luz, lançada em 2017 e integrante do aclamado álbum solo de estreia do artista, O Pior Disco do Ano."},
   {title:"MASSA", sub:"Tyler, The Creator", spotify:"https://open.spotify.com/intl-pt/track/2goHCrsDJaflEwQ930ef0o", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
   {title:"The Chain", sub:"Fleetwood Mac", spotify:"https://open.spotify.com/intl-pt/track/5e9TFTbltYBg2xThimr0rU", bio:"\"The Chain\", lançada em 1977 no aclamado álbum Rumours, é uma das faixas mais icônicas, intensas e emblemáticas do Fleetwood Mac. A música tornou-se um símbolo da própria existência do grupo: uma promessa de união inquebrável mantida no meio do caos pessoal e afetivo."},
-  {title:"Girassol", sub:"Alceu Valença", spotify:"https://open.spotify.com/track/01mbH2pSWyHgcmWKDbZU5b?si=v8D7uiSRR7OScOAPpakeEA&utm_source=copy-link", bio:"\"Girassol\", foi lançada originalmente no álbum Leque Moleque, em 1987. A letra utiliza metáforas marcantes ligadas à natureza, ao calor, à luminosidade e ao desejo. Elementos como "um girassol nos teus cabelos" e o contraste com cores vivas e o sol traduzem a paixão e a estética tropical nordestina."},
+  {title:"Girassol", sub:"Alceu Valença", spotify:"https://open.spotify.com/intl-pt/track/01mbH2pSWyHgcmWKDbZU5b", bio:"\"Girassol\", foi lançada originalmente no álbum Leque Moleque, em 1987. A letra utiliza metáforas marcantes ligadas à natureza, ao calor, à luminosidade e ao desejo. Elementos como \"um girassol nos teus cabelos\" e o contraste com cores vivas e o sol traduzem a paixão e a estética tropical nordestina."},
   {title:"Lança-perfume", sub:"Rita Lee", spotify:"https://open.spotify.com/intl-pt/track/3cijWAljXxxJDco4N2aLQl", bio:"\"Lança-perfume\" foi composta por Rita Lee e Roberto de Carvalho e lançada em 1980 no álbum homônimo da cantora. A canção é um marco da música pop brasileira e combina ritmos contagiantes da disco music e da pop new wave com o espírito festivo e eufórico do Carnaval."},
 ];
 /* "genre" é usado nos filtros da seção Álbuns Importantes — use o mesmo nome de
@@ -509,7 +509,7 @@ const VOTE_CONFIGS = {
       {id:'froid', name:'Froid', sub:'Hip-hop', img:''},
       {id:'tyler', name:'Tyler, The Creator', sub:'Hip-hop', img:''},
       {id:'mac', name:'Fleetwood Mac', sub:'Rock/ Pop rock', img:''},
-      {id:'zeramalho', name:'Zé Ramalho', sub:'MPB / Nordestino', img:''},
+      {id:'alceu', name:'Alceu Valença', sub:'MPB / Forró / Rock', img:''},
       {id:'lee', name:'Rita Lee', sub:'Rock / MPB', img:''},
     ],
   },
@@ -521,7 +521,7 @@ const VOTE_CONFIGS = {
       {id:'garota', name:'Lamentável, Pt. III', sub:'Froid, Cynthia Luz', img:''},
       {id:'massa', name:'MASSA', sub:'Tyler, The Creator', img:''},
       {id:'chain', name:'The Chain', sub:'Fleetwood Mac', img:''},
-      {id:'giz', name:'Chão de giz', sub:'Zé Ramalho', img:''},
+      {id:'girassol', name:'Girassol', sub:'Alceu Valença', img:''},
       {id:'negra', name:'Lança-perfume', sub:'Rita Lee', img:''},
     ],
   }
