@@ -61,7 +61,7 @@ const TOP_MUSICAS = [
   {title:"MASSA", sub:"Tyler, The Creator", spotify:"", bio:"Faixa de Tyler, The Creator com produção densa e groove marcante, seguindo a linha mais experimental de seus últimos trabalhos."},
   {title:"The Chain", sub:"Fleetwood Mac", spotify:"", bio:"\"The Chain\", lançada em 1977 no aclamado álbum Rumours, é uma das faixas mais icônicas, intensas e emblemáticas do Fleetwood Mac. A música tornou-se um símbolo da própria existência do grupo: uma promessa de união inquebrável mantida no meio do caos pessoal e afetivo."},
   {title:"Chão de giz", sub:"Zé Ramalho", spotify:"", bio:"\"Chão de Giz\", lançada em 1978 no álbum de estreia de Zé Ramalho, é uma das obras-primas da música popular brasileira. Conhecida por sua melodia marcante e letra altamente poética e enigmática, a canção retrata o término doloroso de um amor proibido e idealizado."},
-  {title:"Ovelha negra", sub:"Rita Lee", spotify:"", bio:"\"Ovelha Negra\", lançada em 1975 no álbum Fruto Proibido (com a banda Tutti Frutti), é uma das canções mais emblemáticas de Rita Lee e um verdadeiro hino de libertação e rebeldia do rock brasileiro."},
+  {title:"Lança-perfume", sub:"Rita Lee", spotify:"", bio:"\"Lança-perfume\", "Lança Perfume" foi composta por Rita Lee e Roberto de Carvalho e lançada em 1980 no álbum homônimo da cantora. A canção é um marco da música pop brasileira e combina ritmos contagiantes da disco music e da pop new wave com o espírito festivo e eufórico do Carnaval."},
 ];
 /* "genre" é usado nos filtros da seção Álbuns Importantes — use o mesmo nome de
    gênero em vários álbuns para que eles caiam no mesmo filtro.
@@ -512,7 +512,7 @@ const VOTE_CONFIGS = {
       {id:'massa', name:'MASSA', sub:'Tyler, The Creator', img:''},
       {id:'chain', name:'The Chain', sub:'Fleetwood Mac', img:''},
       {id:'giz', name:'Chão de giz', sub:'Zé Ramalho', img:''},
-      {id:'negra', name:'Ovelha Negra', sub:'Rita Lee', img:''},
+      {id:'negra', name:'Lança-perfume', sub:'Rita Lee', img:''},
     ],
   }
 };
