@@ -79,16 +79,16 @@ const TOP_MUSICAS = [
    do álbum). Se deixar vazio (""), o clique abre a busca do Spotify com o
    nome do álbum e do artista. */
 const ALBUNS = [
-  {title:"Abbey Road", artist:"The Beatles", year:"1969", genre:"Rock", why:"Último álbum gravado pela banda; consagrou o medley do lado B.", grad:"linear-gradient(135deg,#1c2440,#0b0f1c)", img:"", spotify:""},
-  {title:"The Dark Side of the Moon", artist:"Pink Floyd", year:"1973", genre:"Rock", why:"741 semanas nas paradas americanas — um recorde.", grad:"linear-gradient(135deg,#232c47,#12141c)", img:"", spotify:""},
-  {title:"Clube da Esquina", artist:"Milton Nascimento & Lô Borges", year:"1972", genre:"MPB", why:"Marco da MPB mineira e da fusão entre pop e erudito.", grad:"linear-gradient(135deg,#141b30,#060910)", img:"", spotify:""},
-  {title:"What's Going On", artist:"Marvin Gaye", year:"1971", genre:"Soul", why:"Soul engajado que redefiniu o que um álbum podia dizer.", grad:"linear-gradient(135deg,#1c2440,#232c47)", img:"", spotify:""},
-  {title:"Thriller", artist:"Michael Jackson", year:"1982", genre:"Pop", why:"O álbum mais vendido da história, com 7 hits no top 10.", grad:"linear-gradient(135deg,#0b0f1c,#1c2440)", img:"", spotify:""},
-  {title:"Dois", artist:"Legião Urbana", year:"1986", genre:"Rock", why:"Retrato definitivo do rock brasileiro dos anos 80.", grad:"linear-gradient(135deg,#12141c,#232c47)", img:"", spotify:""},
-  {title:"Sobrevivendo no Inferno", artist:"Racionais MC's", year:"1997", genre:"Rap", why:"Marco absoluto do rap nacional e da crítica social.", grad:"linear-gradient(135deg,#060910,#141b30)", img:"", spotify:""},
-  {title:"To Pimp a Butterfly", artist:"Kendrick Lamar", year:"2015", genre:"Rap", why:"Fusão de jazz, funk e rap que redefiniu o hip-hop moderno.", grad:"linear-gradient(135deg,#232c47,#0b0f1c)", img:"", spotify:""},
-  {title:"Elis & Tom", artist:"Elis Regina & Tom Jobim", year:"1974", genre:"MPB", why:"Encontro histórico entre duas vozes centrais da MPB.", grad:"linear-gradient(135deg,#141b30,#1c2440)", img:"", spotify:""},
-  {title:"Nevermind", artist:"Nirvana", year:"1991", genre:"Rock", why:"Levou o grunge ao mainstream e mudou o rock dos anos 90.", grad:"linear-gradient(135deg,#0b0f1c,#232c47)", img:"", spotify:""},
+  {title:"Abbey Road", artist:"The Beatles", year:"1969", genre:"Rock", why:"Último álbum gravado pela banda; consagrou o medley do lado B.", grad:"linear-gradient(135deg,#1c2440,#0b0f1c)", img:"", spotify:"https://open.spotify.com/album/2Pqkn9Dq2DFtdfkKAeqgMd"},
+  {title:"The Dark Side of the Moon", artist:"Pink Floyd", year:"1973", genre:"Rock", why:"741 semanas nas paradas americanas — um recorde.", grad:"linear-gradient(135deg,#232c47,#12141c)", img:"", spotify:"https://open.spotify.com/intl-pt/album/4LH4d3cOWNNsVw41Gqt2kv"},
+  {title:"Clube da Esquina", artist:"Milton Nascimento & Lô Borges", year:"1972", genre:"MPB", why:"Marco da MPB mineira e da fusão entre pop e erudito.", grad:"linear-gradient(135deg,#141b30,#060910)", img:"", spotify:"https://open.spotify.com/intl-pt/album/5risYG7klZCSLMNxB9dZhf"},
+  {title:"What's Going On", artist:"Marvin Gaye", year:"1971", genre:"Soul", why:"Soul engajado que redefiniu o que um álbum podia dizer.", grad:"linear-gradient(135deg,#1c2440,#232c47)", img:"", spotify:"https://open.spotify.com/intl-pt/album/2v6ANhWhZBUKkg6pJJBs3B"},
+  {title:"Thriller", artist:"Michael Jackson", year:"1982", genre:"Pop", why:"O álbum mais vendido da história, com 7 hits no top 10.", grad:"linear-gradient(135deg,#0b0f1c,#1c2440)", img:"", spotify:"https://open.spotify.com/intl-pt/album/2ANVost0y2y52ema1E9xAZ"},
+  {title:"Dois", artist:"Legião Urbana", year:"1986", genre:"Rock", why:"Retrato definitivo do rock brasileiro dos anos 80.", grad:"linear-gradient(135deg,#12141c,#232c47)", img:"", spotify:"https://open.spotify.com/intl-pt/album/4OCJTpOLqSgysGY4yBCGhn"},
+  {title:"Sobrevivendo no Inferno", artist:"Racionais MC's", year:"1997", genre:"Rap", why:"Marco absoluto do rap nacional e da crítica social.", grad:"linear-gradient(135deg,#060910,#141b30)", img:"", spotify:"https://open.spotify.com/intl-pt/album/1UzrzuOmZfBgXyS3pgKD10"},
+  {title:"To Pimp a Butterfly", artist:"Kendrick Lamar", year:"2015", genre:"Rap", why:"Fusão de jazz, funk e rap que redefiniu o hip-hop moderno.", grad:"linear-gradient(135deg,#232c47,#0b0f1c)", img:"", spotify:"https://open.spotify.com/intl-pt/album/7ycBtnsMtyVbbwTfJwRjSP"},
+  {title:"Elis & Tom", artist:"Elis Regina & Tom Jobim", year:"1974", genre:"MPB", why:"Encontro histórico entre duas vozes centrais da MPB.", grad:"linear-gradient(135deg,#141b30,#1c2440)", img:"", spotify:"https://open.spotify.com/intl-pt/album/3SE9n6EaVOJ81KA1KPLUWS"},
+  {title:"Nevermind", artist:"Nirvana", year:"1991", genre:"Rock", why:"Levou o grunge ao mainstream e mudou o rock dos anos 90.", grad:"linear-gradient(135deg,#0b0f1c,#232c47)", img:"", spotify:"https://open.spotify.com/intl-pt/album/2UJcKiJxNryhL050F5Z1Fk"},
 ];
 
 /* Player da semana: abra a playlist no app do Spotify > Compartilhar >
