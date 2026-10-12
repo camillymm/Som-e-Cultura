@@ -803,7 +803,6 @@ document.getElementById('commentForm').addEventListener('submit', async e=>{
     nameEl.value = '';
     loadComments();
   } else {
-    alert('Não foi possível enviar seu comentário agora. Verifique se o backend Flask está rodando e tente novamente.');
   }
 });
 
