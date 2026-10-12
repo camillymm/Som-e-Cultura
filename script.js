@@ -803,11 +803,11 @@ async function loadFavoritos(tipo, listEl){
   const itens = await apiGet('/favoritos/' + tipo);
   listEl.innerHTML = '';
   if(!itens){
-    listEl.innerHTML = '<li class="c-text">Não foi possível carregar as respostas.</li>';
+    listEl.innerHTML = '<li class="c-text">.</li>';
     return;
   }
   if(!itens.length){
-    listEl.innerHTML = '<li class="c-text">Ninguém respondeu ainda. Seja a primeira pessoa!</li>';
+    listEl.innerHTML = '<li class="c-text">!</li>';
     return;
   }
   itens.forEach(c=>{
