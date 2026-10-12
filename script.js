@@ -758,53 +758,12 @@ Promise.all([
   carregarImagensSpotify(),
 ]).then(aplicarImagensNaVotacao);
 
-/* ===================== COMENTÁRIOS (via API do Flask) ===================== */
-const commentList = document.getElementById('commentList');
-
-async function loadComments(){
-  const comentarios = await apiGet('/comentarios');
-  commentList.innerHTML = '';
-  if(!comentarios){
-    commentList.innerHTML = '<li class="c-text">Não foi possível carregar os comentários. Verifique se o backend Flask está rodando.</li>';
-    return;
-  }
-  // A API já retorna em ordem do mais recente para o mais antigo.
-  comentarios.forEach(c=>{
-    commentList.insertAdjacentHTML('beforeend', `
-      <li>
-        <div class="c-head"><span class="c-name">${escapeHtml(c.nome)}</span></div>
-        <div class="c-text">${escapeHtml(c.texto)}</div>
-      </li>`);
-  });
-}
+/* ===================== UTILIDADE: escapar HTML ===================== */
 function escapeHtml(str){
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }
-loadComments();
-
-document.getElementById('commentForm').addEventListener('submit', async e=>{
-  e.preventDefault();
-  const textEl = document.getElementById('commentText');
-  const nameEl = document.getElementById('commentName');
-  const texto = textEl.value.trim();
-  if(!texto) return;
-  const nome = nameEl.value.trim() || 'Anônimo';
-
-  const submitBtn = e.target.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-
-  const result = await apiPost('/comentarios', {nome, texto});
-  submitBtn.disabled = false;
-
-  if(result && result.success){
-    textEl.value = '';
-    nameEl.value = '';
-    loadComments();
-  } else {
-  }
-});
 
 /* ===================== FAVORITOS: música, artista e álbum =====================
    Três botões dentro de "Comentários & Indicações". Cada um abre uma seção
@@ -819,17 +778,24 @@ const FAVORITOS = {
 let favButtons  = document.getElementById('favButtons');
 let favSections = document.getElementById('favSections');
 
+// A caixa antiga de comentário geral (formulário #commentForm e lista
+// #commentList) foi substituída pelas 3 seções de favoritos: aqui ela é removida.
+['commentForm','commentList'].forEach(id=>{
+  const antigo = document.getElementById(id);
+  if(antigo) antigo.remove();
+});
+
 // Se os dois <div> não foram colocados no index.html, o próprio script os cria
-// logo acima do formulário de comentários (#commentForm).
+// dentro do painel "Comentários & Indicações" (.comments-panel).
 if(!favButtons || !favSections){
-  const formRef = document.getElementById('commentForm');
-  if(formRef){
+  const painel = document.querySelector('.comments-panel');
+  if(painel){
     favButtons = document.createElement('div');
     favButtons.className = 'fav-buttons';
     favButtons.id = 'favButtons';
     favSections = document.createElement('div');
     favSections.id = 'favSections';
-    formRef.before(favButtons, favSections);
+    painel.append(favButtons, favSections);
   }
 }
 
