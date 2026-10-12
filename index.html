@@ -56,23 +56,42 @@
       <h1>Música é história, cultura e identidade.</h1>
       <p class="lede">Explore gêneros, instrumentos e curiosidades que constroem a trilha sonora do mundo — dos discos que mudaram tudo às vozes que estão surgindo agora.</p>
     </div>
-    <div class="hero-art">
-      <svg class="rings" viewBox="0 0 400 400" fill="none">
-        <circle cx="300" cy="90" r="120" stroke="#f6f3ec" stroke-width="1"/>
-        <circle cx="300" cy="90" r="160" stroke="#f6f3ec" stroke-width="1"/>
-      </svg>
-      <svg class="turntable" viewBox="0 0 220 220" fill="none" role="button" tabindex="0" aria-pressed="false" aria-label="Disco de vinil: clique para girar">
-        <g class="disco">
-          <circle cx="110" cy="110" r="100" fill="#1c2440"/>
-          <circle cx="110" cy="110" r="100" stroke="#2f3a5e" stroke-width="1"/>
-          <circle cx="110" cy="110" r="85" stroke="#2a3355" stroke-width=".5"/>
-          <circle cx="110" cy="110" r="70" stroke="#2a3355" stroke-width=".5"/>
-          <circle cx="110" cy="110" r="55" stroke="#2a3355" stroke-width=".5"/>
-          <path d="M110 22 A88 88 0 0 1 187 66" stroke="#f6f3ec" stroke-opacity=".22" stroke-width="2" stroke-linecap="round"/>
-          <path d="M110 198 A88 88 0 0 1 33 154" stroke="#f6f3ec" stroke-opacity=".22" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="110" cy="110" r="34" fill="#0b0f1c" stroke="#3a4568" stroke-width="1"/>
-          <circle cx="110" cy="92" r="4" fill="#9DB8E8"/>
-          <circle cx="110" cy="110" r="5" fill="#f6f3ec"/>
+  <div class="hero-art">
+  <!-- Radar Sweep (feixe de luz giratório) -->
+  <div class="radar-sweep"></div>
+
+  <!-- Anéis de pulso (radar) -->
+  <div class="pulse-ring"></div>
+  <div class="pulse-ring"></div>
+  <div class="pulse-ring"></div>
+
+  <!-- Círculos decorativos de fundo -->
+  <svg class="rings" viewBox="0 0 400 400" fill="none" stroke="rgba(246,243,236,.08)" stroke-width="1">
+    <circle cx="200" cy="200" r="180"/>
+    <circle cx="200" cy="200" r="150"/>
+    <circle cx="200" cy="200" r="120"/>
+    <circle cx="200" cy="200" r="90"/>
+  </svg>
+
+  <!-- Toca-discos -->
+  <div class="turntable" role="button" tabindex="0" aria-label="Toca-discos - clique para girar">
+    <!-- Disco de vinil -->
+    <div class="vinyl-disc">
+      <!-- Anéis internos -->
+      <div class="vinyl-label"></div>
+      <div class="vinyl-hole"></div>
+    </div>
+
+    <!-- Agulha -->
+    <div class="needle-base"></div>
+    <div class="needle-arm"></div>
+  </div>
+
+  <!-- Waveform decorativa -->
+  <svg class="waveline" viewBox="0 0 300 34" fill="none" stroke="rgba(246,243,236,.5)" stroke-width="1.5">
+    <path d="M0 17 L10 17 L15 5 L20 29 L25 17 L35 17 L40 10 L45 24 L50 17 L60 17 L65 3 L70 31 L75 17 L85 17 L90 12 L95 22 L100 17 L110 17 L115 8 L120 26 L125 17 L135 17 L140 14 L145 20 L150 17 L160 17 L165 2 L170 32 L175 17 L185 17 L190 11 L195 23 L200 17 L210 17 L215 6 L220 28 L225 17 L235 17 L240 13 L245 21 L250 17 L260 17 L265 4 L270 30 L275 17 L285 17 L290 9 L295 25 L300 17"/>
+  </svg>
+</div>
         </g>
         <g class="braco">
           <line x1="175" y1="45" x2="140" y2="90" stroke="#f6f3ec" stroke-width="3" stroke-linecap="round"/>
@@ -328,14 +347,3 @@
     </div>
   </div>
 </footer>
-
-<script src="script.js"></script>
-</body>
-</html>
-<div class="turntable">
-  <!-- O disco de vinil que vai girar -->
-  <div class="disc"></div>
-
-  <!-- A agulha/braço que fica parado -->
-  <div class="arm"></div>
-</div>

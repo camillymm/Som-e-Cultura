@@ -515,41 +515,238 @@ html[data-theme="dark"] .fav-btn.active{background:#f3f1ea;color:#0b0f1c;}
 @media (max-width:560px){
   .fav-btn{padding:10px 16px;font-size:12.5px;}
 }
-/* Container principal (fixo) */
+/* =========================================================
+   ANIMAÇÃO DO DISCO DE VINIL + AGULHA + RADAR SWEEP
+   ========================================================= */
+
+/* Container do toca-discos */
 .turntable {
+  width: 62%;
   position: relative;
-  /* Mantenha suas dimensões de tamanho aqui */
+  z-index: 2;
+  cursor: pointer;
+  transition: transform 0.3s ease;
 }
 
-/* O elemento do disco */
-.turntable .disc {
+.turntable:hover {
+  transform: scale(1.02);
+}
+
+/* Disco de vinil - rotação contínua */
+.turntable .vinyl-disc {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  animation: girarDisco 2s linear infinite;
-  animation-play-state: paused; /* Pausado por padrão */
+  background: radial-gradient(circle at 30% 30%, #2a3a5c, #0b0f1c 70%);
+  position: relative;
+  animation: spin 4s linear infinite;
+  box-shadow: 0 0 40px rgba(106, 130, 200, 0.15), inset 0 0 30px rgba(0, 0, 0, 0.6);
 }
 
-/* Quando o pai tiver a classe .girando, APENAS o .disc gira */
-.turntable.girando .disc {
-  animation-play-state: running !important;
-}
-
-/* A agulha fica fixa sobre o disco */
-.turntable .arm {
+/* Anéis concêntricos do vinil */
+.turntable .vinyl-disc::before {
+  content: '';
   position: absolute;
-  /* Ajuste a posição do braço da agulha conforme seu layout */
-  top: 10%;
-  right: 10%;
-  pointer-events: none; /* Permite clicar no disco através da agulha */
+  inset: 10%;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Animação de rotação */
-@keyframes girarDisco {
+.turntable .vinyl-disc::after {
+  content: '';
+  position: absolute;
+  inset: 25%;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Centro do disco (label) */
+.turntable .vinyl-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 18%;
+  height: 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #6a82c8, #2a3a5c);
+  z-index: 3;
+  box-shadow: 0 0 15px rgba(106, 130, 200, 0.4);
+}
+
+/* Furo central */
+.turntable .vinyl-hole {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4%;
+  height: 4%;
+  border-radius: 50%;
+  background: #060910;
+  z-index: 4;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
+}
+
+/* Agulha (braço do toca-discos) */
+.turntable .needle-arm {
+  position: absolute;
+  top: 8%;
+  right: 8%;
+  width: 40%;
+  height: 3px;
+  background: linear-gradient(90deg, #c0c0c0, #f6f3ec);
+  border-radius: 2px;
+  transform-origin: right center;
+  transform: rotate(-25deg);
+  animation: needleMove 4s ease-in-out infinite;
+  z-index: 5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Ponta da agulha */
+.turntable .needle-arm::after {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f6f3ec;
+  box-shadow: 0 0 8px rgba(246, 243, 236, 0.6);
+}
+
+/* Base da agulha (pivô) */
+.turntable .needle-base {
+  position: absolute;
+  top: 6%;
+  right: 6%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #8b8879;
+  z-index: 6;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Radar Sweep - feixe de luz que varre o fundo */
+.hero-art .radar-sweep {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 340deg,
+    rgba(106, 130, 200, 0.15) 350deg,
+    rgba(106, 130, 200, 0.3) 355deg,
+    rgba(106, 130, 200, 0.15) 360deg
+  );
+  animation: radarSweep 6s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.8;
+}
+
+/* Anéis de pulso (radar) */
+.hero-art .pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(106, 130, 200, 0.2);
+  animation: pulseRing 4s ease-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-art .pulse-ring:nth-child(2) {
+  animation-delay: 1.33s;
+}
+
+.hero-art .pulse-ring:nth-child(3) {
+  animation-delay: 2.66s;
+}
+
+/* Animações */
+@keyframes spin {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes needleMove {
+  0%, 100% {
+    transform: rotate(-25deg);
+  }
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+
+@keyframes radarSweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    width: 10%;
+    height: 10%;
+    opacity: 0.6;
+  }
+  100% {
+    width: 120%;
+    height: 120%;
+    opacity: 0;
+  }
+}
+
+/* Modo escuro - ajustes */
+html[data-theme="dark"] .turntable .vinyl-disc {
+  background: radial-gradient(circle at 30% 30%, #1a2440, #060910 70%);
+}
+
+html[data-theme="dark"] .turntable .vinyl-label {
+  background: radial-gradient(circle, #4a5a8a, #1a2440);
+}
+
+html[data-theme="dark"] .turntable .needle-arm {
+  background: linear-gradient(90deg, #8b8879, #f3f1ea);
+}
+
+html[data-theme="dark"] .hero-art .radar-sweep {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 340deg,
+    rgba(106, 130, 200, 0.2) 350deg,
+    rgba(106, 130, 200, 0.4) 355deg,
+    rgba(106, 130, 200, 0.2) 360deg
+  );
+}
+
+/* Pausar animação quando o disco não está visível (performance) */
+.hero-art:not(:hover) .turntable .vinyl-disc {
+  animation-play-state: running;
+}
+
+/* Acessibilidade: reduzir movimento */
+@media (prefers-reduced-motion: reduce) {
+  .turntable .vinyl-disc,
+  .turntable .needle-arm,
+  .hero-art .radar-sweep,
+  .hero-art .pulse-ring {
+    animation: none;
   }
 }
