@@ -515,20 +515,37 @@ html[data-theme="dark"] .fav-btn.active{background:#f3f1ea;color:#0b0f1c;}
 @media (max-width:560px){
   .fav-btn{padding:10px 16px;font-size:12.5px;}
 }
+/* Container principal (fixo) */
 .turntable {
-  /* Seus estilos visuais do disco (tamanho, borda arredondada, imagem, etc.) */
-  
-  /* Configura a animação, mas deixa pausada por padrão */
-  animation: rodarVinil 2s linear infinite;
-  animation-play-state: paused;
+  position: relative;
+  /* Mantenha suas dimensões de tamanho aqui */
 }
 
-/* Quando o JS adicionar a classe .girando, o disco começa a rodar */
-.turntable.girando {
-  animation-play-state: running;
+/* O elemento do disco */
+.turntable .disc {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  animation: girarDisco 2s linear infinite;
+  animation-play-state: paused; /* Pausado por padrão */
 }
 
-@keyframes rodarVinil {
+/* Quando o pai tiver a classe .girando, APENAS o .disc gira */
+.turntable.girando .disc {
+  animation-play-state: running !important;
+}
+
+/* A agulha fica fixa sobre o disco */
+.turntable .arm {
+  position: absolute;
+  /* Ajuste a posição do braço da agulha conforme seu layout */
+  top: 10%;
+  right: 10%;
+  pointer-events: none; /* Permite clicar no disco através da agulha */
+}
+
+/* Animação de rotação */
+@keyframes girarDisco {
   from {
     transform: rotate(0deg);
   }
