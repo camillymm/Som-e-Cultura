@@ -808,16 +808,30 @@ document.getElementById('commentForm').addEventListener('submit', async e=>{
 
 /* ===================== FAVORITOS: música, artista e álbum =====================
    Três botões dentro de "Comentários & Indicações". Cada um abre uma seção
-   própria (clicar de novo fecha), com campo de resposta, nome e botão Enviar,
+   própria (a primeira já começa aberta), com campo de resposta, nome e botão Enviar,
    e a sua própria lista de respostas. Os dados vão para /api/favoritos/<tipo>
    ("musica", "artista" ou "album"), que o Flask precisa ter. */
 const FAVORITOS = {
-  musica:  {botao:'Sua música favorita',  titulo:'Qual é a sua música favorita?',  placeholder:'Ex: Snuff - Slipknot'},
-  artista: {botao:'Seu artista favorito', titulo:'Quem é o seu artista favorito?', placeholder:'Escreva o nome do artista...'},
-  album:   {botao:'Seu álbum favorito',   titulo:'Qual é o seu álbum favorito?',   placeholder:'Escreva o nome do álbum...'},
+  musica:  {botao:'Sua música favorita',  placeholder:'Qual é a sua música favorita?'},
+  artista: {botao:'Seu artista favorito', placeholder:'Quem é o seu artista favorito?'},
+  album:   {botao:'Seu álbum favorito',   placeholder:'Qual é o seu álbum favorito?'},
 };
-const favButtons  = document.getElementById('favButtons');
-const favSections = document.getElementById('favSections');
+let favButtons  = document.getElementById('favButtons');
+let favSections = document.getElementById('favSections');
+
+// Se os dois <div> não foram colocados no index.html, o próprio script os cria
+// logo acima do formulário de comentários (#commentForm).
+if(!favButtons || !favSections){
+  const formRef = document.getElementById('commentForm');
+  if(formRef){
+    favButtons = document.createElement('div');
+    favButtons.className = 'fav-buttons';
+    favButtons.id = 'favButtons';
+    favSections = document.createElement('div');
+    favSections.id = 'favSections';
+    formRef.before(favButtons, favSections);
+  }
+}
 
 async function loadFavoritos(tipo, listEl){
   const itens = await apiGet('/favoritos/' + tipo);
@@ -844,7 +858,7 @@ if(favButtons && favSections){
     // botão
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'timeline-dot-btn';
+    btn.className = 'fav-btn';
     btn.textContent = cfg.botao;
     favButtons.appendChild(btn);
 
@@ -853,11 +867,10 @@ if(favButtons && favSections){
     sec.className = 'fav-section';
     sec.hidden = true;
     sec.innerHTML = `
-      <h4>${cfg.titulo}</h4>
       <form class="comment-form">
         <textarea placeholder="${cfg.placeholder}" required></textarea>
         <div class="comment-form-row">
-          <input type="text" placeholder="Nome de usuário ou nome (opcional)">
+          <input type="text" placeholder="Nome (opcional)">
           <button type="submit" class="btn">Enviar</button>
         </div>
       </form>
@@ -870,16 +883,15 @@ if(favButtons && favSections){
     const listEl = sec.querySelector('.comment-list');
     loadFavoritos(tipo, listEl);
 
-    // clicar no botão abre a seção; clicar de novo fecha
-    btn.addEventListener('click', ()=>{
-      const abrir = sec.hidden;
+    // clicar no botão mostra só a sua seção (a primeira já começa aberta)
+    function abrirSecao(){
       favSections.querySelectorAll('.fav-section').forEach(s=> s.hidden = true);
-      favButtons.querySelectorAll('.timeline-dot-btn').forEach(b=> b.classList.remove('active'));
-      if(abrir){
-        sec.hidden = false;
-        btn.classList.add('active');
-      }
-    });
+      favButtons.querySelectorAll('.fav-btn').forEach(b=> b.classList.remove('active'));
+      sec.hidden = false;
+      btn.classList.add('active');
+    }
+    btn.addEventListener('click', abrirSecao);
+    if(favButtons.children.length === 1) abrirSecao();
 
     // enviar
     form.addEventListener('submit', async e=>{

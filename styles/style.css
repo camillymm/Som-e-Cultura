@@ -497,15 +497,21 @@ html[data-theme="dark"] .album-listen{color:#f3f1ea;}
 }
 
 /* ---------- FAVORITOS (música, artista e álbum) ---------- */
-.fav-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0;}
-.fav-section{
-  border:1px solid var(--line);border-radius:var(--radius-m);
-  padding:22px;margin-bottom:22px;
+.fav-buttons{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px;}
+.fav-btn{
+  padding:11px 22px;border-radius:999px;border:none;
+  background:var(--line);color:var(--gray-500);
+  font-size:13px;font-weight:600;
+  transition:background .15s,color .15s;
 }
+.fav-btn:hover{background:#dcd7ca;color:var(--ink-soft);}
+.fav-btn.active{background:var(--navy-950);color:var(--cream);}
 .fav-section[hidden]{display:none;}
-.fav-section h4{font-size:16px;font-weight:600;margin-bottom:14px;}
-.fav-section .comment-list{max-height:260px;}
-html[data-theme="dark"] .fav-section{border-color:#232c47;}
+.fav-section .comment-form-row{margin-top:12px;}
+.fav-section .comment-list{margin-top:22px;padding-top:18px;max-height:260px;}
+html[data-theme="dark"] .fav-btn{background:#232c47;color:#8489a4;}
+html[data-theme="dark"] .fav-btn:hover{background:#2b3558;color:#b9bbc9;}
+html[data-theme="dark"] .fav-btn.active{background:#f3f1ea;color:#0b0f1c;}
 @media (max-width:560px){
-  .fav-section{padding:18px;}
+  .fav-btn{padding:10px 16px;font-size:12.5px;}
 }
