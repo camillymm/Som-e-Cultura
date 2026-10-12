@@ -1,8 +1,4 @@
-/* ===================== CONFIGURAÇÃO DA API =====================
-   Caminhos relativos (ex: "/api/comentarios") — funcionam porque o Flask
-   agora serve este próprio arquivo HTML (mesma origem). Se um dia você for
-   hospedar o HTML em outro servidor/porta separado do Flask, troque os
-   caminhos abaixo para uma URL absoluta, ex: 'http://localhost:5000/api'. */
+/* ===================== CONFIGURAÇÃO DA API ===================== */
 const API_BASE = '/api';
 
 async function apiGet(path){
@@ -30,25 +26,7 @@ async function apiPost(path, body){
   }
 }
 
-/* ===================== EDITÁVEL: dados da semana =====================
-   Para colocar uma foto, cole a URL da imagem no campo "img" de cada item
-   (ex: img:"https://meusite.com/froid.jpg"). Deixe img:"" para manter o
-   ícone padrão (Font Awesome): microfone nos artistas, nota musical nas
-   músicas e disco de vinil nos álbuns — veja ARTIST_ICON / SONG_ICON /
-   ALBUM_ICON mais abaixo caso queira trocar algum desses ícones.
-   O campo "bio" aparece quando o visitante clica no artista/música — troque
-   o texto toda semana junto com o resto dos dados.
-
-   PRÉVIA DE ÁUDIO (só nas músicas): preencha "spotify" com o link da música
-   no Spotify (Compartilhar > Copiar link da música). O botão ▶ abre o player
-   do Spotify: quem não está logado ouve um trecho de 30 segundos, e quem está
-   logado no Spotify ouve a música inteira. Com "spotify" vazio, o botão abre
-   a busca do Spotify com o título e o artista, em outra aba.
-
-   ATENÇÃO com aspas: o texto da bio fica entre aspas duplas ("..."). Se
-   você quiser usar aspas DENTRO do texto (ex: o nome de uma música), escreva
-   \" no lugar de ", assim: bio:"A música \"Garota\" é ..." — sem isso o
-   site inteiro para de funcionar. ======================== */
+/* ===================== DADOS DA SEMANA (editáveis) ===================== */
 const TOP_ARTISTAS = [
   {name:"Froid", sub:"Hip-hop", bio:"Renato Alves Menezes Barreto, o Froid, nasceu em Belo Horizonte (MG) em 1993 e começou a carreira em Brasília no grupo Um Barril de Rap, ao lado de Sampa e Yank, ganhando notoriedade nas batalhas de rima da capital. Solo desde 2017, transita entre rap, trap e batidas mais melódicas, com letras que misturam crítica social e reflexão pessoal — traço marcante desde o hit \"Pseudosocial\". Tem certificações de ouro e platina com singles como \"SK8 do Matheus\" e \"Lamentável, pt. III\"."},
   {name:"Tyler, The Creator", sub:"Hip-hop", bio:"Tyler Gregory Okonma nasceu em Los Angeles em 1991 e fundou o coletivo Odd Future no fim dos anos 2000, que também revelou Frank Ocean e Earl Sweatshirt. Começou com um rap cru e provocador em discos como \"Goblin\" e evoluiu para produções mais sofisticadas, somando jazz, funk e soul em álbuns como \"Flower Boy\", \"IGOR\" e \"Call Me If You Get Lost\" — este último vencedor do Grammy de Melhor Álbum de Rap."},
@@ -56,9 +34,6 @@ const TOP_ARTISTAS = [
   {name:"Alceu Valença", sub:"MPB / Forró / Rock", bio:"Alceu Valença é um dos cantores, compositores e instrumentistas mais expressivos da música popular brasileira. Nascido em São Bento do Una (Pernambuco), em 1946, ele se destacou por fusões inovadoras entre os ritmos tradicionais do Nordeste — como frevo, maracatu, baião e forró — com a linguagem do rock e do pop psicodélico."},
   {name:"Rita Lee", sub:"Rock / MPB", bio:"Rita Lee Jones nasceu em São Paulo em 1947 e começou nos anos 1960 no grupo Os Mutantes, um dos pilares da Tropicália. Depois formou a banda Tutti Frutti e seguiu em carreira solo, misturando rock, pop e humor irreverente. Clássicos como \"Ovelha Negra\", \"Mania de Você\" e \"Lança Perfume\" a consagraram como a rainha do rock brasileiro."},
 ];
-/* Links dos artistas no Spotify (no Spotify: artista > ... > Compartilhar >
-   Copiar link do artista). Com o link preenchido, o site busca a foto do
-   artista no Spotify sozinho. Vazio = continua o ícone de microfone. */
 const ARTISTAS_SPOTIFY = {
   "Froid": "https://open.spotify.com/intl-pt/artist/45Yz90pqjzEdJzpEQg1eII",
   "Tyler, The Creator": "https://open.spotify.com/intl-pt/artist/4V8LLVI7PbaPR0K2TGSxFF",
@@ -73,11 +48,6 @@ const TOP_MUSICAS = [
   {title:"Girassol", sub:"Alceu Valença", spotify:"https://open.spotify.com/intl-pt/track/01mbH2pSWyHgcmWKDbZU5b", bio:"\"Girassol\", foi lançada originalmente no álbum Leque Moleque, em 1987. A letra utiliza metáforas marcantes ligadas à natureza, ao calor, à luminosidade e ao desejo. Elementos como \"um girassol nos teus cabelos\" e o contraste com cores vivas e o sol traduzem a paixão e a estética tropical nordestina."},
   {title:"Lança-perfume", sub:"Rita Lee", spotify:"https://open.spotify.com/intl-pt/track/3cijWAljXxxJDco4N2aLQl", bio:"\"Lança-perfume\" foi composta por Rita Lee e Roberto de Carvalho e lançada em 1980 no álbum homônimo da cantora. A canção é um marco da música pop brasileira e combina ritmos contagiantes da disco music e da pop new wave com o espírito festivo e eufórico do Carnaval."},
 ];
-/* "genre" é usado nos filtros da seção Álbuns Importantes — use o mesmo nome de
-   gênero em vários álbuns para que eles caiam no mesmo filtro.
-   "spotify": link direto do álbum (no Spotify: ... > Compartilhar > Copiar link
-   do álbum). Se deixar vazio (""), o clique abre a busca do Spotify com o
-   nome do álbum e do artista. */
 const ALBUNS = [
   {title:"Abbey Road", artist:"The Beatles", year:"1969", genre:"Rock", why:"Último álbum gravado pela banda; consagrou o medley do lado B.", grad:"linear-gradient(135deg,#1c2440,#0b0f1c)", img:"", spotify:"https://open.spotify.com/album/2Pqkn9Dq2DFtdfkKAeqgMd"},
   {title:"The Dark Side of the Moon", artist:"Pink Floyd", year:"1973", genre:"Rock", why:"741 semanas nas paradas americanas — um recorde.", grad:"linear-gradient(135deg,#232c47,#12141c)", img:"", spotify:"https://open.spotify.com/intl-pt/album/4LH4d3cOWNNsVw41Gqt2kv"},
@@ -90,15 +60,7 @@ const ALBUNS = [
   {title:"Elis & Tom", artist:"Elis Regina & Tom Jobim", year:"1974", genre:"MPB", why:"Encontro histórico entre duas vozes centrais da MPB.", grad:"linear-gradient(135deg,#141b30,#1c2440)", img:"", spotify:"https://open.spotify.com/intl-pt/album/3SE9n6EaVOJ81KA1KPLUWS"},
   {title:"Nevermind", artist:"Nirvana", year:"1991", genre:"Rock", why:"Levou o grunge ao mainstream e mudou o rock dos anos 90.", grad:"linear-gradient(135deg,#0b0f1c,#232c47)", img:"", spotify:"https://open.spotify.com/intl-pt/album/2UJcKiJxNryhL050F5Z1Fk"},
 ];
-
-/* Player da semana: abra a playlist no app do Spotify > Compartilhar >
-   Incorporar playlist > copie a URL de dentro de src="..." e cole abaixo. */
 const SPOTIFY_PLAYLIST_EMBED_URL = "https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0";
-
-/* Efemérides: "dia" no formato MM-DD. Quando a data de hoje bate com alguma
-   entrada, o selo "HOJE NA HISTÓRIA DA MÚSICA" aparece automaticamente.
-   Quando não bate com nenhuma, a faixa fica oculta (sem curiosidade do dia
-   genérica). Adicione quantas entradas quiser. */
 const EFEMERIDES = [
   {dia:"02-09", titulo:"Beatlemania nos EUA (1964)", texto:"Em 9 de fevereiro de 1964, os Beatles se apresentaram pela primeira vez no Ed Sullivan Show, para mais de 70 milhões de telespectadores — o pontapé da invasão britânica nos EUA."},
   {dia:"08-01", titulo:"Nasce a MTV (1981)", texto:"O canal estreou em 1º de agosto de 1981 com o clipe \"Video Killed the Radio Star\", do The Buggles, mudando para sempre a forma de consumir música."},
@@ -111,8 +73,6 @@ const EFEMERIDES = [
   {dia:"07-13", titulo:"Acontece o Live Aid (1985)", texto:"Em 13 de julho de 1985, o megaconcerto Live Aid uniu Londres e Filadélfia para arrecadar fundos contra a fome na Etiópia."},
   {dia:"05-26", titulo:"Sgt. Pepper's é lançado (1967)", texto:"Em 26 de maio de 1967, os Beatles lançaram no Reino Unido \"Sgt. Pepper's Lonely Hearts Club Band\", um marco na produção e na arte de capas de discos."},
 ];
-
-/* Glossário: edite, adicione ou remova termos livremente. */
 const GLOSSARIO = [
   {termo:"Síncope", def:"Deslocamento do acento rítmico esperado, dando \"suingue\" à música — presente do samba ao funk."},
   {termo:"Sample", def:"Trecho de uma gravação existente reaproveitado em uma nova música, técnica central no hip-hop e na música eletrônica."},
@@ -123,9 +83,6 @@ const GLOSSARIO = [
   {termo:"Cover", def:"Regravação de uma música originalmente lançada por outro artista."},
   {termo:"Mixtape", def:"Coletânea informal de faixas, tradicionalmente usada por artistas de hip-hop para lançar material fora do ciclo dos álbuns oficiais."},
 ];
-
-/* Linha do tempo: cada década traz o contexto social e os gêneros que
-   nasceram ou explodiram no período. Edite, adicione ou remova décadas. */
 const TIMELINE = [
   {decada:"Anos 1950", titulo:"O nascimento do rock e a rádio de massa", social:"Explosão do consumo de discos e rádios entre a juventude do pós-guerra; nos EUA, tensões raciais moldam quem toca o quê e onde.", genres:["Rock and roll","Blues elétrico","Bossa nova (final da década)"]},
   {decada:"Anos 1960", titulo:"Contracultura, direitos civis e psicodelia", social:"Movimento pelos direitos civis nos EUA, contracultura hippie e ditadura militar no Brasil empurram a música para o engajamento político.", genres:["MPB","Tropicália","Rock psicodélico","Soul"]},
@@ -136,13 +93,8 @@ const TIMELINE = [
   {decada:"Anos 2010", titulo:"Streaming e a globalização instantânea", social:"Spotify e redes sociais tornam qualquer gênero acessível em qualquer lugar do mundo ao mesmo tempo.", genres:["Trap","K-pop","Sertanejo universitário","EDM"]},
   {decada:"Anos 2020", titulo:"Fragmentação de nichos e viralização", social:"TikTok redefine como uma música vira hit; microgêneros nascem e se espalham globalmente em semanas.", genres:["Piseiro","Hyperpop","Drill","Afrobeats"]},
 ];
-/* ======================================================================= */
 
-/* ===================== ARMAZENAMENTO LOCAL (preferências deste navegador)
-   Usado apenas para o tema (claro/escuro) e para lembrar que este navegador
-   já votou. Esses dados NÃO precisam ser compartilhados entre visitantes,
-   então ficam no localStorage do próprio navegador. Comentários e votos
-   (que são compartilhados) vêm da API do Flask, acima. */
+/* ===================== ARMAZENAMENTO LOCAL ===================== */
 async function storageGet(key){
   try{
     const raw = localStorage.getItem(key);
@@ -161,25 +113,26 @@ const themeIconMoon = document.getElementById('themeIconMoon');
 
 function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
-  themeIconSun.style.display = theme === 'dark' ? 'none' : 'block';
-  themeIconMoon.style.display = theme === 'dark' ? 'block' : 'none';
+  if(themeIconSun && themeIconMoon){
+    themeIconSun.style.display  = theme === 'dark' ? 'none'  : 'block';
+    themeIconMoon.style.display = theme === 'dark' ? 'block' : 'none';
+  }
 }
 (async function initTheme(){
   const saved = await storageGet(THEME_KEY);
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   applyTheme(saved || (prefersDark ? 'dark' : 'light'));
 })();
-themeToggleBtn.addEventListener('click', async ()=>{
-  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  applyTheme(next);
-  await storageSet(THEME_KEY, next);
-});
+if(themeToggleBtn){
+  themeToggleBtn.addEventListener('click', async ()=>{
+    const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    await storageSet(THEME_KEY, next);
+  });
+}
 
-/* ===================== ÍCONES PADRÃO =====================
-   Ícones fixos do Font Awesome (grátis): microfone para artistas, nota
-   musical para músicas, disco de vinil para álbuns. Troque a classe abaixo
-   se quiser usar outro ícone em cada caso. */
+/* ===================== ÍCONES PADRÃO ===================== */
 const ARTIST_ICON = 'fa-microphone';
 const SONG_ICON = 'fa-music';
 const ALBUM_ICON = 'fa-record-vinyl';
@@ -195,7 +148,6 @@ function albumCoverHtml(al){
   return `<div class="album-cover" style="background:${al.grad}">${imgTag}${iconTag}${al.img ? '' : `<span class="mono">${al.title}</span>`}</div>`;
 }
 
-// Acordeão genérico para as listas de artistas/músicas da semana (clique = mostra bio)
 function initRankAccordion(container){
   container.querySelectorAll('.rank-row').forEach(row=>{
     row.addEventListener('click', ()=>{
@@ -213,7 +165,7 @@ function initRankAccordion(container){
   });
 }
 
-// Render Top Artistas (com bio expansível)
+/* Render Top Artistas */
 const artistList = document.getElementById('artistList');
 TOP_ARTISTAS.forEach((a,i)=>{
   artistList.insertAdjacentHTML('beforeend', `
@@ -229,32 +181,24 @@ TOP_ARTISTAS.forEach((a,i)=>{
 });
 initRankAccordion(artistList);
 
-/* ===================== PRÉVIAS DE ÁUDIO (Top músicas) =====================
-   Cada música tem um botão ▶ que abre o player do Spotify logo embaixo dela
-   (só um player aberto por vez). */
+/* ===================== PRÉVIAS DE ÁUDIO ===================== */
 function spotifyTrackId(musica){
-  // Extrai o ID da música a partir do link (open.spotify.com/track/ID?...)
   const achado = (musica.spotify || '').match(/track\/([A-Za-z0-9]+)/);
   return achado ? achado[1] : null;
 }
-
 function resetarBotaoPlay(btn){
   if(!btn) return;
   btn.classList.remove('playing');
   btn.querySelector('i').className = 'fa-solid fa-play';
 }
 
-/* O player do Spotify toca a música INTEIRA para quem está logado no Spotify
-   (e só 30 segundos para quem não está). Para o site mostrar sempre só uma
-   prévia, usamos a API de iframe do Spotify e pausamos aos 30 segundos.
-   Para mudar o tamanho da prévia, altere LIMITE_PREVIA_SEG. */
 const LIMITE_PREVIA_SEG = 30;
 const spotifyApiPronta = new Promise(resolve=>{
   window.onSpotifyIframeApiReady = api => resolve(api);
   const tag = document.createElement('script');
   tag.src = 'https://open.spotify.com/embed/iframe-api/v1';
   tag.async = true;
-  tag.onerror = () => resolve(null);   // se não carregar, usa o player simples
+  tag.onerror = () => resolve(null);
   document.head.appendChild(tag);
 });
 
@@ -263,12 +207,11 @@ function fecharPlayerSpotify(){
   if(!playerAberto) return;
   if(playerAberto.controller){ try{ playerAberto.controller.destroy(); }catch(e){} }
   playerAberto.box.classList.remove('open');
-  playerAberto.box.innerHTML = ''; // remove o iframe, o que também para a música
+  playerAberto.box.innerHTML = '';
   resetarBotaoPlay(playerAberto.btn);
   playerAberto = null;
 }
 
-// Render Top Músicas (com bio expansível e player do Spotify)
 const songList = document.getElementById('songList');
 TOP_MUSICAS.forEach((m,i)=>{
   songList.insertAdjacentHTML('beforeend', `
@@ -293,16 +236,12 @@ TOP_MUSICAS.forEach((m,i)=>{
   const idSpotify = spotifyTrackId(m);
 
   btn.addEventListener('click', e=>{
-    e.stopPropagation(); // não abre/fecha a bio ao clicar no play
-
-    // Sem link da música: abre a busca do Spotify em outra aba
+    e.stopPropagation();
     if(!idSpotify){
       const busca = encodeURIComponent(`${m.title} ${m.sub}`);
       window.open(`https://open.spotify.com/search/${busca}/tracks`, '_blank', 'noopener');
       return;
     }
-
-    // Com link: abre/fecha o player do Spotify embaixo da música
     if(playerAberto && playerAberto.btn === btn){ fecharPlayerSpotify(); return; }
     fecharPlayerSpotify();
     box.innerHTML = '<div></div>';
@@ -313,16 +252,13 @@ TOP_MUSICAS.forEach((m,i)=>{
     playerAberto = atual;
 
     spotifyApiPronta.then(api=>{
-      if(playerAberto !== atual) return;   // foi fechado enquanto carregava
-
-      // Sem a API (bloqueada/offline): player simples, sem corte aos 30s
+      if(playerAberto !== atual) return;
       if(!api){
         box.innerHTML = `<iframe src="https://open.spotify.com/embed/track/${idSpotify}?utm_source=generator"
           width="100%" height="80" frameborder="0" title="Spotify: ${m.title}"
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
         return;
       }
-
       api.createController(box.firstElementChild,
         {uri:`spotify:track:${idSpotify}`, width:'100%', height:80},
         controller=>{
@@ -331,7 +267,7 @@ TOP_MUSICAS.forEach((m,i)=>{
           let cortando = false;
           controller.addListener('playback_update', e=>{
             if(cortando || !e.data) return;
-            if(e.data.position >= LIMITE_PREVIA_SEG * 1000){   // position vem em milissegundos
+            if(e.data.position >= LIMITE_PREVIA_SEG * 1000){
               cortando = true;
               controller.pause();
               controller.seek(0);
@@ -343,9 +279,7 @@ TOP_MUSICAS.forEach((m,i)=>{
   });
 });
 
-// Render Álbuns (dentro da aba "Linha do Tempo")
-// Cada álbum é um link que abre no Spotify (link direto, se preenchido em
-// "spotify", ou a busca do Spotify com título + artista).
+/* Render Álbuns */
 function spotifyAlbumUrl(al){
   if(al.spotify) return al.spotify;
   return `https://open.spotify.com/search/${encodeURIComponent(al.title + ' ' + al.artist)}/albums`;
@@ -363,7 +297,7 @@ ALBUNS.forEach(al=>{
     </a>`);
 });
 
-// Render Glossário (dentro da aba "Sobre Música")
+/* Render Glossário */
 const glossAccordion = document.getElementById('glossAccordion');
 GLOSSARIO.forEach((g,i)=>{
   glossAccordion.insertAdjacentHTML('beforeend', `
@@ -373,22 +307,18 @@ GLOSSARIO.forEach((g,i)=>{
     </div>`);
 });
 
-// Render player do Spotify
+/* Render Spotify */
 document.getElementById('spotifyEmbed').innerHTML =
   `<iframe src="${SPOTIFY_PLAYLIST_EMBED_URL}" width="100%" height="352" frameborder="0"
     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
 
-// Render efeméride ("Hoje na história da música") — só aparece se houver
-// uma entrada correspondente à data de hoje; caso contrário fica oculta.
+/* Efeméride */
 (function renderEfemeride(){
   const now = new Date();
   const todayKey = String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
   const item = EFEMERIDES.find(e => e.dia === todayKey);
   const band = document.getElementById('efemerideBand');
-  if(!item){
-    band.style.display = 'none';
-    return;
-  }
+  if(!item){ band.style.display = 'none'; return; }
   band.style.display = 'flex';
   band.innerHTML = `
     <svg class="ef-icon" viewBox="0 0 24 24" fill="none" stroke="#f6f3ec" stroke-width="1.6"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6M12 2v3"/></svg>
@@ -399,7 +329,7 @@ document.getElementById('spotifyEmbed').innerHTML =
     </div>`;
 })();
 
-// Nav = abas exclusivas: apenas a seção clicada aparece (a tela inicial some das outras abas)
+/* Nav = abas */
 const navButtons = document.querySelectorAll('.main-nav button');
 const tabSections = document.querySelectorAll('.tab-section');
 const heroSection = document.getElementById('heroSection');
@@ -407,7 +337,7 @@ const navMap = {};
 navButtons.forEach(b=>navMap[b.dataset.target]=b);
 
 function setActiveTab(id){
-  fecharPlayerSpotify(); // fecha o player do Spotify ao trocar de aba
+  fecharPlayerSpotify();
   tabSections.forEach(s=>s.classList.toggle('tab-open', s.id===id));
   Object.values(navMap).forEach(b=>b.classList.toggle('active', b.dataset.target===id));
   if(heroSection) heroSection.style.display = (id==='sobre') ? '' : 'none';
@@ -423,13 +353,10 @@ navButtons.forEach(btn=>{
   });
 });
 
-// Cards "Sobre Música": cada card abre o seu conteúdo (clicar de novo fecha).
-// No celular o conteúdo aparece logo abaixo do card clicado; no computador,
-// abaixo da grade de cards.
+/* Cards "Sobre Música" */
 const aboutCards = document.querySelectorAll('.about-card');
 const isMobileView = () => window.matchMedia('(max-width: 768px)').matches;
 
-// Guarda a posição original de cada painel, para devolvê-lo ao fechar
 const paneHome = new Map();
 document.querySelectorAll('.pane').forEach(p=>{
   const marker = document.createComment('pane-home');
@@ -440,7 +367,6 @@ function returnPaneHome(p){
   const marker = paneHome.get(p);
   if(marker && marker.nextSibling !== p) marker.after(p);
 }
-
 function closeAboutPanes(){
   document.querySelectorAll('.pane').forEach(p=>{
     p.classList.remove('active');
@@ -451,25 +377,19 @@ function closeAboutPanes(){
 function switchAboutTab(name){
   document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('active', p.id==='pane-'+name));
 }
-
 aboutCards.forEach(card=>{
   card.addEventListener('click', ()=>{
     const targetId = card.dataset.open;
     const pane = targetId.startsWith('genero') ? 'genero' : targetId.startsWith('inst') ? 'inst' : targetId.startsWith('gloss') ? 'gloss' : 'cur';
     const paneEl = document.getElementById('pane-'+pane);
-
-    // clicou no card que já está aberto: fecha
     if(paneEl.classList.contains('active')){
       closeAboutPanes();
       return;
     }
-
     closeAboutPanes();
-    if(isMobileView()) card.after(paneEl);   // celular: logo abaixo do card
+    if(isMobileView()) card.after(paneEl);
     switchAboutTab(pane);
     card.classList.add('active');
-
-    // abre o primeiro item do painel
     const item = document.getElementById(targetId);
     if(item && !item.classList.contains('open')){
       item.querySelector('.acc-trigger').click();
@@ -480,7 +400,7 @@ aboutCards.forEach(card=>{
   });
 });
 
-// Accordion
+/* Accordion genérico */
 document.querySelectorAll('.acc-trigger').forEach(trigger=>{
   trigger.addEventListener('click', ()=>{
     const item = trigger.closest('.acc-item');
@@ -497,10 +417,9 @@ document.querySelectorAll('.acc-trigger').forEach(trigger=>{
   });
 });
 
-/* ===================== LINHA DO TEMPO ===================== */
+/* Linha do tempo */
 const timelineTrack = document.getElementById('timelineTrack');
 const timelineDetail = document.getElementById('timelineDetail');
-
 function renderTimelineDetail(index){
   const t = TIMELINE[index];
   timelineDetail.innerHTML = `
@@ -528,12 +447,7 @@ TIMELINE.forEach((t,i)=>{
 });
 renderTimelineDetail(0);
 
-/* ===================== VOTAÇÃO (dados vêm da API do Flask) =====================
-   "tipo" precisa bater com o que é gravado no backend ('artista' ou 'musica').
-   "id" é só um identificador interno usado no HTML/CSS deste front-end.
-   "name" é o valor gravado como item_nome na tabela `votos` — como a coluna
-   item_nome é UNIQUE em toda a tabela, não repita o mesmo nome entre artistas
-   e músicas. */
+/* Votação */
 const VOTE_CONFIGS = {
   artista: {
     tipo: 'artista',
@@ -559,7 +473,6 @@ const VOTE_CONFIGS = {
   }
 };
 
-// Busca as contagens de votos direto da API para um dado "tipo" ('artista'/'musica')
 async function fetchVoteCounts(cfg){
   const counts = {};
   cfg.options.forEach(o=>{ counts[o.id] = 0; });
@@ -579,8 +492,6 @@ async function renderVoteCard(containerId, cfg, votedKey){
   let voted = await storageGet(votedKey);
   let pending = null;
 
-  // cfg.tipo === 'artista' identifica o card de votação em ARTISTAS;
-  // qualquer outro valor (ex: 'musica') identifica o card de votação em MÚSICAS.
   const cardIcon = cfg.tipo === 'artista' ? ARTIST_ICON : SONG_ICON;
   const optionsHtml = cfg.options.map(o=>`
     <label class="vote-option" data-id="${o.id}">
@@ -630,7 +541,6 @@ async function renderVoteCard(containerId, cfg, votedKey){
 
   updateBars();
 
-  // Atualiza as porcentagens sozinho, para refletir votos de outras pessoas
   setInterval(async ()=>{
     if(document.hidden) return;
     counts = await fetchVoteCounts(cfg);
@@ -672,12 +582,7 @@ async function renderVoteCard(containerId, cfg, votedKey){
   });
 }
 
-/* ===================== CAPAS E FOTOS VIA SPOTIFY (oEmbed) =====================
-   Em vez de hospedar imagens copiadas, o site pede a imagem ao endpoint
-   público oEmbed do Spotify, a partir do link (música, álbum ou artista).
-   As imagens continuam hospedadas no Spotify e cada item já leva ao Spotify.
-   Sem link, ou se a busca falhar, o ícone padrão continua aparecendo.
-   Se você preencher "img" manualmente em algum item, ele tem prioridade. */
+/* Imagens via Spotify oEmbed */
 const thumbCache = {};
 function spotifyThumb(url){
   if(!url) return Promise.resolve('');
@@ -698,9 +603,8 @@ function trocarCapaAlbum(coverEl, src, alt){
   if(!coverEl || !src) return;
   const icone = coverEl.querySelector('.album-icon');
   if(icone) icone.remove();
-  const titulo = coverEl.querySelector('.mono'); // texto do título em volta da capa
+  const titulo = coverEl.querySelector('.mono');
   if(titulo) titulo.remove();
-  // a capa passa a preencher o quadrado inteiro, sem margem
   coverEl.classList.add('tem-capa');
   coverEl.style.position = 'relative';
   coverEl.style.padding = '0';
@@ -709,11 +613,10 @@ function trocarCapaAlbum(coverEl, src, alt){
     `<img src="${src}" alt="${alt}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;">`);
 }
 
-const imagensPorNome = {}; // "artista:Nome" / "musica:Título" -> URL da imagem
+const imagensPorNome = {};
 
 async function carregarImagensSpotify(){
   const tarefas = [];
-
   TOP_ARTISTAS.forEach((a,i)=>{
     if(a.img) return;
     tarefas.push(spotifyThumb(ARTISTAS_SPOTIFY[a.name]).then(src=>{
@@ -722,7 +625,6 @@ async function carregarImagensSpotify(){
       trocarAvatar(artistList.querySelectorAll('.rank-item')[i].querySelector('.avatar'), src, a.name);
     }));
   });
-
   TOP_MUSICAS.forEach((m,i)=>{
     if(m.img) return;
     tarefas.push(spotifyThumb(m.spotify).then(src=>{
@@ -731,18 +633,15 @@ async function carregarImagensSpotify(){
       trocarAvatar(songList.querySelectorAll('.rank-item')[i].querySelector('.avatar'), src, m.title);
     }));
   });
-
   ALBUNS.forEach((al,i)=>{
     if(al.img) return;
     tarefas.push(spotifyThumb(al.spotify).then(src=>{
       trocarCapaAlbum(albumGrid.querySelectorAll('.album-card')[i].querySelector('.album-cover'), src, 'Capa de ' + al.title);
     }));
   });
-
   await Promise.all(tarefas);
 }
 
-// Reaproveita as mesmas imagens nos cards de votação (os nomes são os mesmos das listas)
 function aplicarImagensNaVotacao(){
   [['voteArtista', VOTE_CONFIGS.artista, 'artista:'], ['voteMusica', VOTE_CONFIGS.musica, 'musica:']].forEach(([id, cfg, prefixo])=>{
     cfg.options.forEach(o=>{
@@ -758,18 +657,14 @@ Promise.all([
   carregarImagensSpotify(),
 ]).then(aplicarImagensNaVotacao);
 
-/* ===================== UTILIDADE: escapar HTML ===================== */
+/* escapeHtml */
 function escapeHtml(str){
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }
 
-/* ===================== FAVORITOS: música, artista e álbum =====================
-   Três botões dentro de "Comentários & Indicações". Cada um abre uma seção
-   própria (a primeira já começa aberta), com campo de resposta, nome e botão Enviar,
-   e a sua própria lista de respostas. Os dados vão para /api/favoritos/<tipo>
-   ("musica", "artista" ou "album"), que o Flask precisa ter. */
+/* Favoritos */
 const FAVORITOS = {
   musica:  {botao:'Sua música favorita',  placeholder:'Qual é a sua música favorita?'},
   artista: {botao:'Seu artista favorito', placeholder:'Quem é o seu artista favorito?'},
@@ -778,15 +673,11 @@ const FAVORITOS = {
 let favButtons  = document.getElementById('favButtons');
 let favSections = document.getElementById('favSections');
 
-// A caixa antiga de comentário geral (formulário #commentForm e lista
-// #commentList) foi substituída pelas 3 seções de favoritos: aqui ela é removida.
 ['commentForm','commentList'].forEach(id=>{
   const antigo = document.getElementById(id);
   if(antigo) antigo.remove();
 });
 
-// Se os dois <div> não foram colocados no index.html, o próprio script os cria
-// dentro do painel "Comentários & Indicações" (.comments-panel).
 if(!favButtons || !favSections){
   const painel = document.querySelector('.comments-panel');
   if(painel){
@@ -821,14 +712,12 @@ async function loadFavoritos(tipo, listEl){
 
 if(favButtons && favSections){
   Object.entries(FAVORITOS).forEach(([tipo, cfg])=>{
-    // botão
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'fav-btn';
     btn.textContent = cfg.botao;
     favButtons.appendChild(btn);
 
-    // seção
     const sec = document.createElement('div');
     sec.className = 'fav-section';
     sec.hidden = true;
@@ -849,7 +738,6 @@ if(favButtons && favSections){
     const listEl = sec.querySelector('.comment-list');
     loadFavoritos(tipo, listEl);
 
-    // clicar no botão mostra só a sua seção (a primeira já começa aberta)
     function abrirSecao(){
       favSections.querySelectorAll('.fav-section').forEach(s=> s.hidden = true);
       favButtons.querySelectorAll('.fav-btn').forEach(b=> b.classList.remove('active'));
@@ -859,7 +747,6 @@ if(favButtons && favSections){
     btn.addEventListener('click', abrirSecao);
     if(favButtons.children.length === 1) abrirSecao();
 
-    // enviar
     form.addEventListener('submit', async e=>{
       e.preventDefault();
       const texto = textEl.value.trim();
@@ -880,14 +767,15 @@ if(favButtons && favSections){
   });
 }
 
-/* ===================== DISCO DO HERO: clique para girar ===================== */
+/* ===================== DISCO DO HERO: clique para girar/pausar ===================== */
 (function(){
   const disco = document.querySelector('.turntable');
   if(!disco) return;
   function alternar(){
-    const girando = disco.classList.toggle('girando');
-    disco.setAttribute('aria-pressed', girando ? 'true' : 'false');
+    const pausado = disco.classList.toggle('paused');
+    disco.setAttribute('aria-pressed', pausado ? 'false' : 'true');
   }
+  disco.setAttribute('aria-pressed', 'true');
   disco.addEventListener('click', alternar);
   disco.addEventListener('keydown', e=>{
     if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); alternar(); }
