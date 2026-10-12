@@ -807,7 +807,7 @@ async function loadFavoritos(tipo, listEl){
     return;
   }
   if(!itens.length){
-    listEl.innerHTML = '<li class="c-text">!</li>';
+    listEl.innerHTML = '<li class="c-text"></li>';
     return;
   }
   itens.forEach(c=>{
