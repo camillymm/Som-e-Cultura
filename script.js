@@ -806,6 +806,102 @@ document.getElementById('commentForm').addEventListener('submit', async e=>{
   }
 });
 
+/* ===================== FAVORITOS: música, artista e álbum =====================
+   Três botões dentro de "Comentários & Indicações". Cada um abre uma seção
+   própria (clicar de novo fecha), com campo de resposta, nome e botão Enviar,
+   e a sua própria lista de respostas. Os dados vão para /api/favoritos/<tipo>
+   ("musica", "artista" ou "album"), que o Flask precisa ter. */
+const FAVORITOS = {
+  musica:  {botao:'Sua música favorita',  titulo:'Qual é a sua música favorita?',  placeholder:'Ex: Snuff - Slipknot'},
+  artista: {botao:'Seu artista favorito', titulo:'Quem é o seu artista favorito?', placeholder:'Escreva o nome do artista...'},
+  album:   {botao:'Seu álbum favorito',   titulo:'Qual é o seu álbum favorito?',   placeholder:'Escreva o nome do álbum...'},
+};
+const favButtons  = document.getElementById('favButtons');
+const favSections = document.getElementById('favSections');
+
+async function loadFavoritos(tipo, listEl){
+  const itens = await apiGet('/favoritos/' + tipo);
+  listEl.innerHTML = '';
+  if(!itens){
+    listEl.innerHTML = '<li class="c-text">Não foi possível carregar as respostas.</li>';
+    return;
+  }
+  if(!itens.length){
+    listEl.innerHTML = '<li class="c-text">Ninguém respondeu ainda. Seja a primeira pessoa!</li>';
+    return;
+  }
+  itens.forEach(c=>{
+    listEl.insertAdjacentHTML('beforeend', `
+      <li>
+        <div class="c-head"><span class="c-name">${escapeHtml(c.nome)}</span></div>
+        <div class="c-text">${escapeHtml(c.texto)}</div>
+      </li>`);
+  });
+}
+
+if(favButtons && favSections){
+  Object.entries(FAVORITOS).forEach(([tipo, cfg])=>{
+    // botão
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'timeline-dot-btn';
+    btn.textContent = cfg.botao;
+    favButtons.appendChild(btn);
+
+    // seção
+    const sec = document.createElement('div');
+    sec.className = 'fav-section';
+    sec.hidden = true;
+    sec.innerHTML = `
+      <h4>${cfg.titulo}</h4>
+      <form class="comment-form">
+        <textarea placeholder="${cfg.placeholder}" required></textarea>
+        <div class="comment-form-row">
+          <input type="text" placeholder="Nome de usuário ou nome (opcional)">
+          <button type="submit" class="btn">Enviar</button>
+        </div>
+      </form>
+      <ul class="comment-list"></ul>`;
+    favSections.appendChild(sec);
+
+    const form   = sec.querySelector('form');
+    const textEl = sec.querySelector('textarea');
+    const nameEl = sec.querySelector('input');
+    const listEl = sec.querySelector('.comment-list');
+    loadFavoritos(tipo, listEl);
+
+    // clicar no botão abre a seção; clicar de novo fecha
+    btn.addEventListener('click', ()=>{
+      const abrir = sec.hidden;
+      favSections.querySelectorAll('.fav-section').forEach(s=> s.hidden = true);
+      favButtons.querySelectorAll('.timeline-dot-btn').forEach(b=> b.classList.remove('active'));
+      if(abrir){
+        sec.hidden = false;
+        btn.classList.add('active');
+      }
+    });
+
+    // enviar
+    form.addEventListener('submit', async e=>{
+      e.preventDefault();
+      const texto = textEl.value.trim();
+      if(!texto) return;
+      const nome = nameEl.value.trim() || 'Anônimo';
+      const enviar = form.querySelector('button[type="submit"]');
+      enviar.disabled = true;
+      const result = await apiPost('/favoritos/' + tipo, {nome, texto});
+      enviar.disabled = false;
+      if(result && result.success){
+        textEl.value = '';
+        nameEl.value = '';
+        loadFavoritos(tipo, listEl);
+      } else {
+        alert('Não foi possível enviar agora. Tente novamente.');
+      }
+    });
+  });
+}
+
 /* ===================== DISCO DO HERO: clique para girar ===================== */
 (function(){
   const disco = document.querySelector('.turntable');

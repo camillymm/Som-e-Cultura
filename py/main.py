@@ -42,6 +42,10 @@ if USE_POSTGRES:
 # aqui no código: o repositório do GitHub pode ser público.
 ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN")
 
+# Tipos aceitos nas respostas de favoritos (seções dentro de "Comentários &
+# Indicações"). Têm que bater com as chaves de FAVORITOS no script.js.
+TIPOS_FAVORITOS = {"musica", "artista", "album"}
+
 
 def get_conn():
     if USE_POSTGRES:
@@ -80,6 +84,16 @@ def init_db():
             tipo TEXT,
             item_nome TEXT UNIQUE,
             total INTEGER DEFAULT 0
+        )
+    ''')
+    # Tabela de Favoritos ('musica', 'artista' ou 'album')
+    cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS favoritos (
+            id {pk},
+            tipo TEXT NOT NULL,
+            nome TEXT,
+            texto TEXT NOT NULL,
+            data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     conn.commit()
@@ -139,6 +153,76 @@ def apagar_comentario(comentario_id):
 
     if apagados == 0:
         return jsonify({"error": "Comentário não encontrado"}), 404
+    return jsonify({"success": True})
+
+# --- Rotas de Favoritos (música, artista e álbum favoritos) ---
+@app.route('/api/favoritos/<tipo>', methods=['GET'])
+def get_favoritos(tipo):
+    if tipo not in TIPOS_FAVORITOS:
+        return jsonify({"error": "Tipo inválido"}), 400
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        q("SELECT id, nome, texto, data FROM favoritos WHERE tipo = ? ORDER BY id DESC"),
+        (tipo,),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+
+    favoritos = [
+        {"id": r[0], "nome": r[1] or "Anônimo", "texto": r[2], "data": str(r[3]) if r[3] else ""}
+        for r in rows
+    ]
+    return jsonify(favoritos)
+
+@app.route('/api/favoritos/<tipo>', methods=['POST'])
+def add_favorito(tipo):
+    if tipo not in TIPOS_FAVORITOS:
+        return jsonify({"error": "Tipo inválido"}), 400
+
+    data = request.get_json(silent=True) or {}
+    nome = (data.get('nome') or '').strip()[:40] or 'Anônimo'
+    texto = (data.get('texto') or '').strip()[:300]
+
+    if not texto:
+        return jsonify({"error": "O texto é obrigatório"}), 400
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        q("INSERT INTO favoritos (tipo, nome, texto) VALUES (?, ?, ?)"),
+        (tipo, nome, texto),
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True})
+
+# Apagar uma resposta de favoritos (mesma senha de moderação dos comentários)
+@app.route('/api/favoritos/<tipo>/<int:favorito_id>', methods=['DELETE'])
+def apagar_favorito(tipo, favorito_id):
+    if tipo not in TIPOS_FAVORITOS:
+        return jsonify({"error": "Tipo inválido"}), 400
+    if not ADMIN_TOKEN:
+        return jsonify({"error": "Moderação desativada"}), 503
+
+    enviado = request.headers.get('X-Admin-Token', '')
+    if not hmac.compare_digest(enviado.encode('utf-8'), ADMIN_TOKEN.encode('utf-8')):
+        return jsonify({"error": "Não autorizado"}), 401
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        q("DELETE FROM favoritos WHERE id = ? AND tipo = ?"),
+        (favorito_id, tipo),
+    )
+    apagados = cursor.rowcount
+    conn.commit()
+    conn.close()
+
+    if apagados == 0:
+        return jsonify({"error": "Resposta não encontrada"}), 404
     return jsonify({"success": True})
 
 # --- Rotas de Votação ---

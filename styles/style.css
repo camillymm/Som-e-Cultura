@@ -17,6 +17,7 @@
    14. Responsivo (até 1100px, até 920px, tablet em pé, celular)
    15. Modo escuro
    16. Capas e fotos do Spotify
+   17. Favoritos (música, artista e álbum)
    ========================================================= */
 
 /* ---------- VARIÁVEIS E BASE ---------- */
@@ -494,114 +495,17 @@ html[data-theme="dark"] .album-listen{color:#f3f1ea;}
 .avatar .avatar-img{
   width:100%;height:100%;object-fit:cover;display:block;
 }
-/* =========================================================
-   SOM & CULTURA — profissional.css
-   Camada de acabamento: cor de destaque (azul-gelo), hovers,
-   acessibilidade e animações sutis. Carregar DEPOIS de
-   style.css e mobile.css.
-   ========================================================= */
 
-/* ---------- PALETA ---------- */
-:root{
-  --accent:#9DB8E8;            /* destaque (preenchimentos, linhas, brilhos) */
-  --accent-ink:#3D5A94;        /* versão escura, para TEXTO sobre fundo claro */
-  --gray-500:#6f6c5e;
+/* ---------- FAVORITOS (música, artista e álbum) ---------- */
+.fav-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0;}
+.fav-section{
+  border:1px solid var(--line);border-radius:var(--radius-m);
+  padding:22px;margin-bottom:22px;
 }
-html[data-theme="dark"]{
-  --accent-ink:#9DB8E8;        /* mesmo azul do botão, para o hover bater */
-}
-/* ---------- ACESSIBILIDADE: foco visível ao navegar com Tab ---------- */
-:focus-visible{
-  outline:2px solid var(--accent);
-  outline-offset:3px;
-  border-radius:4px;
-}
-
-/* ---------- LOGO ---------- */
-.logo-mark svg{stroke:var(--accent);}
-
-/* ---------- HERO: brilho atrás do disco e leve flutuação ---------- */
-.hero-art::before{
-  content:'';position:absolute;width:70%;aspect-ratio:1/1;border-radius:50%;
-  background:radial-gradient(circle, rgba(157,184,232,.22), transparent 65%);
-  filter:blur(10px);z-index:1;
-}
-.turntable{animation:flutuar 7s ease-in-out infinite;}
-@keyframes flutuar{
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-6px);}
-}
-
-/* ---------- DISCO INTERATIVO (clique para girar) ---------- */
-.turntable{cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.turntable:focus-visible{outline-offset:6px;border-radius:50%;}
-.turntable .disco{
-  transform-box:fill-box;transform-origin:center;
-  animation:girar 3.2s linear infinite;
-  animation-play-state:paused;      /* parado até o clique */
-}
-.turntable.girando .disco{animation-play-state:running;}
-.turntable .braco{
-  transform-box:view-box;transform-origin:178px 42px;   /* gira em torno do pino do braço */
-  transition:transform .7s ease;
-}
-.turntable.girando .braco{transform:rotate(10deg);}
-@keyframes girar{to{transform:rotate(360deg);}}
-
-/* ---------- CARDS "SOBRE MÚSICA" ---------- */
-.about-card:hover .tag{color:var(--accent);}
-html .about-card.active{outline-color:var(--accent);}
-
-/* ---------- EFEMÉRIDE ---------- */
-.efemeride-band{border-left:3px solid var(--accent);}
-
-/* ---------- ÁLBUNS: hover mais marcante ---------- */
-a.album-card .album-cover{transition:box-shadow .2s;}
-a.album-card:hover .album-cover{box-shadow:0 14px 34px rgba(6,9,16,.35);}
-.album-card h4{transition:color .15s;}
-a.album-card:hover h4{color:var(--accent-ink);}
-
-/* ---------- RANKINGS ---------- */
-.rank-name{transition:color .15s;}
-.rank-row:hover .rank-name{color:var(--accent-ink);}
-.play-btn:hover:not(:disabled){background:var(--accent);color:var(--accent-ink);}
-.play-btn.playing{outline-color:var(--accent);}
-
-/* ---------- VOTAÇÃO: líder em destaque ---------- */
-.vote-option.lider .vote-bar-fill{background:var(--accent);}
-.vote-option.lider .vote-pct{color:var(--accent-ink);}
-html[data-theme] .vote-option.selected .vote-radio{border-color:var(--accent);}
-html[data-theme] .vote-option.selected .vote-radio::after{background:var(--accent);}
-.vote-btn:hover:not(:disabled){background:var(--accent);color:var(--accent-ink);}
-
-/* ---------- BOTÕES ---------- */
-.btn{transition:transform .15s, background .15s, color .15s;}
-.btn:hover{background:var(--accent);color:var(--accent-ink);}
-/* no modo escuro o botão original ficava quase invisível */
-html[data-theme="dark"] .btn{background:var(--accent);color:#060910;}
-html[data-theme="dark"] .btn:hover{background:#f3f1ea;}
-
-/* ---------- RODAPÉ ---------- */
-.social-ic:hover{border-color:var(--accent);color:var(--accent);}
-
-/* ---------- ENTRADA SUAVE AO TROCAR DE ABA ---------- */
-.tab-section.tab-open{animation:entrar .45s ease both;}
-@keyframes entrar{
-  from{opacity:0;transform:translateY(10px);}
-  to{opacity:1;transform:none;}
-}
-
-/* ---------- MAIS "AR" ENTRE AS SEÇÕES (só em telas grandes) ---------- */
-@media (min-width:1101px){
-  .section{padding:104px 0;}
-  .section-head{margin-bottom:44px;}
-  .section-head h2{font-size:32px;}
-}
-
-/* ---------- RESPEITA QUEM DESATIVA ANIMAÇÕES NO SISTEMA ---------- */
-@media (prefers-reduced-motion:reduce){
-  .tab-section.tab-open,
-  .turntable,
-  .turntable .disco{animation:none !important;}
-  *{scroll-behavior:auto !important;transition-duration:.01ms !important;}
+.fav-section[hidden]{display:none;}
+.fav-section h4{font-size:16px;font-weight:600;margin-bottom:14px;}
+.fav-section .comment-list{max-height:260px;}
+html[data-theme="dark"] .fav-section{border-color:#232c47;}
+@media (max-width:560px){
+  .fav-section{padding:18px;}
 }
