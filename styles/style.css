@@ -226,6 +226,7 @@ a.album-card:hover{transform:translateY(-3px);}
 .spotify-embed iframe{display:block;width:100%;max-width:100%;}
 
 /* ---------- DESCOBERTA ---------- */
+
 .disc-grid{display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:20px;}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-m);padding:22px;min-width:0;}
 .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
