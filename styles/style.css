@@ -286,62 +286,13 @@
     transition:background .15s,color .15s,border-color .15s;
   }
   .timeline-dot-btn.active{background:var(--navy-950);color:var(--cream);border-color:var(--navy-950);}
-  .timeline-detail{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-m);padding:30px;margin-bottom:70px;}
+  .timeline-detail{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-m);padding:30px;margin-bottom:0;}
   .timeline-detail .tl-decade{font-size:11.5px;letter-spacing:.08em;font-weight:600;color:var(--gray-500);display:block;margin-bottom:8px;}
   .timeline-detail h3{font-size:24px;font-weight:600;margin-bottom:14px;}
   .timeline-detail .tl-block{margin-top:16px;}
   .timeline-detail .tl-block-label{font-size:11px;letter-spacing:.05em;font-weight:600;color:var(--gray-700);display:block;margin-bottom:8px;}
   .timeline-genres{display:flex;flex-wrap:wrap;gap:8px;}
   .timeline-genre-chip{font-size:11.5px;font-weight:600;padding:7px 15px;border-radius:999px;background:var(--navy-950);color:var(--cream);}
-
-  /* ---------- ONDE NASCEU ESSE SOM ---------- */
-  .origin-layout{display:flex;flex-direction:column;gap:16px;}
-  .origin-map{
-    background:var(--navy-950);border-radius:var(--radius-l);
-    aspect-ratio:2/1;position:relative;overflow:hidden;
-  }
-  .origin-map img{
-    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    filter:brightness(0) invert(1);opacity:.92;pointer-events:none;
-  }
-  .origin-pins{position:absolute;inset:0;}
-  .origin-pin{
-    position:absolute;transform:translate(-50%,-50%);background:none;border:none;
-    padding:10px;margin:-10px;cursor:pointer;z-index:2;
-  }
-  .origin-pin-dot{
-    display:block;width:10px;height:10px;border-radius:50%;
-    background:var(--cream);border:2px solid var(--navy-950);
-    box-shadow:0 0 0 3px rgba(246,243,236,.3);
-    transition:transform .15s, box-shadow .15s;
-  }
-  .origin-pin:hover .origin-pin-dot,
-  .origin-pin.active .origin-pin-dot{
-    transform:scale(1.35);box-shadow:0 0 0 6px rgba(58,69,104,.55);
-  }
-  .origin-pin-tip{
-    position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
-    white-space:nowrap;background:var(--cream);color:var(--navy-950);
-    font-size:10.5px;font-weight:600;padding:4px 10px;border-radius:6px;
-    opacity:0;pointer-events:none;transition:opacity .15s;box-shadow:var(--shadow);
-  }
-  .origin-pin:hover .origin-pin-tip,
-  .origin-pin.active .origin-pin-tip{opacity:1;}
-  .origin-map-credit{font-size:10.5px;color:var(--gray-500);margin-top:8px;}
-  .origin-map-credit a{text-decoration:underline;}
-  .origin-detail{
-    background:var(--card);border:1px solid var(--line);border-radius:var(--radius-m);
-    padding:22px 26px;display:flex;gap:14px;align-items:flex-start;
-  }
-  .origin-pin-ic{
-    width:32px;height:32px;border-radius:50%;background:var(--navy-950);color:var(--cream);
-    display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;margin-top:2px;
-  }
-  .origin-item-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
-  .origin-city{font-family:'Fraunces',serif;font-size:15.5px;font-weight:600;color:var(--navy-950);}
-  .origin-genre-chip{font-size:10.5px;font-weight:600;letter-spacing:.03em;padding:3px 10px;border-radius:999px;background:var(--navy-950);color:var(--cream);}
-  .origin-year{font-size:11px;color:var(--gray-500);}
-  .origin-text{font-size:13px;color:var(--ink-soft);line-height:1.55;max-width:62ch;margin-top:2px;}
 
   /* ---------- VOTACAO ---------- */
   .vote-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px;}
@@ -422,7 +373,6 @@
     .album-grid{grid-template-columns:repeat(3,1fr);}
     .disc-grid{grid-template-columns:1fr;}
     .vote-grid{grid-template-columns:1fr;}
-    .origin-layout{grid-template-columns:1fr;}
     .header-inner{justify-content:flex-start;gap:10px;}
     .main-nav{flex:1 1 100%;justify-content:flex-start;order:3;}
   }
@@ -433,7 +383,6 @@
     .album-grid{grid-template-columns:repeat(2,1fr);}
     .comment-form input{width:100%;}
     .main-nav button{padding:8px 13px;font-size:12.5px;}
-    .origin-layout{grid-template-columns:1fr;}
   }
 
   /* ---------- MODO ESCURO ---------- */
@@ -519,6 +468,3 @@
   html[data-theme="dark"] .timeline-detail .tl-block-label{color:#8489a4;}
   html[data-theme="dark"] .acc-panel-inner,
   html[data-theme="dark"] .rank-bio-inner{color:#b9bbc9;}
-  html[data-theme="dark"] .origin-city{color:#f3f1ea;}
-  html[data-theme="dark"] .origin-year{color:#8489a4;}
-  html[data-theme="dark"] .origin-detail{background:#141b30;border-color:#232c47;}
