@@ -40,9 +40,6 @@
       <span class="badge">SOBRE MÚSICA</span>
       <h1>Música é história, cultura e identidade.</h1>
       <p class="lede">Explore gêneros, instrumentos e curiosidades que constroem a trilha sonora do mundo — dos discos que mudaram tudo às vozes que estão surgindo agora.</p>
-      <a href="#sobre" class="btn nav-link" data-target="sobre">Explorar agora
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </a>
     </div>
     <div class="hero-art" role="img" aria-label="Toca-discos com um disco de vinil girando e o braço pousado sobre os sulcos">
       <div class="vinyl-platter"></div>
@@ -133,14 +130,7 @@
         </div>
       </div>
 
-      <div class="tabs2" id="aboutTabs">
-        <button data-pane="genero" class="active">Gêneros</button>
-        <button data-pane="inst">Instrumentos</button>
-        <button data-pane="cur">Curiosidades</button>
-        <button data-pane="gloss">Glossário</button>
-      </div>
-
-      <div class="pane active" id="pane-genero">
+      <div class="pane" id="pane-genero">
         <div class="accordion">
           <div class="acc-item" id="genero-1">
             <button class="acc-trigger"><span class="num">01</span><span class="t">Rock</span><span class="plus"></span></button>
@@ -270,11 +260,11 @@
       <div class="spotify-embed" id="spotifyEmbed"></div>
       <div class="disc-grid">
         <div class="panel">
-          <div class="panel-head"><h3>TOP ARTISTAS DA SEMANA</h3></div>
+          <div class="panel-head"><div><h3>TOP ARTISTAS DA SEMANA</h3><p class="panel-sub">Recomendações feitas pela página</p></div></div>
           <div id="artistList"></div>
         </div>
         <div class="panel">
-          <div class="panel-head"><h3>TOP MÚSICAS DA SEMANA</h3></div>
+          <div class="panel-head"><div><h3>TOP MÚSICAS DA SEMANA</h3><p class="panel-sub">Recomendações feitas pela página</p></div></div>
           <div id="songList"></div>
         </div>
       </div>
@@ -288,7 +278,7 @@
         <div>
           <span class="eyebrow">VOTAÇÃO &amp; COMUNIDADE</span>
           <h2>Vote e participe</h2>
-          <p class="section-sub"> </p>
+          <p class="section-sub">Coloque seus artistas e músicas da semana para os visitantes votarem, e deixe um espaço aberto para indicações. Os votos e comentários ficam salvos no servidor.</p>
         </div>
       </div>
 
@@ -307,7 +297,7 @@
           </div>
         </form>
         <ul class="comment-list" id="commentList"></ul>
-        <p class="storage-note"></p>
+        <p class="storage-note">Os comentários enviados aqui ficam salvos no servidor e visíveis para qualquer pessoa que abrir esta página.</p>
       </div>
     </div>
   </section>
