@@ -21,10 +21,8 @@
       <span class="logo-text"><b>SOM &amp; CULTURA</b><small>MÚSICA. HISTÓRIA. CONEXÃO.</small></span>
     </a>
     <nav class="main-nav" id="mainNav">
-      <button data-target="sobre" class="active">Sobre Música</button>
-      <button data-target="albuns">Álbuns Importantes</button>
-      <button data-target="descoberta">Descoberta Musical</button>
       <button data-target="timeline">Linha do Tempo</button>
+      <button data-target="descoberta">Descoberta Musical</button>
       <button data-target="votacao">Votação &amp; Comunidade</button>
     </nav>
     <div class="header-actions">
@@ -87,7 +85,7 @@
 
 <main>
 
-  <!-- ================= SOBRE MÚSICA ================= -->
+  <!-- ================= SOBRE MÚSICA (página inicial) ================= -->
   <section class="section tab-section tab-open" id="sobre">
     <div class="wrap">
       <div class="section-head">
@@ -233,21 +231,33 @@
     </div>
   </section>
 
-  <!-- ================= ÁLBUNS IMPORTANTES ================= -->
-  <section class="section tab-section" id="albuns">
+  <!-- ================= LINHA DO TEMPO (1ª aba) + ÁLBUNS IMPORTANTES ================= -->
+  <section class="section tab-section" id="timeline">
     <div class="wrap">
       <div class="section-head">
         <div>
-          <span class="eyebrow">ÁLBUNS IMPORTANTES</span>
-          <h2>Discos que mudaram a história da música</h2>
-          <p class="section-sub">Uma seleção nacional e internacional de álbuns com peso histórico, estético ou cultural inegável.</p>
+          <span class="eyebrow">LINHA DO TEMPO</span>
+          <h2>Décadas que moldaram a música</h2>
+          <p class="section-sub">Uma linha do tempo interativa conectando décadas, movimentos sociais e o surgimento de gêneros musicais. Edite o array <code>TIMELINE</code> no script para adicionar ou mudar décadas.</p>
         </div>
       </div>
-      <div class="album-grid" id="albumGrid"></div>
+      <div class="timeline-track" id="timelineTrack"></div>
+      <div class="timeline-detail" id="timelineDetail"></div>
+
+      <div class="timeline-albums">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">ÁLBUNS IMPORTANTES</span>
+            <h2>Discos que mudaram a história da música</h2>
+            <p class="section-sub">Uma seleção nacional e internacional de álbuns com peso histórico, estético ou cultural inegável.</p>
+          </div>
+        </div>
+        <div class="album-grid" id="albumGrid"></div>
+      </div>
     </div>
   </section>
 
-  <!-- ================= DESCOBERTA MUSICAL ================= -->
+  <!-- ================= DESCOBERTA MUSICAL (2ª aba) ================= -->
   <section class="section tab-section" id="descoberta">
     <div class="wrap">
       <div class="section-head">
@@ -267,30 +277,11 @@
           <div class="panel-head"><h3>TOP MÚSICAS DA SEMANA</h3></div>
           <div id="songList"></div>
         </div>
-        <div class="panel">
-          <div class="panel-head"><h3>RECOMENDAÇÕES PARA VOCÊ</h3></div>
-          <div id="recList"></div>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- ================= LINHA DO TEMPO ================= -->
-  <section class="section tab-section" id="timeline">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">LINHA DO TEMPO</span>
-          <h2>Décadas que moldaram a música</h2>
-          <p class="section-sub">Uma linha do tempo interativa conectando décadas, movimentos sociais e o surgimento de gêneros musicais. Edite o array <code>TIMELINE</code> no script para adicionar ou mudar décadas.</p>
-        </div>
-      </div>
-      <div class="timeline-track" id="timelineTrack"></div>
-      <div class="timeline-detail" id="timelineDetail"></div>
-    </div>
-  </section>
-
-  <!-- ================= VOTAÇÃO & COMUNIDADE ================= -->
+  <!-- ================= VOTAÇÃO & COMUNIDADE (3ª aba) ================= -->
   <section class="section tab-section" id="votacao">
     <div class="wrap">
       <div class="section-head">
@@ -304,14 +295,6 @@
       <div class="vote-grid">
         <div class="vote-card" id="voteArtista"></div>
         <div class="vote-card" id="voteMusica"></div>
-      </div>
-
-      <div class="hall-of-fame">
-        <div class="hof-head">
-          <h3>HALL DA FAMA — VENCEDORES POR SEMANA</h3>
-          <button class="hof-archive-btn" id="archiveWeekBtn">Encerrar semana</button>
-        </div>
-        <ul class="hof-list" id="hofList"></ul>
       </div>
 
       <div class="comments-panel">

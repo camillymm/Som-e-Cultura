@@ -279,7 +279,7 @@ TOP_MUSICAS.forEach((m,i)=>{
   });
 });
 
-/* Render Álbuns */
+/* Render Álbuns (agora dentro da aba Linha do Tempo) */
 function spotifyAlbumUrl(al){
   if(al.spotify) return al.spotify;
   return `https://open.spotify.com/search/${encodeURIComponent(al.title + ' ' + al.artist)}/albums`;
@@ -329,7 +329,7 @@ document.getElementById('spotifyEmbed').innerHTML =
     </div>`;
 })();
 
-/* Nav = abas */
+/* Nav = abas ("Sobre Música" é a página inicial, sem botão no menu) */
 const navButtons = document.querySelectorAll('.main-nav button');
 const tabSections = document.querySelectorAll('.tab-section');
 const heroSection = document.getElementById('heroSection');
@@ -350,6 +350,15 @@ navButtons.forEach(btn=>{
   btn.addEventListener('click', e=>{
     e.preventDefault();
     goToTab(btn.dataset.target);
+  });
+});
+
+/* Clique na logo (cabeçalho e rodapé) = voltar para a página inicial */
+document.querySelectorAll('.logo').forEach(logo=>{
+  logo.addEventListener('click', e=>{
+    e.preventDefault();
+    setActiveTab('sobre');
+    window.scrollTo({top:0, behavior:'smooth'});
   });
 });
 

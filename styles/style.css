@@ -49,7 +49,7 @@
     display:flex;align-items:center;justify-content:space-between;
     padding:16px 32px;gap:24px;
   }
-  .logo{display:flex;align-items:center;gap:10px;}
+  .logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
   .logo-mark{
     width:30px;height:30px;border-radius:8px;
     background:var(--navy-950);
@@ -218,6 +218,9 @@
   .album-card .yr{font-size:11.5px;color:var(--gray-500);margin-top:3px;}
   .album-card .why{font-size:12px;color:var(--ink-soft);margin-top:8px;line-height:1.5;}
 
+  /* Álbuns dentro da aba Linha do Tempo */
+  .timeline-albums{margin-top:72px;padding-top:56px;border-top:1px solid var(--line);}
+
   /* ---------- EFEMÉRIDE ---------- */
   .efemeride-band{
     display:flex;gap:18px;align-items:flex-start;
@@ -233,20 +236,8 @@
   .spotify-embed{margin-bottom:24px;border-radius:var(--radius-m);overflow:hidden;box-shadow:var(--shadow);}
   .spotify-embed iframe{display:block;width:100%;}
 
-  /* ---------- HALL DA FAMA ---------- */
-  .hall-of-fame{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-m);padding:26px;margin-bottom:22px;}
-  .hof-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
-  .hof-head h3{font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--navy-950);}
-  .hof-archive-btn{background:transparent;border:1px solid var(--navy-950);color:var(--navy-950);padding:9px 16px;border-radius:999px;font-size:11.5px;font-weight:600;letter-spacing:.02em;}
-  .hof-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0;max-height:260px;overflow-y:auto;}
-  .hof-list li{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:10px 0;border-bottom:1px solid var(--line);}
-  .hof-list li:last-child{border-bottom:none;}
-  .hof-week{color:var(--gray-500);font-size:11px;white-space:nowrap;}
-  .hof-names b{color:var(--navy-950);}
-  .hof-empty{font-size:12.5px;color:var(--gray-500);}
-
   /* ---------- DESCOBERTA ---------- */
-  .disc-grid{display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:20px;}
+  .disc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
   .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-m);padding:22px;}
   .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
   .panel-head h3{font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--navy-950);}
@@ -271,11 +262,6 @@
   .rank-item.open .rank-chevron::after{opacity:0;}
   .rank-bio-panel{max-height:0;overflow:hidden;transition:max-height .25s ease;}
   .rank-bio-inner{padding:0 4px 16px 46px;font-size:12.5px;color:var(--ink-soft);line-height:1.6;max-width:56ch;}
-  .rec-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center;}
-  .rec-row:last-child{border-bottom:none;}
-  .rec-thumb{width:40px;height:40px;border-radius:8px;flex-shrink:0;background:var(--navy-800);}
-  .rec-row p{font-size:12.5px;line-height:1.45;}
-  .rec-row b{color:var(--navy-950);}
 
   /* ---------- LINHA DO TEMPO ---------- */
   .timeline-track{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:28px;-ms-overflow-style:none;scrollbar-width:none;}
@@ -404,6 +390,7 @@
   html[data-theme="dark"] .icon-btn svg{stroke:#f3f1ea;}
   html[data-theme="dark"] .badge{background:#141b30;border-color:#232c47;color:#f3f1ea;}
   html[data-theme="dark"] .section{border-top-color:#232c47;}
+  html[data-theme="dark"] .timeline-albums{border-top-color:#232c47;}
   html[data-theme="dark"] .section-head .eyebrow{color:#8489a4;}
   html[data-theme="dark"] .btn.ghost{color:#f3f1ea;border-color:#f3f1ea;}
   html[data-theme="dark"] .acc-trigger .t{color:#f3f1ea;}
@@ -422,7 +409,6 @@
   html[data-theme="dark"] .album-card .yr{color:#8489a4;}
   html[data-theme="dark"] .panel,
   html[data-theme="dark"] .vote-card,
-  html[data-theme="dark"] .hall-of-fame,
   html[data-theme="dark"] .comments-panel,
   html[data-theme="dark"] .timeline-detail,
   html[data-theme="dark"] .timeline-dot-btn{background:#141b30;border-color:#232c47;}
@@ -431,22 +417,15 @@
   html[data-theme="dark"] .panel-head h3,
   html[data-theme="dark"] .rank-name,
   html[data-theme="dark"] .vo-name,
-  html[data-theme="dark"] .hof-head h3,
-  html[data-theme="dark"] .hof-names b,
   html[data-theme="dark"] .vote-card h3,
   html[data-theme="dark"] .comment-list .c-name,
-  html[data-theme="dark"] .vote-pct,
-  html[data-theme="dark"] .rec-row b{color:#f3f1ea;}
+  html[data-theme="dark"] .vote-pct{color:#f3f1ea;}
   html[data-theme="dark"] .rank-sub,
   html[data-theme="dark"] .vo-sub,
-  html[data-theme="dark"] .hof-week,
-  html[data-theme="dark"] .hof-empty,
-  html[data-theme="dark"] .rec-row p,
   html[data-theme="dark"] .comment-list .c-time,
   html[data-theme="dark"] .comment-list .c-text,
   html[data-theme="dark"] .storage-note{color:#8489a4;}
   html[data-theme="dark"] .rank-item,
-  html[data-theme="dark"] .rec-row,
   html[data-theme="dark"] .vote-option,
   html[data-theme="dark"] .comment-list,
   html[data-theme="dark"] .comment-list li{border-color:#232c47;}
@@ -458,11 +437,9 @@
   html[data-theme="dark"] .vote-option.selected .vote-radio{border-color:#f3f1ea;}
   html[data-theme="dark"] .vote-btn{background:#f3f1ea;color:#0b0f1c;}
   html[data-theme="dark"] .vote-btn:disabled{background:#232c47;color:#8489a4;}
-  html[data-theme="dark"] .hof-archive-btn{border-color:#f3f1ea;color:#f3f1ea;}
   html[data-theme="dark"] .comment-form textarea,
   html[data-theme="dark"] .comment-form input{background:#0b0f1c;border-color:#232c47;color:#f3f1ea;}
   html[data-theme="dark"] .avatar{background:#f3f1ea;color:#0b0f1c;}
-  html[data-theme="dark"] .rec-thumb{background:#232c47;}
   html[data-theme="dark"] .timeline-genre-chip{background:#f3f1ea;color:#0b0f1c;}
   html[data-theme="dark"] .timeline-detail .tl-decade{color:#8489a4;}
   html[data-theme="dark"] .timeline-detail .tl-block-label{color:#8489a4;}
