@@ -26,6 +26,7 @@
       <button data-target="votacao">Votação &amp; Comunidade</button>
     </nav>
     <div class="header-actions">
+      <div class="auth-area" id="authArea"></div>
       <button class="icon-btn" id="themeToggleBtn" title="Alternar tema" aria-label="Alternar modo claro/escuro">
         <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
         <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="display:none;"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg>
@@ -326,6 +327,48 @@
     </div>
   </div>
 </footer>
+
+<!-- ================= MODAIS DE AUTENTICAÇÃO ================= -->
+<div class="modal-overlay" id="loginModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <button type="button" class="modal-close" data-close-modal aria-label="Fechar">&times;</button>
+    <h2 id="loginTitle">Fazer login</h2>
+    <p class="modal-sub">Entre com seu nome de usuário e senha.</p>
+    <form class="auth-form" id="loginForm" novalidate>
+      <label class="field"><span>Nome de usuário</span>
+        <input type="text" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" required>
+      </label>
+      <label class="field"><span>Senha</span>
+        <input type="password" name="password" autocomplete="current-password" maxlength="128" required>
+      </label>
+      <p class="form-error" role="alert" hidden></p>
+      <button type="submit" class="btn auth-submit">Entrar</button>
+    </form>
+    <p class="modal-switch">Ainda não tem conta? <button type="button" data-switch-modal="register">Criar conta</button></p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="registerModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+    <button type="button" class="modal-close" data-close-modal aria-label="Fechar">&times;</button>
+    <h2 id="registerTitle">Criar conta</h2>
+    <p class="modal-sub">Só precisamos de um nome de usuário e uma senha. Sem e-mail.</p>
+    <form class="auth-form" id="registerForm" novalidate>
+      <label class="field"><span>Nome de usuário</span>
+        <input type="text" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" required>
+      </label>
+      <p class="field-hint" id="regUserHint">3 a 20 caracteres: letras, números, _ ou .</p>
+      <label class="field"><span>Senha</span>
+        <input type="password" name="password" autocomplete="new-password" maxlength="128" required>
+      </label>
+      <p class="field-hint">Mínimo de 6 caracteres.</p>
+      <p class="form-error" role="alert" hidden></p>
+      <button type="submit" class="btn auth-submit">Criar conta</button>
+      <p class="modal-note">Como não pedimos e-mail, não há como recuperar a senha. Guarde-a em um lugar seguro.</p>
+    </form>
+    <p class="modal-switch">Já tem conta? <button type="button" data-switch-modal="login">Fazer login</button></p>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>

@@ -26,6 +26,26 @@ async function apiPost(path, body){
   }
 }
 
+/* Requisição para as rotas de conta: devolve {ok, status, data} (com a mensagem de erro do servidor) */
+async function authRequest(method, path, body){
+  try{
+    const res = await fetch(`${API_BASE}${path}`, {
+      method,
+      credentials: 'same-origin',
+      headers: body ? {'Content-Type':'application/json'} : undefined,
+      body: body ? JSON.stringify(body) : undefined
+    });
+    let data = {};
+    try{ data = await res.json(); }catch(e){}
+    return {ok: res.ok, status: res.status, data};
+  }catch(e){
+    return {ok:false, status:0, data:{error:'Não foi possível falar com o servidor. Tente de novo.'}};
+  }
+}
+
+/* Usuário logado (null = visitante). Preenchido por initAuth() */
+let currentUser = null;
+
 /* ===================== DADOS DA SEMANA (editáveis) ===================== */
 const TOP_ARTISTAS = [
   {name:"Froid", sub:"Hip-hop", bio:"Renato Alves Menezes Barreto, o Froid, nasceu em Belo Horizonte (MG) em 1993 e começou a carreira em Brasília no grupo Um Barril de Rap, ao lado de Sampa e Yank, ganhando notoriedade nas batalhas de rima da capital. Solo desde 2017, transita entre rap, trap e batidas mais melódicas, com letras que misturam crítica social e reflexão pessoal — traço marcante desde o hit \"Pseudosocial\". Tem certificações de ouro e platina com singles como \"SK8 do Matheus\" e \"Lamentável, pt. III\"."},
@@ -129,6 +149,10 @@ if(themeToggleBtn){
     const next = current === 'dark' ? 'light' : 'dark';
     applyTheme(next);
     await storageSet(THEME_KEY, next);
+    if(currentUser){
+      currentUser.preferences.theme = next;
+      authRequest('PUT', '/me/preferences', {theme: next});
+    }
   });
 }
 
@@ -456,6 +480,190 @@ TIMELINE.forEach((t,i)=>{
 });
 renderTimelineDetail(0);
 
+/* ===================== AUTENTICAÇÃO ===================== */
+const authListeners = [];
+function onAuthChange(fn){ authListeners.push(fn); }
+function notifyAuthChange(){
+  authListeners.forEach(fn=>{ try{ fn(); }catch(e){ console.error(e); } });
+}
+
+const authArea      = document.getElementById('authArea');
+const loginModal    = document.getElementById('loginModal');
+const registerModal = document.getElementById('registerModal');
+const loginForm     = document.getElementById('loginForm');
+const registerForm  = document.getElementById('registerForm');
+const regUserHint   = document.getElementById('regUserHint');
+const REG_HINT_PADRAO = regUserHint ? regUserHint.textContent : '';
+let modalFocoAnterior = null;
+
+/* mesma regra do servidor (auth.py) */
+function validarUsernameLocal(u){
+  return /^[A-Za-z0-9_.]{3,20}$/.test(u) ? null : 'Use de 3 a 20 caracteres: letras, números, _ ou .';
+}
+function validarSenhaLocal(p){
+  if(p.length < 6) return 'A senha precisa ter pelo menos 6 caracteres.';
+  if(p.length > 128) return 'A senha pode ter no máximo 128 caracteres.';
+  return null;
+}
+
+function renderAuthArea(){
+  if(!authArea) return;
+  if(currentUser){
+    const nome = escapeHtml(currentUser.username);
+    authArea.innerHTML = `
+      <span class="user-chip" title="Conectado como @${nome}"><i class="fa-solid fa-circle-user"></i>@${nome}</span>
+      <button type="button" class="auth-btn ghost" data-auth="logout">Sair</button>`;
+  } else {
+    authArea.innerHTML = `
+      <button type="button" class="auth-btn ghost" data-auth="login">Fazer Login</button>
+      <button type="button" class="auth-btn" data-auth="register">Criar Conta</button>`;
+  }
+}
+
+function setUser(user){
+  currentUser = user;
+  if(user && user.preferences && user.preferences.theme){
+    applyTheme(user.preferences.theme);
+    storageSet(THEME_KEY, user.preferences.theme);
+  }
+  renderAuthArea();
+}
+
+async function initAuth(){
+  const r = await authRequest('GET', '/auth/me');
+  setUser(r.ok && r.data.user ? r.data.user : null);
+}
+const authReady = initAuth();
+
+/* ----- modais ----- */
+function mostrarErroForm(form, msg){
+  const el = form.querySelector('.form-error');
+  if(!el) return;
+  el.textContent = msg || '';
+  el.hidden = !msg;
+}
+function mostrarHintUsername(msg, tipo){
+  if(!regUserHint) return;
+  regUserHint.textContent = msg;
+  regUserHint.classList.toggle('ok', tipo === 'ok');
+  regUserHint.classList.toggle('erro', tipo === 'erro');
+}
+function closeModals(restaurarFoco = true){
+  [loginModal, registerModal].forEach(m=>{ if(m) m.hidden = true; });
+  [loginForm, registerForm].forEach(f=>{ if(f){ f.reset(); mostrarErroForm(f, ''); } });
+  mostrarHintUsername(REG_HINT_PADRAO, '');
+  document.body.classList.remove('modal-open');
+  if(restaurarFoco && modalFocoAnterior && modalFocoAnterior.focus) modalFocoAnterior.focus();
+  modalFocoAnterior = null;
+}
+function openModal(modal){
+  const nenhumAberto = loginModal.hidden && registerModal.hidden;
+  const voltarPara = nenhumAberto ? document.activeElement : modalFocoAnterior;
+  closeModals(false);
+  modalFocoAnterior = voltarPara;
+  modal.hidden = false;
+  document.body.classList.add('modal-open');
+  const primeiro = modal.querySelector('input');
+  if(primeiro) setTimeout(()=>primeiro.focus(), 30);
+}
+
+if(authArea){
+  authArea.addEventListener('click', async e=>{
+    const btn = e.target.closest('[data-auth]');
+    if(!btn) return;
+    const acao = btn.dataset.auth;
+    if(acao === 'login') openModal(loginModal);
+    else if(acao === 'register') openModal(registerModal);
+    else if(acao === 'logout'){
+      btn.disabled = true;
+      await authRequest('POST', '/auth/logout');
+      setUser(null);
+      notifyAuthChange();
+    }
+  });
+}
+
+[loginModal, registerModal].forEach(modal=>{
+  if(!modal) return;
+  modal.addEventListener('mousedown', e=>{ if(e.target === modal) closeModals(); });
+  modal.querySelectorAll('[data-close-modal]').forEach(b=>b.addEventListener('click', ()=>closeModals()));
+  modal.querySelectorAll('[data-switch-modal]').forEach(b=>b.addEventListener('click', ()=>{
+    openModal(b.dataset.switchModal === 'register' ? registerModal : loginModal);
+  }));
+});
+
+document.addEventListener('keydown', e=>{
+  const aberto = [loginModal, registerModal].find(m=>m && !m.hidden);
+  if(!aberto) return;
+  if(e.key === 'Escape'){ closeModals(); return; }
+  if(e.key === 'Tab'){
+    const foco = [...aberto.querySelectorAll('input, button:not([disabled])')];
+    if(!foco.length) return;
+    const primeiro = foco[0], ultimo = foco[foco.length - 1];
+    if(e.shiftKey && document.activeElement === primeiro){ e.preventDefault(); ultimo.focus(); }
+    else if(!e.shiftKey && document.activeElement === ultimo){ e.preventDefault(); primeiro.focus(); }
+  }
+});
+
+/* ----- login ----- */
+if(loginForm){
+  loginForm.addEventListener('submit', async e=>{
+    e.preventDefault();
+    const username = loginForm.elements.username.value.trim();
+    const password = loginForm.elements.password.value;
+    if(!username || !password){ mostrarErroForm(loginForm, 'Informe o nome de usuário e a senha.'); return; }
+    const enviar = loginForm.querySelector('button[type="submit"]');
+    enviar.disabled = true; enviar.textContent = 'Entrando...';
+    const r = await authRequest('POST', '/auth/login', {username, password});
+    enviar.disabled = false; enviar.textContent = 'Entrar';
+    if(r.ok && r.data.user){
+      setUser(r.data.user);
+      closeModals(false);
+      notifyAuthChange();
+    } else {
+      mostrarErroForm(loginForm, r.data.error || 'Não foi possível entrar agora.');
+    }
+  });
+}
+
+/* ----- cadastro ----- */
+if(registerForm){
+  const regUser = registerForm.elements.username;
+  regUser.addEventListener('blur', async ()=>{
+    const nome = regUser.value.trim();
+    if(!nome){ mostrarHintUsername(REG_HINT_PADRAO, ''); return; }
+    const erro = validarUsernameLocal(nome);
+    if(erro){ mostrarHintUsername(erro, 'erro'); return; }
+    const r = await authRequest('GET', '/auth/username-available?u=' + encodeURIComponent(nome));
+    if(r.ok){
+      if(regUser.value.trim() !== nome) return;   // a pessoa já mudou o texto
+      mostrarHintUsername(r.data.available ? 'Nome de usuário disponível ✓' : 'Esse nome de usuário já está em uso.',
+                          r.data.available ? 'ok' : 'erro');
+    }
+  });
+  regUser.addEventListener('input', ()=> mostrarHintUsername(REG_HINT_PADRAO, ''));
+
+  registerForm.addEventListener('submit', async e=>{
+    e.preventDefault();
+    const username = regUser.value.trim();
+    const password = registerForm.elements.password.value;
+    const erro = validarUsernameLocal(username) || validarSenhaLocal(password);
+    if(erro){ mostrarErroForm(registerForm, erro); return; }
+    mostrarErroForm(registerForm, '');
+    const enviar = registerForm.querySelector('button[type="submit"]');
+    enviar.disabled = true; enviar.textContent = 'Criando...';
+    const r = await authRequest('POST', '/auth/register', {username, password});
+    enviar.disabled = false; enviar.textContent = 'Criar conta';
+    if(r.ok && r.data.user){
+      setUser(r.data.user);
+      closeModals(false);
+      notifyAuthChange();
+    } else {
+      mostrarErroForm(registerForm, r.data.error || 'Não foi possível criar a conta agora.');
+    }
+  });
+}
+
 /* Votação */
 const VOTE_CONFIGS = {
   artista: {
@@ -482,6 +690,8 @@ const VOTE_CONFIGS = {
   }
 };
 
+const voteTimers = {};
+
 async function fetchVoteCounts(cfg){
   const counts = {};
   cfg.options.forEach(o=>{ counts[o.id] = 0; });
@@ -498,7 +708,16 @@ async function fetchVoteCounts(cfg){
 async function renderVoteCard(containerId, cfg, votedKey){
   const container = document.getElementById(containerId);
   let counts = await fetchVoteCounts(cfg);
-  let voted = await storageGet(votedKey);
+  await authReady;
+  let voted;
+  if(currentUser){
+    /* logado: o voto vem da conta (vale em qualquer aparelho) */
+    const nomeVotado = currentUser.votos && currentUser.votos[cfg.tipo];
+    const opcao = nomeVotado && cfg.options.find(o=>o.name===nomeVotado);
+    voted = opcao ? opcao.id : null;
+  } else {
+    voted = await storageGet(votedKey);
+  }
   let pending = null;
 
   const cardIcon = cfg.tipo === 'artista' ? ARTIST_ICON : SONG_ICON;
@@ -550,7 +769,8 @@ async function renderVoteCard(containerId, cfg, votedKey){
 
   updateBars();
 
-  setInterval(async ()=>{
+  if(voteTimers[containerId]) clearInterval(voteTimers[containerId]);
+  voteTimers[containerId] = setInterval(async ()=>{
     if(document.hidden) return;
     counts = await fetchVoteCounts(cfg);
     updateBars();
@@ -576,14 +796,31 @@ async function renderVoteCard(containerId, cfg, votedKey){
     const opt = cfg.options.find(o=>o.id===pending);
     submitBtn.disabled = true;
     submitBtn.textContent = 'Enviando...';
+    /* logado: primeiro reserva o voto na conta (1 por categoria) */
+    if(currentUser){
+      const reserva = await authRequest('POST', '/me/votos', {tipo: cfg.tipo, item_nome: opt.name});
+      if(reserva.status === 409){
+        currentUser.votos[cfg.tipo] = currentUser.votos[cfg.tipo] || opt.name;
+        submitBtn.textContent = 'Você já votou nesta categoria';
+        return;
+      }
+      if(!reserva.ok){
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Votar';
+        alert(reserva.data.error || 'Não foi possível registrar seu voto agora. Tente novamente.');
+        return;
+      }
+    }
     const result = await apiPost('/votos', {tipo: cfg.tipo, item_nome: opt.name});
     if(result && result.success){
       counts[pending] = (counts[pending] || 0) + 1;
       voted = pending;
       await storageSet(votedKey, voted);
+      if(currentUser) currentUser.votos[cfg.tipo] = opt.name;
       updateBars();
       lockAsVoted();
     } else {
+      if(currentUser) authRequest('DELETE', '/me/votos/' + cfg.tipo);   // desfaz a reserva
       submitBtn.disabled = false;
       submitBtn.textContent = 'Votar';
       alert('Não foi possível registrar seu voto agora. Verifique se o backend Flask está rodando e tente novamente.');
@@ -660,11 +897,16 @@ function aplicarImagensNaVotacao(){
   });
 }
 
-Promise.all([
-  renderVoteCard('voteArtista', VOTE_CONFIGS.artista, 'user-voted-artista'),
-  renderVoteCard('voteMusica', VOTE_CONFIGS.musica, 'user-voted-musica'),
-  carregarImagensSpotify(),
-]).then(aplicarImagensNaVotacao);
+function renderVoteCards(){
+  return Promise.all([
+    renderVoteCard('voteArtista', VOTE_CONFIGS.artista, 'user-voted-artista'),
+    renderVoteCard('voteMusica', VOTE_CONFIGS.musica, 'user-voted-musica'),
+  ]);
+}
+Promise.all([renderVoteCards(), carregarImagensSpotify()]).then(aplicarImagensNaVotacao);
+
+/* ao entrar/sair, os votos mostrados passam a ser os da conta (ou do aparelho) */
+onAuthChange(()=>{ renderVoteCards().then(aplicarImagensNaVotacao); });
 
 /* escapeHtml */
 function escapeHtml(str){
@@ -698,6 +940,56 @@ if(!favButtons || !favSections){
     painel.append(favButtons, favSections);
   }
 }
+
+/* ----- como a pessoa aparece nos comentários: @usuário, Anônimo ou apelido ----- */
+const nameControls = [];
+
+function opcoesDeNome(){
+  const op = [];
+  if(currentUser) op.push({v:'user', t:'@' + currentUser.username});
+  op.push({v:'anon', t:'Anônimo'}, {v:'nick', t:'Usar um apelido'});
+  return op;
+}
+function refreshNameModes(){
+  const prefs = (currentUser && currentUser.preferences) || {};
+  const opcoes = opcoesDeNome();
+  const padrao = currentUser
+    ? (opcoes.some(o=>o.v === prefs.comment_mode) ? prefs.comment_mode : 'user')
+    : 'anon';
+  nameControls.forEach(({modeEl, nickEl})=>{
+    modeEl.innerHTML = opcoes.map(o=>`<option value="${o.v}">${escapeHtml(o.t)}</option>`).join('');
+    modeEl.value = padrao;
+    if(currentUser && prefs.comment_nick && !nickEl.value) nickEl.value = prefs.comment_nick;
+    nickEl.hidden = modeEl.value !== 'nick';
+  });
+}
+function aplicarModoEmTodos(modo){
+  nameControls.forEach(({modeEl, nickEl})=>{
+    modeEl.value = modo;
+    nickEl.hidden = modo !== 'nick';
+  });
+}
+function salvarPrefsComentario(campos){
+  if(!currentUser) return;
+  Object.assign(currentUser.preferences, campos);
+  authRequest('PUT', '/me/preferences', campos);
+}
+function nomeEscolhido(modeEl, nickEl){
+  if(modeEl.value === 'user' && currentUser) return {nome: '@' + currentUser.username};
+  if(modeEl.value === 'nick'){
+    const nick = nickEl.value.trim().replace(/\s+/g, ' ');
+    if(nick.length < 2) return {erro:'Escolha um apelido com pelo menos 2 caracteres.'};
+    if(nick.startsWith('@')) return {erro:'O apelido não pode começar com @ (formato reservado para usuários).'};
+    return {nome: nick};
+  }
+  return {nome: 'Anônimo'};
+}
+function mostrarMsgComentario(el, msg){
+  el.textContent = msg || '';
+  el.hidden = !msg;
+}
+onAuthChange(refreshNameModes);
+authReady.then(refreshNameModes);
 
 async function loadFavoritos(tipo, listEl){
   const itens = await apiGet('/favoritos/' + tipo);
@@ -734,16 +1026,26 @@ if(favButtons && favSections){
       <form class="comment-form">
         <textarea placeholder="${cfg.placeholder}" required></textarea>
         <div class="comment-form-row">
-          <input type="text" placeholder="Nome (opcional)">
+          <select class="name-mode" aria-label="Como você quer aparecer no comentário"></select>
+          <input type="text" class="nick-input" placeholder="Seu apelido" maxlength="24" autocomplete="off" hidden>
           <button type="submit" class="btn">Enviar</button>
         </div>
+        <p class="comment-msg" role="alert" hidden></p>
       </form>
       <ul class="comment-list"></ul>`;
     favSections.appendChild(sec);
 
     const form   = sec.querySelector('form');
     const textEl = sec.querySelector('textarea');
-    const nameEl = sec.querySelector('input');
+    const modeEl = sec.querySelector('.name-mode');
+    const nickEl = sec.querySelector('.nick-input');
+    const msgEl  = sec.querySelector('.comment-msg');
+    nameControls.push({modeEl, nickEl});
+    refreshNameModes();
+    modeEl.addEventListener('change', ()=>{
+      aplicarModoEmTodos(modeEl.value);
+      salvarPrefsComentario({comment_mode: modeEl.value});
+    });
     const listEl = sec.querySelector('.comment-list');
     loadFavoritos(tipo, listEl);
 
@@ -760,17 +1062,20 @@ if(favButtons && favSections){
       e.preventDefault();
       const texto = textEl.value.trim();
       if(!texto) return;
-      const nome = nameEl.value.trim() || 'Anônimo';
+      const escolha = nomeEscolhido(modeEl, nickEl);
+      if(escolha.erro){ mostrarMsgComentario(msgEl, escolha.erro); return; }
+      mostrarMsgComentario(msgEl, '');
+      const nome = escolha.nome;
       const enviar = form.querySelector('button[type="submit"]');
       enviar.disabled = true;
       const result = await apiPost('/favoritos/' + tipo, {nome, texto});
       enviar.disabled = false;
       if(result && result.success){
         textEl.value = '';
-        nameEl.value = '';
+        if(modeEl.value === 'nick') salvarPrefsComentario({comment_nick: nickEl.value.trim()});
         loadFavoritos(tipo, listEl);
       } else {
-        alert('Não foi possível enviar agora. Tente novamente.');
+        mostrarMsgComentario(msgEl, 'Não foi possível enviar agora. Tente novamente.');
       }
     });
   });
