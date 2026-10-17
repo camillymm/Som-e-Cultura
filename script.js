@@ -673,7 +673,7 @@ const VOTE_CONFIGS = {
       {id:'froid', name:'Froid', sub:'Hip-hop', img:''},
       {id:'tyler', name:'Tyler, The Creator', sub:'Hip-hop', img:''},
       {id:'mac', name:'Fleetwood Mac', sub:'Rock/ Pop rock', img:''},
-      {id:'alceu', name:'Alceu Valença', sub:'MPB / Forró / Rock', img:''},
+      {id:'ney', name:'Ney Matogrosso', sub:'MPB', img:''},
       {id:'lee', name:'Rita Lee', sub:'Rock / MPB', img:''},
     ],
   },
@@ -681,11 +681,11 @@ const VOTE_CONFIGS = {
     tipo: 'musica',
     title: 'VOTE NA MÚSICA DA SEMANA',
     options: [
-      {id:'garota', name:'Lamentável, Pt. III', sub:'Froid, Cynthia Luz', img:''},
-      {id:'massa', name:'MASSA', sub:'Tyler, The Creator', img:''},
-      {id:'chain', name:'The Chain', sub:'Fleetwood Mac', img:''},
-      {id:'girassol', name:'Girassol', sub:'Alceu Valença', img:''},
-      {id:'negra', name:'Lança-perfume', sub:'Rita Lee', img:''},
+      {id:'mantra', name:'Mantra', sub:'Froid', img:''},
+      {id:'dogtooth', name:'DOGTOOTH', sub:'Tyler, The Creator', img:''},
+      {id:'rhiannon', name:'Rhiannon', sub:'Fleetwood Mac', img:''},
+      {id:'sangue', name:'Sangue latino', sub:'Ney Matogrosso', img:''},
+      {id:'jardins', name:'Jardins da Babilônia', sub:'Rita Lee', img:''},
     ],
   }
 };
@@ -717,6 +717,8 @@ async function renderVoteCard(containerId, cfg, votedKey){
     voted = opcao ? opcao.id : null;
   } else {
     voted = await storageGet(votedKey);
+    /* voto guardado de uma opção que saiu da votação: a pessoa pode votar de novo */
+    if(voted && !cfg.options.some(o=>o.id === voted)) voted = null;
   }
   let pending = null;
 
@@ -798,6 +800,11 @@ async function renderVoteCard(containerId, cfg, votedKey){
     submitBtn.textContent = 'Enviando...';
     /* logado: primeiro reserva o voto na conta (1 por categoria) */
     if(currentUser){
+      const salvo = currentUser.votos[cfg.tipo];
+      if(salvo && !cfg.options.some(o=>o.name === salvo)){
+        await authRequest('DELETE', '/me/votos/' + cfg.tipo);   // voto antigo de uma opção que saiu
+        delete currentUser.votos[cfg.tipo];
+      }
       const reserva = await authRequest('POST', '/me/votos', {tipo: cfg.tipo, item_nome: opt.name});
       if(reserva.status === 409){
         currentUser.votos[cfg.tipo] = currentUser.votos[cfg.tipo] || opt.name;
