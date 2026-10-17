@@ -46,6 +46,9 @@ async function authRequest(method, path, body){
 /* Usuário logado (null = visitante). Preenchido por initAuth() */
 let currentUser = null;
 
+/* Votos atuais deste navegador/conta: {artista:{name,sub}, musica:{name,sub}} */
+let votosAtuais = {};
+
 /* ===================== DADOS DA SEMANA (editáveis) ===================== */
 const TOP_ARTISTAS = [
   {name:"Froid", sub:"Hip-hop", bio:"Renato Alves Menezes Barreto, o Froid, nasceu em Belo Horizonte (MG) em 1993 e começou a carreira em Brasília no grupo Um Barril de Rap, ao lado de Sampa e Yank, ganhando notoriedade nas batalhas de rima da capital. Solo desde 2017, transita entre rap, trap e batidas mais melódicas, com letras que misturam crítica social e reflexão pessoal — traço marcante desde o hit \"Pseudosocial\". Tem certificações de ouro e platina com singles como \"SK8 do Matheus\" e \"Lamentável, pt. III\"."},
@@ -365,6 +368,8 @@ function setActiveTab(id){
   tabSections.forEach(s=>s.classList.toggle('tab-open', s.id===id));
   Object.values(navMap).forEach(b=>b.classList.toggle('active', b.dataset.target===id));
   if(heroSection) heroSection.style.display = (id==='sobre') ? '' : 'none';
+  /* barras da votação crescem de zero toda vez que a aba é aberta */
+  if(id === 'votacao') requestAnimationFrame(animarBarrasDaAba);
 }
 function goToTab(id){
   setActiveTab(id);
@@ -664,6 +669,333 @@ if(registerForm){
   });
 }
 
+/* ===================== EXTRAS DA VOTAÇÃO =====================
+   1) confete ao votar   2) barras que crescem   3) histórico dos meus votos
+   4) cartão do meu voto (imagem para os stories) */
+
+/* ----- 1) confete em tons de vinho/bordô ----- */
+const CONFETE_CORES = ['#6b1f2e','#8b2635','#a63446','#c0485a','#d9788a','#f6f3ec'];
+function dispararConfete(botao){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const r = botao.getBoundingClientRect();
+  const camada = document.createElement('div');
+  camada.className = 'confete-camada';
+  camada.style.left = (r.left + r.width / 2) + 'px';
+  camada.style.top = (r.top + r.height / 2) + 'px';
+  for(let i = 0; i < 30; i++){
+    const p = document.createElement('span');
+    p.className = 'confete';
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 70 + Math.random() * 120;
+    p.style.setProperty('--dx', (Math.cos(ang) * dist) + 'px');
+    p.style.setProperty('--dy', (Math.sin(ang) * dist - 50) + 'px');
+    p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    p.style.background = CONFETE_CORES[i % CONFETE_CORES.length];
+    p.style.width = (6 + Math.random() * 5) + 'px';
+    p.style.height = (8 + Math.random() * 7) + 'px';
+    p.style.animationDelay = (Math.random() * 90) + 'ms';
+    camada.appendChild(p);
+  }
+  document.body.appendChild(camada);
+  setTimeout(()=>camada.remove(), 1500);
+}
+
+/* ----- 2) barras que crescem de zero até o valor ----- */
+function animarBarrasDe(container){
+  const fills = container.querySelectorAll('.vote-bar-fill');
+  if(!fills.length) return;
+  const reduz = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DUR = 900, PASSO = 90;
+  container.dataset.animando = '1';
+  fills.forEach((fill, i)=>{
+    const alvo = parseInt(fill.dataset.pct || '0', 10);
+    const pctEl = fill.closest('.vo-track-wrap').querySelector('.vote-pct');
+    if(reduz){
+      fill.style.width = alvo + '%';
+      pctEl.textContent = alvo + '%';
+      return;
+    }
+    fill.style.transition = 'none';
+    fill.style.width = '0%';
+    pctEl.textContent = '0%';
+    void fill.offsetWidth;                       // força o navegador a registrar o zero
+    const atraso = i * PASSO;
+    fill.style.transition = `width ${DUR}ms cubic-bezier(.2,.8,.2,1) ${atraso}ms`;
+    fill.style.width = alvo + '%';
+    const t0 = performance.now() + atraso;
+    (function passo(t){
+      const k = Math.min(Math.max((t - t0) / DUR, 0), 1);
+      pctEl.textContent = Math.round(alvo * (1 - Math.pow(1 - k, 3))) + '%';
+      if(k < 1) requestAnimationFrame(passo); else pctEl.textContent = alvo + '%';
+    })(performance.now());
+  });
+  setTimeout(()=>{
+    fills.forEach(f=>{ f.style.transition = ''; });
+    delete container.dataset.animando;
+  }, fills.length * PASSO + DUR + 120);
+}
+function animarBarrasDaAba(){
+  document.querySelectorAll('#voteArtista, #voteMusica').forEach(animarBarrasDe);
+}
+
+/* ----- 3) histórico dos meus votos (salvo neste navegador) ----- */
+const HIST_KEY = 'historico-votos';
+const HIST_MAX = 60;
+function histChave(){
+  return HIST_KEY + ':' + (currentUser ? currentUser.username.toLowerCase() : 'visitante');
+}
+async function histLer(){
+  const lista = await storageGet(histChave());
+  return Array.isArray(lista) ? lista : [];
+}
+async function histRegistrar(tipo, nome, sub){
+  const lista = await histLer();
+  lista.push({tipo, nome, sub: sub || '', data: new Date().toISOString()});
+  await storageSet(histChave(), lista.slice(-HIST_MAX));
+}
+function inicioDaSemana(data){
+  const d = new Date(data);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));   // segunda-feira
+  return d;
+}
+function rotuloSemana(inicio){
+  const hoje = inicioDaSemana(new Date());
+  if(inicio.getTime() === hoje.getTime()) return 'Esta semana';
+  const passada = new Date(hoje); passada.setDate(passada.getDate() - 7);
+  if(inicio.getTime() === passada.getTime()) return 'Semana passada';
+  return 'Semana de ' + inicio.toLocaleDateString('pt-BR', {day:'2-digit', month:'short'});
+}
+async function renderHistorico(){
+  const box = document.getElementById('voteHistory');
+  if(!box) return;
+  const lista = await histLer();
+  const temVoto = Object.keys(votosAtuais).length > 0;
+
+  const grupos = new Map();
+  lista.slice().reverse().forEach(v=>{
+    const ini = inicioDaSemana(v.data);
+    const k = ini.getTime();
+    if(!grupos.has(k)) grupos.set(k, {ini, itens:[]});
+    grupos.get(k).itens.push(v);
+  });
+  const semanas = [...grupos.values()].slice(0, 12).map(g=>`
+    <div class="hist-semana">
+      <span class="hist-rotulo">${rotuloSemana(g.ini)}</span>
+      <ul>${g.itens.map(v=>`
+        <li>
+          <i class="fa-solid ${v.tipo === 'artista' ? ARTIST_ICON : SONG_ICON}" aria-hidden="true"></i>
+          <span class="hist-nome">${escapeHtml(v.nome)}${v.sub ? `<small>${escapeHtml(v.sub)}</small>` : ''}</span>
+          <span class="hist-tipo">${v.tipo === 'artista' ? 'Artista' : 'Música'}</span>
+        </li>`).join('')}
+      </ul>
+    </div>`).join('');
+
+  const botoes = `
+    <div class="hist-actions">
+      ${temVoto ? '<button type="button" class="hist-btn" data-hist="cartao">Gerar cartão do meu voto</button>' : ''}
+      ${lista.length ? '<button type="button" class="hist-btn ghost" data-hist="limpar">Limpar histórico</button>' : ''}
+    </div>`;
+
+  box.innerHTML = `
+    <div class="hist-head"><h3>MEUS VOTOS</h3>${botoes}</div>
+    ${lista.length ? semanas : '<p class="hist-vazio">Seus votos vão aparecer aqui, semana a semana. Vote em um artista ou em uma música para começar.</p>'}`;
+}
+const voteHistoryEl = document.getElementById('voteHistory');
+if(voteHistoryEl){
+  voteHistoryEl.addEventListener('click', async e=>{
+    const btn = e.target.closest('[data-hist]');
+    if(!btn) return;
+    if(btn.dataset.hist === 'cartao') abrirCartao();
+    else if(btn.dataset.hist === 'limpar'){
+      if(!confirm('Apagar o histórico de votos salvo neste navegador?')) return;
+      try{ localStorage.removeItem(histChave()); }catch(err){}
+      renderHistorico();
+    }
+  });
+}
+
+/* ----- 4) cartão do meu voto (imagem 1080x1920 para os stories) ----- */
+function quebrarTexto(ctx, texto, larguraMax){
+  const palavras = String(texto).split(' ');
+  const linhas = [];
+  let atual = '';
+  palavras.forEach(p=>{
+    const teste = atual ? atual + ' ' + p : p;
+    if(ctx.measureText(teste).width > larguraMax && atual){ linhas.push(atual); atual = p; }
+    else atual = teste;
+  });
+  if(atual) linhas.push(atual);
+  return linhas;
+}
+function desenharVinil(x, cx, cy, R){
+  x.save();
+  x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = 60; x.shadowOffsetY = 30;
+  x.fillStyle = '#0b0c0f';
+  x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.fill();
+  x.restore();
+  for(let r = R * 0.36; r < R - 6; r += 5){
+    x.strokeStyle = Math.round(r) % 2 ? 'rgba(255,255,255,.05)' : 'rgba(255,255,255,.02)';
+    x.lineWidth = 1.2;
+    x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.stroke();
+  }
+  [0.5, 0.64, 0.8].forEach(f=>{
+    x.strokeStyle = 'rgba(255,255,255,.12)'; x.lineWidth = 2;
+    x.beginPath(); x.arc(cx, cy, R * f, 0, Math.PI * 2); x.stroke();
+  });
+  if(x.createConicGradient){
+    const cg = x.createConicGradient(0.45, cx, cy);
+    cg.addColorStop(0, 'rgba(255,255,255,0)');
+    cg.addColorStop(0.04, 'rgba(255,255,255,.22)');
+    cg.addColorStop(0.1, 'rgba(255,255,255,0)');
+    cg.addColorStop(0.5, 'rgba(255,255,255,0)');
+    cg.addColorStop(0.54, 'rgba(255,255,255,.14)');
+    cg.addColorStop(0.6, 'rgba(255,255,255,0)');
+    cg.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = cg;
+    x.beginPath(); x.arc(cx, cy, R - 4, 0, Math.PI * 2); x.fill();
+  }
+  x.strokeStyle = '#000'; x.lineWidth = 6;
+  x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.stroke();
+  const rl = R * 0.34;
+  const lg = x.createRadialGradient(cx, cy - rl * 0.3, 10, cx, cy, rl);
+  lg.addColorStop(0, '#a63446'); lg.addColorStop(1, '#6b1f2e');
+  x.fillStyle = lg;
+  x.beginPath(); x.arc(cx, cy, rl, 0, Math.PI * 2); x.fill();
+  x.strokeStyle = 'rgba(246,243,236,.5)'; x.lineWidth = 2;
+  x.beginPath(); x.arc(cx, cy, rl * 0.78, 0, Math.PI * 2); x.stroke();
+  x.fillStyle = '#0b0d14';
+  x.beginPath(); x.arc(cx, cy, 12, 0, Math.PI * 2); x.fill();
+  x.strokeStyle = '#b9bcc6'; x.lineWidth = 3; x.stroke();
+}
+function desenharLogoNoCartao(x, cx, y){
+  const TAM = 76, FOLGA = 22;
+  x.font = '600 46px Fraunces, serif';
+  if('letterSpacing' in x) x.letterSpacing = '3px';
+  const nome = 'SOM & CULTURA';
+  const larguraTexto = x.measureText(nome).width;
+  const inicio = cx - (TAM + FOLGA + larguraTexto) / 2;
+  x.fillStyle = '#f6f3ec';
+  x.beginPath();
+  if(x.roundRect) x.roundRect(inicio, y, TAM, TAM, 18); else x.rect(inicio, y, TAM, TAM);
+  x.fill();
+  x.strokeStyle = '#0b0f1c'; x.lineWidth = 6; x.lineCap = 'round';
+  [[3,12,12],[7,8,16],[11,4,20],[15,8,16],[19,12,12]].forEach(([px, y1, y2])=>{
+    const bx = inicio + TAM / 2 + (px - 11) * 2.4;
+    x.beginPath();
+    x.moveTo(bx, y + TAM / 2 + (y1 - 12) * 2.4);
+    x.lineTo(bx, y + TAM / 2 + (y2 - 12) * 2.4 + 0.01);
+    x.stroke();
+  });
+  x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.fillStyle = '#f6f3ec';
+  x.fillText(nome, inicio + TAM + FOLGA, y + 38);
+  x.font = '500 20px Inter, sans-serif';
+  if('letterSpacing' in x) x.letterSpacing = '2px';
+  x.fillStyle = '#9ea2ba';
+  x.fillText('MÚSICA. HISTÓRIA. CONEXÃO.', inicio + TAM + FOLGA, y + 68);
+  if('letterSpacing' in x) x.letterSpacing = '0px';
+}
+async function gerarCartaoVoto(){
+  const art = votosAtuais.artista, mus = votosAtuais.musica;
+  if(!art && !mus) return null;
+  try{
+    await Promise.all([
+      document.fonts.load('600 80px Fraunces'),
+      document.fonts.load('500 30px Inter'),
+      document.fonts.load('600 30px Inter'),
+    ]);
+  }catch(e){}
+
+  const W = 1080, H = 1920, CX = W / 2;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const x = c.getContext('2d');
+
+  /* fundo azul-marinho com brilho bordô */
+  const fundo = x.createLinearGradient(0, 0, 0, H);
+  fundo.addColorStop(0, '#141b30'); fundo.addColorStop(1, '#060910');
+  x.fillStyle = fundo; x.fillRect(0, 0, W, H);
+  const brilho = x.createRadialGradient(W * 0.82, H * 0.2, 40, W * 0.82, H * 0.2, 760);
+  brilho.addColorStop(0, 'rgba(139,38,53,.55)'); brilho.addColorStop(1, 'rgba(139,38,53,0)');
+  x.fillStyle = brilho; x.fillRect(0, 0, W, H);
+
+  desenharLogoNoCartao(x, CX, 120);
+
+  x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+  x.font = '600 28px Inter, sans-serif';
+  if('letterSpacing' in x) x.letterSpacing = '8px';
+  x.fillStyle = '#d9788a';
+  x.fillText('MEU VOTO DA SEMANA', CX, 330);
+  if('letterSpacing' in x) x.letterSpacing = '0px';
+
+  desenharVinil(x, CX, 700, 290);
+
+  let y = 1110;
+  const bloco = (rotulo, titulo, subtitulo)=>{
+    x.textAlign = 'center';
+    x.font = '600 26px Inter, sans-serif';
+    if('letterSpacing' in x) x.letterSpacing = '6px';
+    x.fillStyle = '#c0485a';
+    x.fillText(rotulo, CX, y);
+    if('letterSpacing' in x) x.letterSpacing = '0px';
+    y += 30;
+    x.font = '600 76px Fraunces, serif';
+    x.fillStyle = '#f6f3ec';
+    const linhas = quebrarTexto(x, titulo, W - 180).slice(0, 2);
+    linhas.forEach(l=>{ y += 86; x.fillText(l, CX, y); });
+    if(subtitulo){
+      y += 54;
+      x.font = '500 40px Inter, sans-serif';
+      x.fillStyle = '#c7c9d6';
+      x.fillText(subtitulo, CX, y);
+    }
+    y += 80;
+  };
+  if(mus) bloco('MÚSICA', mus.name, mus.sub);
+  if(art) bloco('ARTISTA', art.name, art.sub);
+
+  x.font = '500 26px Inter, sans-serif';
+  x.fillStyle = '#9ea2ba';
+  x.fillText(location.host + '  ·  Vote você também', CX, H - 90);
+
+  return new Promise(resolve => c.toBlob(resolve, 'image/png'));
+}
+
+const cardModal    = document.getElementById('cardModal');
+const cardPreview  = document.getElementById('cardPreview');
+const cardDownload = document.getElementById('cardDownload');
+const cardShare    = document.getElementById('cardShare');
+let cartaoUrl = null, cartaoArquivo = null;
+
+async function abrirCartao(){
+  if(!cardModal) return;
+  const blob = await gerarCartaoVoto();
+  if(!blob) return;
+  if(cartaoUrl) URL.revokeObjectURL(cartaoUrl);
+  cartaoUrl = URL.createObjectURL(blob);
+  cartaoArquivo = new File([blob], 'meu-voto-som-e-cultura.png', {type:'image/png'});
+  cardPreview.src = cartaoUrl;
+  cardDownload.href = cartaoUrl;
+  cardShare.hidden = !(navigator.canShare && navigator.canShare({files:[cartaoArquivo]}));
+  cardModal.hidden = false;
+  document.body.classList.add('modal-open');
+}
+function fecharCartao(){
+  if(!cardModal) return;
+  cardModal.hidden = true;
+  document.body.classList.remove('modal-open');
+}
+if(cardModal){
+  cardModal.addEventListener('mousedown', e=>{ if(e.target === cardModal) fecharCartao(); });
+  cardModal.querySelectorAll('[data-close-card]').forEach(b=>b.addEventListener('click', fecharCartao));
+  document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && !cardModal.hidden) fecharCartao(); });
+  cardShare.addEventListener('click', ()=>{
+    if(!cartaoArquivo) return;
+    navigator.share({files:[cartaoArquivo], title:'Meu voto no Som & Cultura'}).catch(()=>{});
+  });
+}
+
 /* Votação */
 const VOTE_CONFIGS = {
   artista: {
@@ -720,6 +1052,12 @@ async function renderVoteCard(containerId, cfg, votedKey){
     /* voto guardado de uma opção que saiu da votação: a pessoa pode votar de novo */
     if(voted && !cfg.options.some(o=>o.id === voted)) voted = null;
   }
+  /* guarda o voto atual (usado pelo cartão do meu voto) */
+  delete votosAtuais[cfg.tipo];
+  if(voted){
+    const op = cfg.options.find(o=>o.id === voted);
+    if(op) votosAtuais[cfg.tipo] = {name: op.name, sub: op.sub};
+  }
   let pending = null;
 
   const cardIcon = cfg.tipo === 'artista' ? ARTIST_ICON : SONG_ICON;
@@ -747,7 +1085,10 @@ async function renderVoteCard(containerId, cfg, votedKey){
       const pct = total ? Math.round((counts[o.id]/total)*100) : 0;
       const el = container.querySelector(`.vote-option[data-id="${o.id}"]`);
       if(el) el.classList.toggle('lider', total > 0 && (counts[o.id]||0) === maior);
-      document.getElementById(`${containerId}-fill-${o.id}`).style.width = pct+'%';
+      const fill = document.getElementById(`${containerId}-fill-${o.id}`);
+      fill.dataset.pct = pct;                       // valor final (usado pela animação)
+      if(container.dataset.animando) return;        // durante a animação, ela cuida da tela
+      fill.style.width = pct+'%';
       document.getElementById(`${containerId}-pct-${o.id}`).textContent = pct+'%';
     });
   }
@@ -824,8 +1165,15 @@ async function renderVoteCard(containerId, cfg, votedKey){
       voted = pending;
       await storageSet(votedKey, voted);
       if(currentUser) currentUser.votos[cfg.tipo] = opt.name;
+      votosAtuais[cfg.tipo] = {name: opt.name, sub: opt.sub};
+      await histRegistrar(cfg.tipo, opt.name, opt.sub);
       updateBars();
       lockAsVoted();
+      /* comemoração: confete bordô + botão que "pulsa" + barras crescendo */
+      submitBtn.classList.add('votou');
+      dispararConfete(submitBtn);
+      animarBarrasDe(container);
+      renderHistorico();
     } else {
       if(currentUser) authRequest('DELETE', '/me/votos/' + cfg.tipo);   // desfaz a reserva
       submitBtn.disabled = false;
@@ -910,10 +1258,18 @@ function renderVoteCards(){
     renderVoteCard('voteMusica', VOTE_CONFIGS.musica, 'user-voted-musica'),
   ]);
 }
-Promise.all([renderVoteCards(), carregarImagensSpotify()]).then(aplicarImagensNaVotacao);
+Promise.all([renderVoteCards(), carregarImagensSpotify()]).then(()=>{
+  aplicarImagensNaVotacao();
+  renderHistorico();
+});
 
 /* ao entrar/sair, os votos mostrados passam a ser os da conta (ou do aparelho) */
-onAuthChange(()=>{ renderVoteCards().then(aplicarImagensNaVotacao); });
+onAuthChange(()=>{
+  renderVoteCards().then(()=>{
+    aplicarImagensNaVotacao();
+    renderHistorico();
+  });
+});
 
 /* escapeHtml */
 function escapeHtml(str){

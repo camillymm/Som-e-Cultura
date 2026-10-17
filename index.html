@@ -288,6 +288,8 @@
         <div class="vote-card" id="voteMusica"></div>
       </div>
 
+      <div class="vote-history" id="voteHistory"></div>
+
       <div class="comments-panel">
         <h3 style="font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--navy-950);margin-bottom:16px;">COMENTÁRIOS &amp; INDICAÇÕES</h3>
         <form class="comment-form" id="commentForm">
@@ -367,6 +369,20 @@
       <p class="modal-note">Como não pedimos e-mail, não há como recuperar a senha. Guarde-a em um lugar seguro.</p>
     </form>
     <p class="modal-switch">Já tem conta? <button type="button" data-switch-modal="login">Fazer login</button></p>
+  </div>
+</div>
+
+<!-- ================= CARTÃO DO MEU VOTO ================= -->
+<div class="modal-overlay" id="cardModal" hidden>
+  <div class="modal card-modal" role="dialog" aria-modal="true" aria-labelledby="cardTitle">
+    <button type="button" class="modal-close" data-close-card aria-label="Fechar">&times;</button>
+    <h2 id="cardTitle">Cartão do meu voto</h2>
+    <p class="modal-sub">Baixe a imagem ou compartilhe nos stories.</p>
+    <img id="cardPreview" class="card-preview" alt="Prévia do cartão do meu voto">
+    <div class="card-actions">
+      <a class="btn" id="cardDownload" download="meu-voto-som-e-cultura.png" href="#">Baixar imagem</a>
+      <button type="button" class="btn ghost" id="cardShare" hidden>Compartilhar</button>
+    </div>
   </div>
 </div>
 
