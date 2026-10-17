@@ -1,5 +1,5 @@
 try:
-    from flask import Flask, jsonify, request, send_from_directory  # type: ignore[import-not-found]
+    from flask import Flask, jsonify, request, send_from_directory, session  # type: ignore[import-not-found]
 except ModuleNotFoundError as exc:
     raise RuntimeError(
         "Flask não está instalado. Instale com: pip install flask"
@@ -7,7 +7,12 @@ except ModuleNotFoundError as exc:
 
 import hmac
 import os
+import re
 import sqlite3
+import time
+from datetime import timedelta
+
+from werkzeug.security import check_password_hash, generate_password_hash
 
 # O main.py está na pasta "py/", mas o index.html, script.js e a pasta
 # "styles/" ficam um nível acima (na pasta "Site"). Por isso apontamos o
@@ -17,12 +22,32 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SITE_DIR = os.path.join(BASE_DIR, '..')
 app = Flask(__name__, static_folder=SITE_DIR, static_url_path='')
 
+# ===================== SESSÃO (LOGIN) =====================
+# SECRET_KEY assina o cookie de sessão. No Render, crie a variável de ambiente
+# SECRET_KEY (Environment > SECRET_KEY) com um texto longo e aleatório.
+# NUNCA escreva a chave aqui no código.
+# O Render define RENDER=true automaticamente; é assim que sabemos que é produção.
+EM_PRODUCAO = bool(os.environ.get("RENDER"))
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    if EM_PRODUCAO:
+        raise RuntimeError("Defina a variável de ambiente SECRET_KEY no Render.")
+    SECRET_KEY = "chave-somente-para-desenvolvimento"  # só no seu computador
+
+app.config.update(
+    SECRET_KEY=SECRET_KEY,
+    SESSION_COOKIE_HTTPONLY=True,       # o JavaScript não consegue ler o cookie
+    SESSION_COOKIE_SAMESITE="Lax",      # não é enviado em requisições de outros sites
+    SESSION_COOKIE_SECURE=EM_PRODUCAO,  # só por HTTPS (no Render); no localhost é http
+    PERMANENT_SESSION_LIFETIME=timedelta(days=30),
+)
+
 # CORS simples, sem depender do pacote flask-cors.
 @app.after_request
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-Admin-Token'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     return response
 
 # ===================== BANCO DE DADOS =====================
@@ -36,6 +61,10 @@ DB_NAME = os.path.join(BASE_DIR, "database.db")
 
 if USE_POSTGRES:
     import psycopg2  # type: ignore[import-not-found]
+    # Erros de "valor duplicado" (nome de usuário já existe, voto repetido...)
+    ERROS_INTEGRIDADE = (sqlite3.IntegrityError, psycopg2.IntegrityError)
+else:
+    ERROS_INTEGRIDADE = (sqlite3.IntegrityError,)
 
 # Senha de moderação (apagar comentários). Vem de uma variável de ambiente
 # configurada no Render (Environment > ADMIN_TOKEN). NUNCA escreva a senha
@@ -46,11 +75,23 @@ ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN")
 # Indicações"). Têm que bater com as chaves de FAVORITOS no script.js.
 TIPOS_FAVORITOS = {"musica", "artista", "album"}
 
+# Categorias de voto (batem com VOTE_CONFIGS no script.js)
+TIPOS_VOTO = {"artista", "musica"}
+
+# Regras da conta
+USERNAME_RE = re.compile(r"^[A-Za-z0-9_.]{3,20}$")
+SENHA_MIN, SENHA_MAX = 6, 128
+APELIDO_MIN, APELIDO_MAX = 2, 24
+TEMAS = {"light", "dark"}
+MODOS_COMENTARIO = {"user", "anon", "nick"}
+
 
 def get_conn():
     if USE_POSTGRES:
         return psycopg2.connect(DATABASE_URL)
-    return sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME)
+    conn.execute("PRAGMA foreign_keys = ON")  # o SQLite só respeita chaves estrangeiras se pedirmos
+    return conn
 
 
 def q(sql):
@@ -62,6 +103,16 @@ def q(sql):
 @app.route('/')
 def index():
     return send_from_directory(app.static_folder, 'index.html')
+
+
+def garantir_coluna_usuario(cursor, tabela):
+    """Adiciona a coluna usuario_id em uma tabela que já existia (sem apagar nada)."""
+    if USE_POSTGRES:
+        cursor.execute(f"ALTER TABLE {tabela} ADD COLUMN IF NOT EXISTS usuario_id INTEGER")
+    else:
+        cursor.execute(f"PRAGMA table_info({tabela})")
+        if 'usuario_id' not in [coluna[1] for coluna in cursor.fetchall()]:
+            cursor.execute(f"ALTER TABLE {tabela} ADD COLUMN usuario_id INTEGER")
 
 
 def init_db():
@@ -96,11 +147,331 @@ def init_db():
             data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
+    # ---- Contas de usuário ----
+    # username_key é o nome em minúsculas e é UNIQUE: é ele que impede nomes
+    # duplicados (Camilly e camilly contam como o mesmo nome).
+    cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id {pk},
+            username TEXT NOT NULL,
+            username_key TEXT NOT NULL UNIQUE,
+            senha_hash TEXT NOT NULL,
+            criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    # Preferências da conta (tema do site e como a pessoa prefere comentar)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS preferencias (
+            usuario_id INTEGER PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
+            theme TEXT,
+            comment_mode TEXT,
+            comment_nick TEXT
+        )
+    ''')
+    # Voto de cada conta por categoria (1 por categoria)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS votos_usuario (
+            usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+            tipo TEXT NOT NULL,
+            item_nome TEXT NOT NULL,
+            criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (usuario_id, tipo)
+        )
+    ''')
+    # Comentários e favoritos passam a guardar de qual conta vieram (fica vazio
+    # para visitantes). O nome exibido continua sendo o que a pessoa escolheu.
+    garantir_coluna_usuario(cursor, 'comentarios')
+    garantir_coluna_usuario(cursor, 'favoritos')
+
     conn.commit()
     conn.close()
 
 
 init_db()
+
+# ===================== CONTAS: CADASTRO, LOGIN E SESSÃO =====================
+# Limite simples de tentativas de login erradas (por IP + usuário).
+MAX_FALHAS = 5
+JANELA_SEG = 600
+_falhas = {}
+_HASH_FALSO = generate_password_hash("senha-falsa-para-igualar-o-tempo")
+
+
+def validar_username(username):
+    if not USERNAME_RE.match(username):
+        return "Use de 3 a 20 caracteres: letras, números, _ ou ."
+    return None
+
+
+def validar_senha(senha):
+    if len(senha) < SENHA_MIN:
+        return f"A senha precisa ter pelo menos {SENHA_MIN} caracteres."
+    if len(senha) > SENHA_MAX:
+        return f"A senha pode ter no máximo {SENHA_MAX} caracteres."
+    return None
+
+
+def validar_apelido(apelido):
+    if len(apelido) < APELIDO_MIN or len(apelido) > APELIDO_MAX:
+        return f"O apelido precisa ter de {APELIDO_MIN} a {APELIDO_MAX} caracteres."
+    if apelido.startswith("@"):
+        return "O apelido não pode começar com @ (formato reservado para usuários)."
+    return None
+
+
+def iniciar_sessao(usuario_id):
+    session.clear()
+    session["uid"] = usuario_id
+    session.permanent = True
+
+
+def usuario_atual():
+    """Devolve (id, username, username_key) de quem está logado, ou None."""
+    uid = session.get("uid")
+    if not uid:
+        return None
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(q("SELECT id, username, username_key FROM usuarios WHERE id = ?"), (uid,))
+    row = cursor.fetchone()
+    conn.close()
+    return row
+
+
+def montar_usuario(usuario_id, username):
+    """Tudo o que o site precisa saber da conta (nunca inclui a senha)."""
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        q("SELECT theme, comment_mode, comment_nick FROM preferencias WHERE usuario_id = ?"),
+        (usuario_id,),
+    )
+    prefs = cursor.fetchone() or (None, None, None)
+    cursor.execute(
+        q("SELECT tipo, item_nome FROM votos_usuario WHERE usuario_id = ?"),
+        (usuario_id,),
+    )
+    votos = cursor.fetchall()
+    conn.close()
+    return {
+        "username": username,
+        "preferences": {"theme": prefs[0], "comment_mode": prefs[1], "comment_nick": prefs[2]},
+        "votos": {tipo: item for tipo, item in votos},
+    }
+
+
+def chave_tentativa(username):
+    ip = request.headers.get("X-Forwarded-For", "").split(",")[0].strip() or request.remote_addr or ""
+    return f"{ip}|{username.lower()}"
+
+
+def tentativas_bloqueadas(chave):
+    agora = time.time()
+    recentes = [t for t in _falhas.get(chave, []) if agora - t < JANELA_SEG]
+    _falhas[chave] = recentes
+    return len(recentes) >= MAX_FALHAS
+
+
+def registrar_falha(chave):
+    if len(_falhas) > 5000:  # evita crescer sem limite
+        _falhas.clear()
+    _falhas.setdefault(chave, []).append(time.time())
+
+
+def nome_exibido_valido(nome, usuario):
+    """O formato @nome é reservado: só vale se for o usuário que está logado."""
+    if nome.startswith("@") and not (usuario and nome[1:].lower() == usuario[2]):
+        return False
+    return True
+
+
+@app.route('/api/auth/register', methods=['POST'])
+def registrar():
+    data = request.get_json(silent=True) or {}
+    username = str(data.get('username', '')).strip()
+    senha = str(data.get('password', ''))
+
+    erro = validar_username(username) or validar_senha(senha)
+    if erro:
+        return jsonify({"error": erro}), 400
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    try:
+        insert = q("INSERT INTO usuarios (username, username_key, senha_hash) VALUES (?, ?, ?)")
+        valores = (username, username.lower(), generate_password_hash(senha))
+        if USE_POSTGRES:
+            cursor.execute(insert + " RETURNING id", valores)
+            novo_id = cursor.fetchone()[0]
+        else:
+            cursor.execute(insert, valores)
+            novo_id = cursor.lastrowid
+        cursor.execute(q("INSERT INTO preferencias (usuario_id) VALUES (?)"), (novo_id,))
+        conn.commit()
+    except ERROS_INTEGRIDADE:  # username_key UNIQUE: o nome já existe
+        conn.rollback()
+        conn.close()
+        return jsonify({"error": "Esse nome de usuário já está em uso."}), 409
+    conn.close()
+
+    iniciar_sessao(novo_id)
+    return jsonify({"user": montar_usuario(novo_id, username)}), 201
+
+
+@app.route('/api/auth/login', methods=['POST'])
+def entrar():
+    data = request.get_json(silent=True) or {}
+    username = str(data.get('username', '')).strip()
+    senha = str(data.get('password', ''))
+    if not username or not senha:
+        return jsonify({"error": "Informe o nome de usuário e a senha."}), 400
+
+    chave = chave_tentativa(username)
+    if tentativas_bloqueadas(chave):
+        return jsonify({"error": "Muitas tentativas. Aguarde alguns minutos e tente de novo."}), 429
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        q("SELECT id, username, senha_hash FROM usuarios WHERE username_key = ?"),
+        (username.lower(),),
+    )
+    row = cursor.fetchone()
+    conn.close()
+
+    # Confere o hash mesmo se o usuário não existir, para não revelar isso pelo tempo de resposta
+    senha_ok = check_password_hash(row[2] if row else _HASH_FALSO, senha)
+    if not (row and senha_ok):
+        registrar_falha(chave)
+        return jsonify({"error": "Nome de usuário ou senha incorretos."}), 401
+
+    _falhas.pop(chave, None)
+    iniciar_sessao(row[0])
+    return jsonify({"user": montar_usuario(row[0], row[1])})
+
+
+@app.route('/api/auth/logout', methods=['POST'])
+def sair():
+    session.clear()
+    return jsonify({"success": True})
+
+
+@app.route('/api/auth/me', methods=['GET'])
+def eu():
+    usuario = usuario_atual()
+    if not usuario:
+        session.clear()  # cookie de uma conta que não existe mais
+        return jsonify({"user": None})
+    return jsonify({"user": montar_usuario(usuario[0], usuario[1])})
+
+
+@app.route('/api/auth/username-available', methods=['GET'])
+def username_disponivel():
+    username = request.args.get('u', '').strip()
+    erro = validar_username(username)
+    if erro:
+        return jsonify({"available": False, "error": erro})
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(q("SELECT 1 FROM usuarios WHERE username_key = ?"), (username.lower(),))
+    existe = cursor.fetchone()
+    conn.close()
+    return jsonify({"available": not existe})
+
+
+# --- Dados da conta: preferências e votos (sempre da conta logada) ---
+@app.route('/api/me/preferences', methods=['PUT'])
+def salvar_preferencias():
+    usuario = usuario_atual()
+    if not usuario:
+        return jsonify({"error": "Faça login para continuar."}), 401
+
+    data = request.get_json(silent=True) or {}
+    campos = {}
+
+    if 'theme' in data:
+        if data['theme'] not in TEMAS:
+            return jsonify({"error": "Tema inválido."}), 400
+        campos['theme'] = data['theme']
+
+    if 'comment_mode' in data:
+        if data['comment_mode'] not in MODOS_COMENTARIO:
+            return jsonify({"error": "Modo de comentário inválido."}), 400
+        campos['comment_mode'] = data['comment_mode']
+
+    if 'comment_nick' in data:
+        apelido = " ".join(str(data['comment_nick'] or "").split())
+        if apelido:
+            erro = validar_apelido(apelido)
+            if erro:
+                return jsonify({"error": erro}), 400
+        campos['comment_nick'] = apelido or None
+
+    if not campos:
+        return jsonify({"error": "Nada para salvar."}), 400
+
+    # os nomes das colunas vêm das chaves fixas acima (nunca do usuário)
+    sets = ", ".join(f"{coluna} = ?" for coluna in campos)
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        q(f"UPDATE preferencias SET {sets} WHERE usuario_id = ?"),
+        (*campos.values(), usuario[0]),
+    )
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True})
+
+
+@app.route('/api/me/votos', methods=['POST'])
+def registrar_voto_da_conta():
+    usuario = usuario_atual()
+    if not usuario:
+        return jsonify({"error": "Faça login para continuar."}), 401
+
+    data = request.get_json(silent=True) or {}
+    tipo = data.get('tipo')
+    item_nome = str(data.get('item_nome', '')).strip()
+    if tipo not in TIPOS_VOTO or not item_nome or len(item_nome) > 100:
+        return jsonify({"error": "Voto inválido."}), 400
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            q("INSERT INTO votos_usuario (usuario_id, tipo, item_nome) VALUES (?, ?, ?)"),
+            (usuario[0], tipo, item_nome),
+        )
+        conn.commit()
+    except ERROS_INTEGRIDADE:  # chave (usuario_id, tipo): a conta já votou aqui
+        conn.rollback()
+        conn.close()
+        return jsonify({"error": "Você já votou nesta categoria."}), 409
+    conn.close()
+    return jsonify({"success": True}), 201
+
+
+# Desfaz o registro do voto na conta (o site usa isso se a contagem geral falhar)
+@app.route('/api/me/votos/<tipo>', methods=['DELETE'])
+def desfazer_voto_da_conta(tipo):
+    usuario = usuario_atual()
+    if not usuario:
+        return jsonify({"error": "Faça login para continuar."}), 401
+    if tipo not in TIPOS_VOTO:
+        return jsonify({"error": "Categoria inválida."}), 400
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        q("DELETE FROM votos_usuario WHERE usuario_id = ? AND tipo = ?"),
+        (usuario[0], tipo),
+    )
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True})
+
 
 # --- Rotas de Comentários ---
 @app.route('/api/comentarios', methods=['GET'])
@@ -126,9 +497,16 @@ def add_comentario():
     if not texto:
         return jsonify({"error": "O texto é obrigatório"}), 400
 
+    usuario = usuario_atual()
+    if nome and not nome_exibido_valido(str(nome).strip(), usuario):
+        return jsonify({"error": "O formato @nome é reservado ao usuário logado."}), 400
+
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute(q("INSERT INTO comentarios (nome, texto) VALUES (?, ?)"), (nome, texto))
+    cursor.execute(
+        q("INSERT INTO comentarios (nome, texto, usuario_id) VALUES (?, ?, ?)"),
+        (nome, texto, usuario[0] if usuario else None),
+    )
     conn.commit()
     conn.close()
 
@@ -188,11 +566,17 @@ def add_favorito(tipo):
     if not texto:
         return jsonify({"error": "O texto é obrigatório"}), 400
 
+    # Quem está logado pode comentar como @usuario, como Anônimo ou com um apelido.
+    # Só não pode usar o @ de outra pessoa.
+    usuario = usuario_atual()
+    if not nome_exibido_valido(nome, usuario):
+        return jsonify({"error": "O formato @nome é reservado ao usuário logado."}), 400
+
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute(
-        q("INSERT INTO favoritos (tipo, nome, texto) VALUES (?, ?, ?)"),
-        (tipo, nome, texto),
+        q("INSERT INTO favoritos (tipo, nome, texto, usuario_id) VALUES (?, ?, ?, ?)"),
+        (tipo, nome, texto, usuario[0] if usuario else None),
     )
     conn.commit()
     conn.close()
@@ -265,371 +649,3 @@ def registrar_voto():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-    """
-auth.py — cadastro, login e sessão (somente nome de usuário + senha) do Som & Cultura.
-
-Como ligar ao seu app Flask (veja também o README no final da resposta):
-
-    from auth import auth_bp, init_auth
-
-    app = Flask(__name__)
-    init_auth(app)                 # chave secreta, cookies de sessão e criação das tabelas
-    app.register_blueprint(auth_bp)
-
-Rotas (todas em JSON, prefixo /api):
-    POST   /api/auth/register            {username, password}  -> cria a conta e já entra
-    POST   /api/auth/login               {username, password}
-    POST   /api/auth/logout
-    GET    /api/auth/me                  -> {user: {...}} ou {user: null}
-    GET    /api/auth/username-available?u=nome
-    PUT    /api/me/preferences           {theme?, comment_mode?, comment_nick?}
-    POST   /api/me/votos                 {tipo, item_nome}     (1 voto por categoria por conta)
-    DELETE /api/me/votos/<tipo>          (desfaz o registro caso a contagem geral falhe)
-"""
-import os
-import re
-import sqlite3
-import time
-from datetime import timedelta
-from functools import wraps
-
-from flask import Blueprint, g, jsonify, request, session
-from werkzeug.security import check_password_hash, generate_password_hash
-
-auth_bp = Blueprint("auth", __name__, url_prefix="/api")
-
-# No Render, aponte AUTH_DB_PATH para um Disco Persistente (ex.: /data/usuarios.db),
-# senão o arquivo é apagado a cada novo deploy.
-DB_PATH = os.environ.get("AUTH_DB_PATH") or os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "usuarios.db"
-)
-
-USERNAME_RE = re.compile(r"^[A-Za-z0-9_.]{3,20}$")
-SENHA_MIN, SENHA_MAX = 6, 128
-APELIDO_MIN, APELIDO_MAX = 2, 24
-TIPOS_VOTO = ("artista", "musica")
-TEMAS = ("light", "dark")
-MODOS_COMENTARIO = ("user", "anon", "nick")
-
-# Limite simples de tentativas de login (por IP + usuário)
-MAX_FALHAS = 5
-JANELA_SEG = 600
-_falhas = {}
-_HASH_FALSO = generate_password_hash("senha-falsa-para-igualar-o-tempo")
-
-SCHEMA = """
-CREATE TABLE IF NOT EXISTS usuarios (
-    id           INTEGER PRIMARY KEY AUTOINCREMENT,
-    username     TEXT NOT NULL,                 -- como a pessoa digitou (exibição)
-    username_key TEXT NOT NULL UNIQUE,          -- minúsculo: garante nome único sem diferenciar maiúsculas
-    senha_hash   TEXT NOT NULL,
-    criado_em    TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS preferencias (
-    usuario_id   INTEGER PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
-    theme        TEXT,
-    comment_mode TEXT,
-    comment_nick TEXT
-);
-
-CREATE TABLE IF NOT EXISTS votos_usuario (
-    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-    tipo       TEXT NOT NULL,
-    item_nome  TEXT NOT NULL,
-    criado_em  TEXT NOT NULL DEFAULT (datetime('now')),
-    PRIMARY KEY (usuario_id, tipo)
-);
-"""
-
-
-# ----------------------------------------------------------------------------
-# Inicialização
-# ----------------------------------------------------------------------------
-def init_auth(app):
-    chave = app.config.get("SECRET_KEY") or os.environ.get("SECRET_KEY")
-    if not chave:
-        if os.environ.get("RENDER"):
-            raise RuntimeError("Defina a variável de ambiente SECRET_KEY no Render.")
-        chave = "chave-somente-para-desenvolvimento"
-    app.config["SECRET_KEY"] = chave
-    app.config.update(
-        SESSION_COOKIE_HTTPONLY=True,
-        SESSION_COOKIE_SAMESITE="Lax",
-        SESSION_COOKIE_SECURE=bool(os.environ.get("RENDER")),  # HTTPS no Render
-        PERMANENT_SESSION_LIFETIME=timedelta(days=30),
-    )
-
-    pasta = os.path.dirname(DB_PATH)
-    if pasta:
-        os.makedirs(pasta, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    conn.executescript(SCHEMA)
-    conn.commit()
-    conn.close()
-
-
-def get_db():
-    if "auth_db" not in g:
-        conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA foreign_keys = ON")
-        g.auth_db = conn
-    return g.auth_db
-
-
-@auth_bp.teardown_app_request
-def _fechar_db(_erro):
-    conn = g.pop("auth_db", None)
-    if conn is not None:
-        conn.close()
-
-
-# ----------------------------------------------------------------------------
-# Validações
-# ----------------------------------------------------------------------------
-def validar_username(username):
-    if not USERNAME_RE.match(username):
-        return "Use de 3 a 20 caracteres: letras, números, _ ou ."
-    return None
-
-
-def validar_senha(senha):
-    if len(senha) < SENHA_MIN:
-        return f"A senha precisa ter pelo menos {SENHA_MIN} caracteres."
-    if len(senha) > SENHA_MAX:
-        return f"A senha pode ter no máximo {SENHA_MAX} caracteres."
-    return None
-
-
-def validar_apelido(apelido):
-    if len(apelido) < APELIDO_MIN or len(apelido) > APELIDO_MAX:
-        return f"O apelido precisa ter de {APELIDO_MIN} a {APELIDO_MAX} caracteres."
-    if apelido.startswith("@"):
-        return "O apelido não pode começar com @ (formato reservado para usuários)."
-    return None
-
-
-# ----------------------------------------------------------------------------
-# Sessão e utilitários
-# ----------------------------------------------------------------------------
-def _iniciar_sessao(usuario_id):
-    session.clear()
-    session["uid"] = usuario_id
-    session.permanent = True
-
-
-def _usuario_atual():
-    uid = session.get("uid")
-    if not uid:
-        return None
-    return get_db().execute("SELECT * FROM usuarios WHERE id = ?", (uid,)).fetchone()
-
-
-def _payload(user):
-    """Tudo o que o front precisa saber sobre a conta (sem a senha)."""
-    db = get_db()
-    prefs = db.execute(
-        "SELECT theme, comment_mode, comment_nick FROM preferencias WHERE usuario_id = ?",
-        (user["id"],),
-    ).fetchone()
-    votos = db.execute(
-        "SELECT tipo, item_nome FROM votos_usuario WHERE usuario_id = ?", (user["id"],)
-    ).fetchall()
-    return {
-        "username": user["username"],
-        "preferences": {
-            "theme": prefs["theme"] if prefs else None,
-            "comment_mode": prefs["comment_mode"] if prefs else None,
-            "comment_nick": prefs["comment_nick"] if prefs else None,
-        },
-        "votos": {v["tipo"]: v["item_nome"] for v in votos},
-    }
-
-
-def login_required(fn):
-    @wraps(fn)
-    def wrapper(*args, **kwargs):
-        user = _usuario_atual()
-        if not user:
-            return jsonify(error="Faça login para continuar."), 401
-        g.user = user
-        return fn(*args, **kwargs)
-
-    return wrapper
-
-
-def _chave_tentativa(username):
-    ip = request.headers.get("X-Forwarded-For", "").split(",")[0].strip() or request.remote_addr or ""
-    return f"{ip}|{username.lower()}"
-
-
-def _bloqueado(chave):
-    agora = time.time()
-    recentes = [t for t in _falhas.get(chave, []) if agora - t < JANELA_SEG]
-    _falhas[chave] = recentes
-    return len(recentes) >= MAX_FALHAS
-
-
-def _registrar_falha(chave):
-    if len(_falhas) > 5000:  # evita crescer sem limite
-        _falhas.clear()
-    _falhas.setdefault(chave, []).append(time.time())
-
-
-# ----------------------------------------------------------------------------
-# Rotas de autenticação
-# ----------------------------------------------------------------------------
-@auth_bp.post("/auth/register")
-def registrar():
-    data = request.get_json(silent=True) or {}
-    username = str(data.get("username", "")).strip()
-    senha = str(data.get("password", ""))
-
-    erro = validar_username(username) or validar_senha(senha)
-    if erro:
-        return jsonify(error=erro), 400
-
-    db = get_db()
-    try:
-        cur = db.execute(
-            "INSERT INTO usuarios (username, username_key, senha_hash) VALUES (?, ?, ?)",
-            (username, username.lower(), generate_password_hash(senha)),
-        )
-        db.execute("INSERT INTO preferencias (usuario_id) VALUES (?)", (cur.lastrowid,))
-        db.commit()
-    except sqlite3.IntegrityError:  # UNIQUE(username_key): nome já existe
-        db.rollback()
-        return jsonify(error="Esse nome de usuário já está em uso."), 409
-
-    _iniciar_sessao(cur.lastrowid)
-    return jsonify(user=_payload(_usuario_atual())), 201
-
-
-@auth_bp.post("/auth/login")
-def entrar():
-    data = request.get_json(silent=True) or {}
-    username = str(data.get("username", "")).strip()
-    senha = str(data.get("password", ""))
-    if not username or not senha:
-        return jsonify(error="Informe o nome de usuário e a senha."), 400
-
-    chave = _chave_tentativa(username)
-    if _bloqueado(chave):
-        return jsonify(error="Muitas tentativas. Aguarde alguns minutos e tente de novo."), 429
-
-    user = get_db().execute(
-        "SELECT * FROM usuarios WHERE username_key = ?", (username.lower(),)
-    ).fetchone()
-    # Confere o hash mesmo quando o usuário não existe, para não revelar isso pelo tempo de resposta
-    senha_ok = check_password_hash(user["senha_hash"] if user else _HASH_FALSO, senha)
-    if not (user and senha_ok):
-        _registrar_falha(chave)
-        return jsonify(error="Nome de usuário ou senha incorretos."), 401
-
-    _falhas.pop(chave, None)
-    _iniciar_sessao(user["id"])
-    return jsonify(user=_payload(user))
-
-
-@auth_bp.post("/auth/logout")
-def sair():
-    session.clear()
-    return jsonify(success=True)
-
-
-@auth_bp.get("/auth/me")
-def eu():
-    user = _usuario_atual()
-    if not user:
-        session.clear()  # cookie de uma conta que não existe mais
-        return jsonify(user=None)
-    return jsonify(user=_payload(user))
-
-
-@auth_bp.get("/auth/username-available")
-def username_disponivel():
-    username = request.args.get("u", "").strip()
-    erro = validar_username(username)
-    if erro:
-        return jsonify(available=False, error=erro)
-    existe = get_db().execute(
-        "SELECT 1 FROM usuarios WHERE username_key = ?", (username.lower(),)
-    ).fetchone()
-    return jsonify(available=not existe)
-
-
-# ----------------------------------------------------------------------------
-# Dados da conta: preferências e votos (sempre ligados ao usuário da sessão)
-# ----------------------------------------------------------------------------
-@auth_bp.put("/me/preferences")
-@login_required
-def salvar_preferencias():
-    data = request.get_json(silent=True) or {}
-    campos = {}
-
-    if "theme" in data:
-        if data["theme"] not in TEMAS:
-            return jsonify(error="Tema inválido."), 400
-        campos["theme"] = data["theme"]
-
-    if "comment_mode" in data:
-        if data["comment_mode"] not in MODOS_COMENTARIO:
-            return jsonify(error="Modo de comentário inválido."), 400
-        campos["comment_mode"] = data["comment_mode"]
-
-    if "comment_nick" in data:
-        apelido = " ".join(str(data["comment_nick"] or "").split())
-        if apelido:
-            erro = validar_apelido(apelido)
-            if erro:
-                return jsonify(error=erro), 400
-        campos["comment_nick"] = apelido or None
-
-    if not campos:
-        return jsonify(error="Nada para salvar."), 400
-
-    # os nomes das colunas vêm das chaves fixas acima (nunca do usuário)
-    sets = ", ".join(f"{coluna} = ?" for coluna in campos)
-    db = get_db()
-    db.execute(
-        f"UPDATE preferencias SET {sets} WHERE usuario_id = ?",
-        (*campos.values(), g.user["id"]),
-    )
-    db.commit()
-    return jsonify(success=True)
-
-
-@auth_bp.post("/me/votos")
-@login_required
-def registrar_voto():
-    data = request.get_json(silent=True) or {}
-    tipo = data.get("tipo")
-    item_nome = str(data.get("item_nome", "")).strip()
-    if tipo not in TIPOS_VOTO or not item_nome or len(item_nome) > 100:
-        return jsonify(error="Voto inválido."), 400
-
-    db = get_db()
-    try:
-        db.execute(
-            "INSERT INTO votos_usuario (usuario_id, tipo, item_nome) VALUES (?, ?, ?)",
-            (g.user["id"], tipo, item_nome),
-        )
-        db.commit()
-    except sqlite3.IntegrityError:
-        db.rollback()
-        return jsonify(error="Você já votou nesta categoria."), 409
-    return jsonify(success=True), 201
-
-
-@auth_bp.delete("/me/votos/<tipo>")
-@login_required
-def desfazer_voto(tipo):
-    if tipo not in TIPOS_VOTO:
-        return jsonify(error="Categoria inválida."), 400
-    db = get_db()
-    db.execute(
-        "DELETE FROM votos_usuario WHERE usuario_id = ? AND tipo = ?", (g.user["id"], tipo)
-    )
-    db.commit()
-    return jsonify(success=True)
