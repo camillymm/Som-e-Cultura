@@ -1438,7 +1438,7 @@ if(favButtons && favSections){
         if(modeEl.value === 'nick') salvarPrefsComentario({comment_nick: nickEl.value.trim()});
         loadFavoritos(tipo, listEl);
       } else {
-        mostrarMsgComentario(msgEl, 'Não foi possível enviar agora. Tente novamente.');
+        mostrarMsgComentario(msgEl, 'Não foi possível enviar seu comentário agora. Tente novamente mais tarde.');
       }
     });
   });
