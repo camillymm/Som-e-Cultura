@@ -671,7 +671,7 @@ if(registerForm){
 
 /* ===================== EXTRAS DA VOTAÇÃO =====================
    1) confete ao votar   2) barras que crescem   3) histórico dos meus votos
-   4) cartão do meu voto (imagem para os stories) */
+   4) cartão "Meus votos da semana" (imagem para os stories) */
 
 /* ----- 1) confete em tons de vinho/bordô ----- */
 const CONFETE_CORES = ['#6b1f2e','#8b2635','#a63446','#c0485a','#d9788a','#f6f3ec'];
@@ -793,7 +793,7 @@ async function renderHistorico(){
 
   const botoes = `
     <div class="hist-actions">
-      ${temVoto ? '<button type="button" class="hist-btn" data-hist="cartao">Gerar cartão do meu voto</button>' : ''}
+      ${temVoto ? '<button type="button" class="hist-btn" data-hist="cartao">Gerar cartão dos meus votos</button>' : ''}
       ${lista.length ? '<button type="button" class="hist-btn ghost" data-hist="limpar">Limpar histórico</button>' : ''}
     </div>`;
 
@@ -815,58 +815,38 @@ if(voteHistoryEl){
   });
 }
 
-/* ----- 4) cartão do meu voto (imagem 1080x1920 para os stories) ----- */
-function quebrarTexto(ctx, texto, larguraMax){
-  const palavras = String(texto).split(' ');
-  const linhas = [];
-  let atual = '';
-  palavras.forEach(p=>{
-    const teste = atual ? atual + ' ' + p : p;
-    if(ctx.measureText(teste).width > larguraMax && atual){ linhas.push(atual); atual = p; }
-    else atual = teste;
-  });
-  if(atual) linhas.push(atual);
-  return linhas;
+/* ----- 4) cartão "MEUS VOTOS DA SEMANA" (imagem 1080x1920 para os stories) -----
+   Design "Equalizador": gradiente navy do site, barras de áudio em creme,
+   a música e o artista em que a pessoa votou. Usa só as cores do site
+   (navy + creme). Se a pessoa votou em apenas uma categoria, a outra
+   aparece como "—". Para mexer no visual, edite só gerarCartaoVoto(). */
+const CARTAO_BARRAS = [60,110,80,160,120,200,140,180,90,150,70,120,50];   // alturas (x3 no desenho)
+
+/* reduz a fonte até o texto caber na largura máxima */
+function ajustarFonte(x, texto, peso, familia, larguraMax, tamInicial, tamMin){
+  let tam = tamInicial;
+  x.font = `${peso} ${tam}px ${familia}`;
+  while(tam > tamMin && x.measureText(texto).width > larguraMax){
+    tam -= 2;
+    x.font = `${peso} ${tam}px ${familia}`;
+  }
+  return tam;
 }
-function desenharVinil(x, cx, cy, R){
-  x.save();
-  x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = 60; x.shadowOffsetY = 30;
-  x.fillStyle = '#0b0c0f';
-  x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.fill();
-  x.restore();
-  for(let r = R * 0.36; r < R - 6; r += 5){
-    x.strokeStyle = Math.round(r) % 2 ? 'rgba(255,255,255,.05)' : 'rgba(255,255,255,.02)';
-    x.lineWidth = 1.2;
-    x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.stroke();
-  }
-  [0.5, 0.64, 0.8].forEach(f=>{
-    x.strokeStyle = 'rgba(255,255,255,.12)'; x.lineWidth = 2;
-    x.beginPath(); x.arc(cx, cy, R * f, 0, Math.PI * 2); x.stroke();
-  });
-  if(x.createConicGradient){
-    const cg = x.createConicGradient(0.45, cx, cy);
-    cg.addColorStop(0, 'rgba(255,255,255,0)');
-    cg.addColorStop(0.04, 'rgba(255,255,255,.22)');
-    cg.addColorStop(0.1, 'rgba(255,255,255,0)');
-    cg.addColorStop(0.5, 'rgba(255,255,255,0)');
-    cg.addColorStop(0.54, 'rgba(255,255,255,.14)');
-    cg.addColorStop(0.6, 'rgba(255,255,255,0)');
-    cg.addColorStop(1, 'rgba(255,255,255,0)');
-    x.fillStyle = cg;
-    x.beginPath(); x.arc(cx, cy, R - 4, 0, Math.PI * 2); x.fill();
-  }
-  x.strokeStyle = '#000'; x.lineWidth = 6;
-  x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.stroke();
-  const rl = R * 0.34;
-  const lg = x.createRadialGradient(cx, cy - rl * 0.3, 10, cx, cy, rl);
-  lg.addColorStop(0, '#a63446'); lg.addColorStop(1, '#6b1f2e');
-  x.fillStyle = lg;
-  x.beginPath(); x.arc(cx, cy, rl, 0, Math.PI * 2); x.fill();
-  x.strokeStyle = 'rgba(246,243,236,.5)'; x.lineWidth = 2;
-  x.beginPath(); x.arc(cx, cy, rl * 0.78, 0, Math.PI * 2); x.stroke();
-  x.fillStyle = '#0b0d14';
-  x.beginPath(); x.arc(cx, cy, 12, 0, Math.PI * 2); x.fill();
-  x.strokeStyle = '#b9bcc6'; x.lineWidth = 3; x.stroke();
+function retanguloArredondado(x, px, py, w, h, r){
+  x.beginPath();
+  x.moveTo(px + r, py);
+  x.arcTo(px + w, py, px + w, py + h, r);
+  x.arcTo(px + w, py + h, px, py + h, r);
+  x.arcTo(px, py + h, px, py, r);
+  x.arcTo(px, py, px + w, py, r);
+  x.closePath();
+}
+/* texto centralizado com espaço entre as letras (quando o navegador suporta) */
+function textoEspacado(x, texto, cx, y, espaco){
+  const suporta = 'letterSpacing' in x;
+  if(suporta) x.letterSpacing = espaco + 'px';
+  x.fillText(texto, suporta ? cx + espaco / 2 : cx, y);
+  if(suporta) x.letterSpacing = '0px';
 }
 function desenharLogoNoCartao(x, cx, y){
   const TAM = 76, FOLGA = 22;
@@ -903,61 +883,85 @@ async function gerarCartaoVoto(){
     await Promise.all([
       document.fonts.load('600 80px Fraunces'),
       document.fonts.load('500 30px Inter'),
+      document.fonts.load('400 30px Inter'),
       document.fonts.load('600 30px Inter'),
     ]);
   }catch(e){}
 
   const W = 1080, H = 1920, CX = W / 2;
+  const SERIF = 'Fraunces, Georgia, serif';
+  const SANS = 'Inter, Arial, sans-serif';
+  const CREME = '#f3f1ea', SUAVE = '#9ea2ba', PALIDO = '#c7c9d6', NAVY = '#060910';
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const x = c.getContext('2d');
 
-  /* fundo azul-marinho com brilho bordô */
-  const fundo = x.createLinearGradient(0, 0, 0, H);
-  fundo.addColorStop(0, '#141b30'); fundo.addColorStop(1, '#060910');
-  x.fillStyle = fundo; x.fillRect(0, 0, W, H);
-  const brilho = x.createRadialGradient(W * 0.82, H * 0.2, 40, W * 0.82, H * 0.2, 760);
-  brilho.addColorStop(0, 'rgba(139,38,53,.55)'); brilho.addColorStop(1, 'rgba(139,38,53,0)');
-  x.fillStyle = brilho; x.fillRect(0, 0, W, H);
+  /* fundo: gradiente navy-800 -> navy-950 */
+  const fundo = x.createLinearGradient(440, 0, 640, H);
+  fundo.addColorStop(0, '#141b30');
+  fundo.addColorStop(0.7, NAVY);
+  fundo.addColorStop(1, NAVY);
+  x.fillStyle = fundo;
+  x.fillRect(0, 0, W, H);
 
-  desenharLogoNoCartao(x, CX, 120);
+  /* logo */
+  desenharLogoNoCartao(x, CX, 114);
 
+  /* título do cartão */
   x.textAlign = 'center'; x.textBaseline = 'alphabetic';
-  x.font = '600 28px Inter, sans-serif';
-  if('letterSpacing' in x) x.letterSpacing = '8px';
-  x.fillStyle = '#d9788a';
-  x.fillText('MEU VOTO DA SEMANA', CX, 330);
-  if('letterSpacing' in x) x.letterSpacing = '0px';
+  x.fillStyle = SUAVE;
+  x.font = `600 31px ${SANS}`;
+  textoEspacado(x, 'MEUS VOTOS DA SEMANA', CX, 336, 8.7);
 
-  desenharVinil(x, CX, 700, 290);
+  /* equalizador: barras em degradê creme -> cinza-azulado */
+  const LARG = 33, VAO = 21, BASE = 1017;
+  const totalEq = CARTAO_BARRAS.length * LARG + (CARTAO_BARRAS.length - 1) * VAO;
+  const x0 = (W - totalEq) / 2;
+  CARTAO_BARRAS.forEach((alt, i)=>{
+    const h = alt * 3;
+    const bx = x0 + i * (LARG + VAO);
+    const g = x.createLinearGradient(0, BASE - h, 0, BASE);
+    g.addColorStop(0, CREME);
+    g.addColorStop(1, SUAVE);
+    x.fillStyle = g;
+    retanguloArredondado(x, bx, BASE - h, LARG, h, LARG / 2);
+    x.fill();
+  });
 
-  let y = 1110;
-  const bloco = (rotulo, titulo, subtitulo)=>{
-    x.textAlign = 'center';
-    x.font = '600 26px Inter, sans-serif';
-    if('letterSpacing' in x) x.letterSpacing = '6px';
-    x.fillStyle = '#c0485a';
-    x.fillText(rotulo, CX, y);
-    if('letterSpacing' in x) x.letterSpacing = '0px';
-    y += 30;
-    x.font = '600 76px Fraunces, serif';
-    x.fillStyle = '#f6f3ec';
-    const linhas = quebrarTexto(x, titulo, W - 180).slice(0, 2);
-    linhas.forEach(l=>{ y += 86; x.fillText(l, CX, y); });
-    if(subtitulo){
-      y += 54;
-      x.font = '500 40px Inter, sans-serif';
-      x.fillStyle = '#c7c9d6';
-      x.fillText(subtitulo, CX, y);
-    }
-    y += 80;
-  };
-  if(mus) bloco('MÚSICA', mus.name, mus.sub);
-  if(art) bloco('ARTISTA', art.name, art.sub);
+  /* música */
+  x.textAlign = 'center';
+  x.fillStyle = SUAVE;
+  x.font = `600 31px ${SANS}`;
+  textoEspacado(x, 'MÚSICA', CX, 1135, 8.7);
+  const musNome = mus ? mus.name : '—';
+  const musSub = mus ? mus.sub : 'Você ainda não votou';
+  x.fillStyle = CREME;
+  ajustarFonte(x, musNome, 600, SERIF, 900, 168, 70);
+  x.fillText(musNome, CX, 1315);
+  x.fillStyle = PALIDO;
+  ajustarFonte(x, musSub, 400, SANS, 900, 42, 26);
+  x.fillText(musSub, CX, 1385);
 
-  x.font = '500 26px Inter, sans-serif';
-  x.fillStyle = '#9ea2ba';
-  x.fillText(location.host + '  ·  Vote você também', CX, H - 90);
+  /* artista */
+  x.fillStyle = SUAVE;
+  x.font = `600 31px ${SANS}`;
+  textoEspacado(x, 'ARTISTA', CX, 1500, 8.7);
+  const artNome = art ? art.name : '—';
+  const artSub = art ? art.sub : 'Você ainda não votou';
+  x.fillStyle = CREME;
+  ajustarFonte(x, artNome, 600, SERIF, 900, 102, 54);
+  x.fillText(artNome, CX, 1625);
+  x.fillStyle = PALIDO;
+  ajustarFonte(x, artSub, 400, SANS, 900, 42, 26);
+  x.fillText(artSub, CX, 1695);
+
+  /* rodapé (no seu PC aparece o endereço do site publicado, não o localhost) */
+  const endereco = /^(localhost|127\.0\.0\.1)/.test(location.hostname)
+    ? 'som-e-cultura.onrender.com'
+    : location.host;
+  x.fillStyle = SUAVE;
+  x.font = `400 33px ${SANS}`;
+  x.fillText(endereco + ' · Vote você também', CX, 1855);
 
   return new Promise(resolve => c.toBlob(resolve, 'image/png'));
 }
@@ -974,7 +978,7 @@ async function abrirCartao(){
   if(!blob) return;
   if(cartaoUrl) URL.revokeObjectURL(cartaoUrl);
   cartaoUrl = URL.createObjectURL(blob);
-  cartaoArquivo = new File([blob], 'meu-voto-som-e-cultura.png', {type:'image/png'});
+  cartaoArquivo = new File([blob], 'meus-votos-som-e-cultura.png', {type:'image/png'});
   cardPreview.src = cartaoUrl;
   cardDownload.href = cartaoUrl;
   cardShare.hidden = !(navigator.canShare && navigator.canShare({files:[cartaoArquivo]}));
@@ -992,7 +996,7 @@ if(cardModal){
   document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && !cardModal.hidden) fecharCartao(); });
   cardShare.addEventListener('click', ()=>{
     if(!cartaoArquivo) return;
-    navigator.share({files:[cartaoArquivo], title:'Meu voto no Som & Cultura'}).catch(()=>{});
+    navigator.share({files:[cartaoArquivo], title:'Meus votos da semana — Som & Cultura', text:'Vote você também!'}).catch(()=>{});
   });
 }
 
@@ -1052,7 +1056,7 @@ async function renderVoteCard(containerId, cfg, votedKey){
     /* voto guardado de uma opção que saiu da votação: a pessoa pode votar de novo */
     if(voted && !cfg.options.some(o=>o.id === voted)) voted = null;
   }
-  /* guarda o voto atual (usado pelo cartão do meu voto) */
+  /* guarda o voto atual (usado pelo cartão dos meus votos) */
   delete votosAtuais[cfg.tipo];
   if(voted){
     const op = cfg.options.find(o=>o.id === voted);
