@@ -208,7 +208,9 @@
   @media (prefers-reduced-motion:reduce){
     .vinyl-disc,.vinyl-arm-move{animation:none;}
   }
-
+.hero-art{cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.hero-art:focus-visible{outline:3px solid var(--cream);outline-offset:4px;}
+.hero-art.paused .vinyl-disc{animation-play-state:paused;}
   /* ---------- SECTION SCAFFOLD ---------- */
   .section{padding:88px 0;border-top:1px solid var(--line);}
   .tab-section{display:none;scroll-margin-top:88px;}

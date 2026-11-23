@@ -1450,13 +1450,12 @@ if(favButtons && favSections){
 
 /* ===================== DISCO DO HERO: clique para girar/pausar ===================== */
 (function(){
-  const disco = document.querySelector('.turntable');
+  const disco = document.querySelector('.hero-art');
   if(!disco) return;
   function alternar(){
     const pausado = disco.classList.toggle('paused');
     disco.setAttribute('aria-pressed', pausado ? 'false' : 'true');
   }
-  disco.setAttribute('aria-pressed', 'true');
   disco.addEventListener('click', alternar);
   disco.addEventListener('keydown', e=>{
     if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); alternar(); }
