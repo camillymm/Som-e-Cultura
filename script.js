@@ -54,22 +54,22 @@ const TOP_ARTISTAS = [
   {name:"Froid", sub:"Hip-hop", bio:"Renato Alves Menezes Barreto, o Froid, nasceu em Belo Horizonte (MG) em 1993 e começou a carreira em Brasília no grupo Um Barril de Rap, ao lado de Sampa e Yank, ganhando notoriedade nas batalhas de rima da capital. Solo desde 2017, transita entre rap, trap e batidas mais melódicas, com letras que misturam crítica social e reflexão pessoal — traço marcante desde o hit \"Pseudosocial\". Tem certificações de ouro e platina com singles como \"SK8 do Matheus\" e \"Lamentável, pt. III\"."},
   {name:"Tyler, The Creator", sub:"Hip-hop", bio:"Tyler Gregory Okonma nasceu em Los Angeles em 1991 e fundou o coletivo Odd Future no fim dos anos 2000, que também revelou Frank Ocean e Earl Sweatshirt. Começou com um rap cru e provocador em discos como \"Goblin\" e evoluiu para produções mais sofisticadas, somando jazz, funk e soul em álbuns como \"Flower Boy\", \"IGOR\" e \"Call Me If You Get Lost\" — este último vencedor do Grammy de Melhor Álbum de Rap."},
   {name:"Fleetwood Mac", sub:"Rock/Pop Rock",bio:"Fleetwood Mac é uma das bandas de rock mais influentes e bem-sucedidas da história da música. Formada em Londres em 1967, o grupo passou por profundas transformações musicais e formações de integrantes, evoluindo do blues rock britânico até se tornar um fenômeno global do pop-rock."},
-  {name:"Ney Matogrosso", sub:"MPB", bio:"Ney Matogrosso (1941) é um dos artistas mais icônicos, influentes e revolucionários da história da música e da cultura brasileira. Cantor, intérprete e diretor, sua carreira é marcada por uma voz inconfundível de contralto/contratenor, presença de palco performática e constante quebra de tabus."},
+  {name:"Milton Nascimento", sub:"MPB", bio:"Milton Nascimento (nascido em 26 de outubro de 1942), apelidado de Bituca, é um dos maiores cantores, compositores e multi-instrumentistas da história da Música Popular Brasileira (MPB). Reconhecido mundialmente por sua extensão vocal única, falsete cristalino e profundidade emocional, sua obra mistura ritmos tradicionais de Minas Gerais, samba, pop, rock progressivo, jazz e música erudita."},
   {name:"Rita Lee", sub:"Rock / MPB", bio:"Rita Lee Jones nasceu em São Paulo em 1947 e começou nos anos 1960 no grupo Os Mutantes, um dos pilares da Tropicália. Depois formou a banda Tutti Frutti e seguiu em carreira solo, misturando rock, pop e humor irreverente. Clássicos como \"Ovelha Negra\", \"Mania de Você\" e \"Lança Perfume\" a consagraram como a rainha do rock brasileiro."},
 ];
 const ARTISTAS_SPOTIFY = {
   "Froid": "https://open.spotify.com/intl-pt/artist/45Yz90pqjzEdJzpEQg1eII",
   "Tyler, The Creator": "https://open.spotify.com/intl-pt/artist/4V8LLVI7PbaPR0K2TGSxFF",
   "Fleetwood Mac": "https://open.spotify.com/intl-pt/artist/08GQAI4eElDnROBrJRGE0X",
-  "Ney Matogrosso": "https://open.spotify.com/intl-pt/artist/2SFIMUkCdZowbeisskDdhn?si=28L9Tw_8TTaeWLDyw4p0Mg",
+  "Milton Nascimento": "https://open.spotify.com/intl-pt/artist/3Bnq7jiU506HcPjRgQ43TM",
   "Rita Lee": "https://open.spotify.com/intl-pt/artist/7dnT2FUXhjirperXaH22IJ",
 };
 const TOP_MUSICAS = [
-  {title:"Mantra", sub:"Froid", spotify: "https://open.spotify.com/intl-pt/track/0mIN3zYkVxT7VXWY0qfu0b?si=cca5dffac4ac4520", bio:"\"Mantra\" A faixa foi lançada por Froid com produção de Neobeats, ira em torno de um verso forte que funciona como o próprio mantra do artista — uma frase repetida que sintetiza desejos de transformação social e vivência pessoal."},
-  {title:"DOGTOOTH", sub:"Tyler, The Creator", spotify:"https://open.spotify.com/intl-pt/track/6OfOzTitafSnsaunQLuNFw?si=ea95ed6724d845d2", bio:"\"DOGTOOTH\" exibe a maturidade artística de Tyler, combinando um flow relaxado e confiante com batidas sofisticadas. A faixa serve como um hino de independência financeira, desapego de regras sociais ultrapassadas e celebração da própria liberdade."},
-  {title:"Rhiannon", sub:"Fleetwood Mac", spotify:"https://open.spotify.com/intl-pt/track/05oETzWbd4SI33qK2gbJfR?si=542d955c36ac4b7f", bio:"\"Rhiannon\" lançada no álbum Fleetwood Mac (1975) e escrita por Stevie Nicks, é um dos maiores clássicos da banda. A música combina um rock leve e misterioso com uma narrativa fascinante sobre liberdade, espiritualidade e independência."},
-  {title:"Sangue latino", sub:"Ney Matogrosso", spotify:"https://open.spotify.com/intl-pt/track/2u6RbTJVZEHs9Xsc1zajac?si=cf580778cb5d4646", bio:"\"Sangue latino\", lançada em 1973 no disco de estreia da banda Secos & Molhados (com vocais marcantes de Ney Matogrosso, letra de Paulo Mendonça e música de João Ricardo), é um dos maiores clássicos da música brasileira. A faixa é um hino de resistência, identidade e resiliência cultural."},
-  {title:"Jardins da Babilônia", sub:"Rita Lee", spotify:"https://open.spotify.com/intl-pt/track/1voq70uyXy4i3S1oJP48Hs?si=77dffda61bfb43d2", bio:"\"Jardins da Babilônia\" é um manifesto de independência e uma crítica afiada à hipocrisia social e política. A faixa eternizou a postura indomável de Rita Lee, misturando inteligência lírica, acidez e o melhor do rock brasileiro."},
+  {title:"Pq homem n chora?", sub:"Froid", spotify:"https://open.spotify.com/intl-pt/track/1XOMyfTZ9Dj2Vee95e6lP5", bio:"\"Pq homem n chora?\" é uma faixa do rapper Froid. Fiel ao estilo confessional, poético e cheio de contrastes do artista, a música mistura vulnerabilidade afetiva, conflitos de relacionamento e uma crítica direta às cobranças sociais sobre a masculinidade."},
+  {title:"MASSA", sub:"Tyler, The Creator", spotify:"https://open.spotify.com/intl-pt/track/3lqIHMPvL6ef6t2xKD8ZVH", bio:"\"MASSA\" é uma faixa de Tyler, The Creator, lançada em 2021 no álbum Call Me If You Get Lost. Mais do que uma música sobre sucesso ou ostentação, ela funciona como um balanço íntimo e cronológico da própria trajetória do artista — do início difícil e caótico até a independência, a liberdade criativa e o peso de viver sob os holofotes."},
+  {title:"Rhiannon", sub:"Fleetwood Mac", spotify:"https://open.spotify.com/intl-pt/track/05oETzWbd4SI33qK2gbJfR", bio:"\"Rhiannon\" lançada no álbum Fleetwood Mac (1975) e escrita por Stevie Nicks, é um dos maiores clássicos da banda. A música combina um rock leve e misterioso com uma narrativa fascinante sobre liberdade, espiritualidade e independência."},
+  {title:"Para Lennon e McCartney", sub:"Milton Nascimento", spotify:"https://open.spotify.com/intl-pt/track/4Hr5VM6DtRAy8eD3bqNb0o", bio:"Lançada por Milton Nascimento em 1970 e composta por Lô Borges, Márcio Borges e Fernando Brant, \"Para Lennon e McCartney\" é uma homenagem em forma de \"carta musical\" aos Beatles que mistura o pop/rock britânico com ritmos brasileiros para afirmar a identidade cultural e política da juventude sul-americana em plena ditadura militar, servindo como o embrião sonoro que deu origem ao histórico movimento Clube da Esquina."},
+  {title:"Lança Perfume", sub:"Rita Lee", spotify:"https://open.spotify.com/intl-pt/track/0rAX31FT5w3ZQbQMUSkxy8", bio:"Lançada em 1980 por Rita Lee em parceria com Roberto de Carvalho, \"Lança Perfume\" é o maior sucesso de sua carreira e um marco da música pop brasileira. Misturando disco music e pop rock, a canção usou o famoso inalante de carnaval como metáfora irreverente e bem-humorada para falar sobre desejo, liberdade sexual e empoderamento feminino — driblando a censura da ditadura militar e estourando nas paradas do Brasil e do mundo."},
 ];
 const ALBUNS = [
   {title:"Abbey Road", artist:"The Beatles", year:"1969", genre:"Rock", why:"Último álbum gravado pela banda; consagrou o medley do lado B.", grad:"linear-gradient(135deg,#1c2440,#0b0f1c)", img:"", spotify:"https://open.spotify.com/album/2Pqkn9Dq2DFtdfkKAeqgMd"},
@@ -356,23 +356,37 @@ document.getElementById('spotifyEmbed').innerHTML =
     </div>`;
 })();
 
-/* Nav = abas ("Sobre Música" é a página inicial, sem botão no menu) */
+/* ===================== NAVEGAÇÃO POR ABAS (com link direto na URL) =====================
+   "Sobre Música" é a página inicial (sem botão no menu).
+   Cada aba tem um endereço próprio: /#timeline, /#descoberta, /#votacao */
 const navButtons = document.querySelectorAll('.main-nav button');
 const tabSections = document.querySelectorAll('.tab-section');
 const heroSection = document.getElementById('heroSection');
 const navMap = {};
 navButtons.forEach(b=>navMap[b.dataset.target]=b);
 
+const ABAS_COM_LINK = Object.keys(navMap);
+function abaDoEndereco(){
+  let h = '';
+  try{ h = decodeURIComponent(location.hash.replace(/^#/, '')); }catch(e){}
+  return ABAS_COM_LINK.includes(h) ? h : null;
+}
+
 function setActiveTab(id){
   fecharPlayerSpotify();
   tabSections.forEach(s=>s.classList.toggle('tab-open', s.id===id));
-  Object.values(navMap).forEach(b=>b.classList.toggle('active', b.dataset.target===id));
+  Object.values(navMap).forEach(b=>{
+    const ativo = b.dataset.target === id;
+    b.classList.toggle('active', ativo);
+    if(ativo) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
   if(heroSection) heroSection.style.display = (id==='sobre') ? '' : 'none';
   /* barras da votação crescem de zero toda vez que a aba é aberta */
   if(id === 'votacao') requestAnimationFrame(animarBarrasDaAba);
 }
 function goToTab(id){
   setActiveTab(id);
+  if(location.hash !== '#' + id) history.pushState(null, '', '#' + id);
   document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'});
 }
 navButtons.forEach(btn=>{
@@ -387,9 +401,26 @@ document.querySelectorAll('.logo').forEach(logo=>{
   logo.addEventListener('click', e=>{
     e.preventDefault();
     setActiveTab('sobre');
+    if(location.hash) history.pushState(null, '', location.pathname + location.search);
     window.scrollTo({top:0, behavior:'smooth'});
   });
 });
+
+/* Botão voltar/avançar do navegador (e endereço editado à mão) */
+window.addEventListener('popstate', ()=>{
+  const id = abaDoEndereco() || 'sobre';
+  setActiveTab(id);
+  if(id === 'sobre') window.scrollTo({top:0});
+  else document.getElementById(id).scrollIntoView({block:'start'});
+});
+
+/* Abrir direto na aba quando o link já vem com #timeline, #descoberta ou #votacao */
+(function abrirAbaDoLink(){
+  const id = abaDoEndereco();
+  if(!id) return;
+  setActiveTab(id);
+  requestAnimationFrame(()=> document.getElementById(id).scrollIntoView({block:'start'}));
+})();
 
 /* Cards "Sobre Música" */
 const aboutCards = document.querySelectorAll('.about-card');
@@ -440,6 +471,7 @@ aboutCards.forEach(card=>{
 
 /* Accordion genérico */
 document.querySelectorAll('.acc-trigger').forEach(trigger=>{
+  trigger.setAttribute('aria-expanded', 'false');
   trigger.addEventListener('click', ()=>{
     const item = trigger.closest('.acc-item');
     const panel = item.querySelector('.acc-panel');
@@ -447,10 +479,12 @@ document.querySelectorAll('.acc-trigger').forEach(trigger=>{
     item.closest('.accordion').querySelectorAll('.acc-item.open').forEach(other=>{
       other.classList.remove('open');
       other.querySelector('.acc-panel').style.maxHeight = null;
+      other.querySelector('.acc-trigger').setAttribute('aria-expanded', 'false');
     });
     if(!isOpen){
       item.classList.add('open');
       panel.style.maxHeight = panel.scrollHeight + 'px';
+      trigger.setAttribute('aria-expanded', 'true');
     }
   });
 });
@@ -1009,7 +1043,7 @@ const VOTE_CONFIGS = {
       {id:'froid', name:'Froid', sub:'Hip-hop', img:''},
       {id:'tyler', name:'Tyler, The Creator', sub:'Hip-hop', img:''},
       {id:'mac', name:'Fleetwood Mac', sub:'Rock/ Pop rock', img:''},
-      {id:'ney', name:'Ney Matogrosso', sub:'MPB', img:''},
+      {id:'milton', name:'Milton Nascimento', sub:'MPB', img:''},
       {id:'lee', name:'Rita Lee', sub:'Rock / MPB', img:''},
     ],
   },
@@ -1017,11 +1051,11 @@ const VOTE_CONFIGS = {
     tipo: 'musica',
     title: 'VOTE NA MÚSICA DA SEMANA',
     options: [
-      {id:'mantra', name:'Mantra', sub:'Froid', img:''},
-      {id:'dogtooth', name:'DOGTOOTH', sub:'Tyler, The Creator', img:''},
+      {id:'homem', name:'Pq homem n chora?', sub:'Froid', img:''},
+      {id:'massa', name:'MASSA', sub:'Tyler, The Creator', img:''},
       {id:'rhiannon', name:'Rhiannon', sub:'Fleetwood Mac', img:''},
-      {id:'sangue', name:'Sangue latino', sub:'Ney Matogrosso', img:''},
-      {id:'jardins', name:'Jardins da Babilônia', sub:'Rita Lee', img:''},
+      {id:'lennon', name:'Para Lennon e McCartney', sub:'Milton Nascimento', img:''},
+      {id:'lancaperfume', name:'Lança Perfume', sub:'Rita Lee', img:''},
     ],
   }
 };
@@ -1084,11 +1118,8 @@ async function renderVoteCard(containerId, cfg, votedKey){
 
   function updateBars(){
     const total = cfg.options.reduce((s,o)=>s+(counts[o.id]||0),0);
-    const maior = Math.max(...cfg.options.map(o=>counts[o.id]||0));
     cfg.options.forEach(o=>{
       const pct = total ? Math.round((counts[o.id]/total)*100) : 0;
-      const el = container.querySelector(`.vote-option[data-id="${o.id}"]`);
-      if(el) el.classList.toggle('lider', total > 0 && (counts[o.id]||0) === maior);
       const fill = document.getElementById(`${containerId}-fill-${o.id}`);
       fill.dataset.pct = pct;                       // valor final (usado pela animação)
       if(container.dataset.animando) return;        // durante a animação, ela cuida da tela
@@ -1153,13 +1184,14 @@ async function renderVoteCard(containerId, cfg, votedKey){
       const reserva = await authRequest('POST', '/me/votos', {tipo: cfg.tipo, item_nome: opt.name});
       if(reserva.status === 409){
         currentUser.votos[cfg.tipo] = currentUser.votos[cfg.tipo] || opt.name;
+        container.classList.remove('results-hidden');
         submitBtn.textContent = 'Você já votou nesta categoria';
         return;
       }
       if(!reserva.ok){
         submitBtn.disabled = false;
         submitBtn.textContent = 'Votar';
-        alert(reserva.data.error || 'Não foi possível registrar seu voto agora. Tente novamente.');
+        alert(reserva.data.error || 'Não foi possível registrar seu voto agora. Tente novamente em instantes.');
         return;
       }
     }
@@ -1182,7 +1214,7 @@ async function renderVoteCard(containerId, cfg, votedKey){
       if(currentUser) authRequest('DELETE', '/me/votos/' + cfg.tipo);   // desfaz a reserva
       submitBtn.disabled = false;
       submitBtn.textContent = 'Votar';
-      alert('Não foi possível registrar seu voto agora. Verifique se o backend Flask está rodando e tente novamente.');
+      alert('Não foi possível registrar seu voto agora. O servidor pode estar iniciando — aguarde alguns segundos e tente novamente.');
     }
   });
 }
@@ -1282,31 +1314,14 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
-/* Favoritos */
+/* ===================== COMENTÁRIOS & INDICAÇÕES (favoritos) ===================== */
 const FAVORITOS = {
   musica:  {botao:'Sua música favorita',  placeholder:'Qual é a sua música favorita?'},
   artista: {botao:'Seu artista favorito', placeholder:'Quem é o seu artista favorito?'},
   album:   {botao:'Seu álbum favorito',   placeholder:'Qual é o seu álbum favorito?'},
 };
-let favButtons  = document.getElementById('favButtons');
-let favSections = document.getElementById('favSections');
-
-['commentForm','commentList'].forEach(id=>{
-  const antigo = document.getElementById(id);
-  if(antigo) antigo.remove();
-});
-
-if(!favButtons || !favSections){
-  const painel = document.querySelector('.comments-panel');
-  if(painel){
-    favButtons = document.createElement('div');
-    favButtons.className = 'fav-buttons';
-    favButtons.id = 'favButtons';
-    favSections = document.createElement('div');
-    favSections.id = 'favSections';
-    painel.append(favButtons, favSections);
-  }
-}
+const favButtons  = document.getElementById('favButtons');
+const favSections = document.getElementById('favSections');
 
 /* ----- como a pessoa aparece nos comentários: @usuário, Anônimo ou apelido ----- */
 const nameControls = [];
@@ -1362,11 +1377,11 @@ async function loadFavoritos(tipo, listEl){
   const itens = await apiGet('/favoritos/' + tipo);
   listEl.innerHTML = '';
   if(!itens){
-    listEl.innerHTML = '<li class="c-text">.</li>';
+    listEl.innerHTML = '<li class="c-vazio">Não foi possível carregar os comentários agora. Tente novamente em instantes.</li>';
     return;
   }
   if(!itens.length){
-    listEl.innerHTML = '<li class="c-text"></li>';
+    listEl.innerHTML = '<li class="c-vazio">Ainda não há comentários aqui. Seja a primeira pessoa a comentar!</li>';
     return;
   }
   itens.forEach(c=>{
@@ -1442,7 +1457,7 @@ if(favButtons && favSections){
         if(modeEl.value === 'nick') salvarPrefsComentario({comment_nick: nickEl.value.trim()});
         loadFavoritos(tipo, listEl);
       } else {
-        mostrarMsgComentario(msgEl, 'Não foi possível enviar seu comentário agora. Tente novamente mais tarde.');
+        mostrarMsgComentario(msgEl, 'Não foi possível enviar seu comentário agora. Tente novamente em instantes.');
       }
     });
   });

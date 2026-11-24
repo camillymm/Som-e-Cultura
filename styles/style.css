@@ -7,7 +7,7 @@
     --card:#fdfcf9;
     --white:#ffffff;
     --line:#e5e1d6;
-    --gray-500:#8b8879;
+    --gray-500:#6f6c5d;
     --gray-700:#5a5849;
     --ink:#12141c;
     --ink-soft:#4c4e5a;
@@ -208,9 +208,11 @@
   @media (prefers-reduced-motion:reduce){
     .vinyl-disc,.vinyl-arm-move{animation:none;}
   }
-.hero-art{cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.hero-art:focus-visible{outline:3px solid var(--cream);outline-offset:4px;}
-.hero-art.paused .vinyl-disc{animation-play-state:paused;}
+  /* clique no toca-discos: pausa/continua o giro */
+  .hero-art{cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .hero-art:focus-visible{outline:3px solid var(--navy-950);outline-offset:4px;}
+  .hero-art.paused .vinyl-disc{animation-play-state:paused;}
+
   /* ---------- SECTION SCAFFOLD ---------- */
   .section{padding:88px 0;border-top:1px solid var(--line);}
   .tab-section{display:none;scroll-margin-top:88px;}
@@ -220,13 +222,9 @@
   .section-head .eyebrow{font-size:11.5px;letter-spacing:.08em;color:var(--gray-500);font-weight:600;margin-bottom:8px;display:block;}
   .section-sub{max-width:58ch;margin-top:10px;}
 
-  .curiosity-photo{
-    display:block;width:100%;max-width:420px;aspect-ratio:16/9;border-radius:var(--radius-s);
-    background:var(--line);margin-bottom:14px;overflow:hidden;
-  }
-
   /* ---------- ÍCONES DE GÊNERO ---------- */
   .avatar-icon{font-size:14px;color:inherit;position:relative;z-index:1;}
+  .avatar-img{width:100%;height:100%;object-fit:cover;}
   .album-icon{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     font-size:44px;color:rgba(246,243,236,.32);z-index:1;
@@ -397,6 +395,8 @@
   .vote-option.selected .vote-radio{border-color:var(--navy-950);}
   .vote-option.selected .vote-radio::after{transform:scale(1);}
   .vote-option.voted{cursor:default;}
+  /* resultados escondidos até a pessoa votar (mantém o espaço, sem "pular" o layout) */
+  .vote-card.results-hidden .vo-track-wrap{visibility:hidden;}
   .vote-btn{
     display:block;width:100%;margin-top:20px;background:var(--navy-950);color:var(--cream);
     border:none;padding:12px;border-radius:999px;font-size:12.5px;font-weight:600;letter-spacing:.03em;
@@ -460,13 +460,14 @@
     font-family:inherit;font-size:13.5px;background:var(--white);color:var(--ink);
   }
   .comment-msg{font-size:12.5px;color:#b3261e;margin-top:10px;}
+  .comment-msg[hidden]{display:none;}
   .comment-list{list-style:none;margin:24px 0 0;padding:18px 0 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:16px;max-height:340px;overflow-y:auto;}
   .comment-list li{font-size:13px;}
   .comment-list .c-head{display:flex;justify-content:space-between;margin-bottom:3px;}
   .comment-list .c-name{font-weight:600;color:var(--navy-950);}
   .comment-list .c-time{color:var(--gray-500);font-size:11px;}
   .comment-list .c-text{color:var(--ink-soft);line-height:1.5;}
-  .storage-note{font-size:11px;color:var(--gray-500);margin-top:14px;}
+  .comment-list .c-vazio{color:var(--gray-500);font-size:12.5px;}
   .fav-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 16px;}
   .fav-btn{
     padding:10px 20px;border-radius:999px;border:1px solid var(--line);
@@ -487,7 +488,6 @@
   .site-footer .logo-text small{color:#9ea2ba;}
   .rights{font-size:12px;color:#9ea2ba;text-align:center;}
   .socials{display:flex;align-items:center;justify-content:flex-end;gap:14px;justify-self:end;}
-  .socials span{font-size:11px;letter-spacing:.06em;color:#9ea2ba;margin-right:4px;}
   .social-ic{
     width:36px;height:36px;border-radius:50%;border:1px solid #2b3352;
     display:flex;align-items:center;justify-content:center;transition:background .15s;
@@ -520,7 +520,6 @@
     .site-footer .logo{gap:0;}
     .site-footer .logo-text{display:none;}
     .rights{font-size:11.5px;line-height:1.5;}
-    .socials span{display:none;}
   }
   /* Celular */
   @media (max-width:560px){
@@ -570,6 +569,7 @@
   html[data-theme="dark"] .timeline-albums{border-top-color:#232c47;}
   html[data-theme="dark"] .section-head .eyebrow{color:#8489a4;}
   html[data-theme="dark"] .btn.ghost{color:#f3f1ea;border-color:#f3f1ea;}
+  html[data-theme="dark"] .hero-art:focus-visible{outline-color:#f3f1ea;}
   html[data-theme="dark"] .acc-trigger .t{color:#f3f1ea;}
   html[data-theme="dark"] .acc-trigger .num{color:#8489a4;}
   html[data-theme="dark"] .acc-trigger .plus::before,
@@ -600,14 +600,13 @@
   html[data-theme="dark"] .vo-sub,
   html[data-theme="dark"] .comment-list .c-time,
   html[data-theme="dark"] .comment-list .c-text,
-  html[data-theme="dark"] .storage-note{color:#8489a4;}
+  html[data-theme="dark"] .comment-list .c-vazio{color:#8489a4;}
   html[data-theme="dark"] .rank-item,
   html[data-theme="dark"] .vote-option,
   html[data-theme="dark"] .comment-list,
   html[data-theme="dark"] .comment-list li{border-color:#232c47;}
   html[data-theme="dark"] .vote-bar-track{background:#232c47;}
   html[data-theme="dark"] .vote-bar-fill{background:#f3f1ea;}
-  html[data-theme="dark"] .vote-pct{color:#f3f1ea;}
   html[data-theme="dark"] .vote-radio{border-color:#3a4568;}
   html[data-theme="dark"] .vote-radio::after{background:#f3f1ea;}
   html[data-theme="dark"] .vote-option.selected .vote-radio{border-color:#f3f1ea;}
@@ -628,7 +627,6 @@
   html[data-theme="dark"] .timeline-genre-chip{background:#f3f1ea;color:#0b0f1c;}
   html[data-theme="dark"] .timeline-detail .tl-decade{color:#8489a4;}
   html[data-theme="dark"] .timeline-detail .tl-block-label{color:#8489a4;}
-  html[data-theme="dark"] .acc-panel-inner,
   html[data-theme="dark"] .rank-bio-inner{color:#b9bbc9;}
   html[data-theme="dark"] .panel-sub{color:#8489a4;}
   html[data-theme="dark"] .play-btn{background:#f3f1ea;color:#0b0f1c;}
@@ -654,39 +652,3 @@
   html[data-theme="dark"] .modal-switch button{color:#f3f1ea;}
   html[data-theme="dark"] .name-mode{background:#0b0f1c;border-color:#232c47;color:#f3f1ea;}
   html[data-theme="dark"] .album-card .album-listen{color:#f3f1ea;}
-  /* ===================== CARTÃO "MEUS VOTOS DA SEMANA" =====================
-   Usa as mesmas variáveis (:root) do style.css, então este arquivo precisa
-   ser carregado DEPOIS dele no index.html. */
-
-.votes-card-panel{
-  display:grid;grid-template-columns:1fr auto;gap:36px;align-items:center;
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius-m);
-  padding:26px;margin-bottom:22px;
-}
-.votes-card-panel[hidden]{display:none;}
-.votes-card-info .eyebrow{
-  display:block;font-size:11.5px;letter-spacing:.08em;color:var(--gray-500);
-  font-weight:600;margin-bottom:8px;
-}
-.votes-card-info h3{font-size:18px;font-weight:600;margin-bottom:10px;}
-.votes-card-info p{font-size:13.5px;max-width:46ch;}
-.votes-card-actions{display:flex;gap:12px;flex-wrap:wrap;}
-.votes-card-actions .btn{margin-top:22px;padding:12px 22px;}
-.votes-card-canvas{
-  display:block;width:270px;height:auto;aspect-ratio:9/16;
-  border-radius:16px;box-shadow:0 18px 40px rgba(11,15,28,.28);
-}
-
-@media (max-width:920px){
-  .votes-card-panel{grid-template-columns:1fr;justify-items:center;text-align:center;}
-  .votes-card-info p{margin:0 auto;}
-  .votes-card-actions{justify-content:center;}
-}
-@media (max-width:560px){
-  .votes-card-canvas{width:100%;max-width:300px;}
-}
-
-/* Modo escuro */
-html[data-theme="dark"] .votes-card-panel{background:#141b30;border-color:#232c47;}
-html[data-theme="dark"] .votes-card-info .eyebrow{color:#8489a4;}
-html[data-theme="dark"] .votes-card-actions .btn:not(.ghost){background:#f3f1ea;color:#0b0f1c;}

@@ -66,8 +66,8 @@
       <h1>Música é história, cultura e identidade.</h1>
       <p class="lede">Explore gêneros, instrumentos e curiosidades que constroem a trilha sonora do mundo — dos discos que mudaram tudo às vozes que estão surgindo agora.</p>
     </div>
-   <div class="hero-art" role="button" tabindex="0" aria-pressed="true"
-     aria-label="Toca-discos: clique para pausar ou continuar o disco" title="Clique para pausar/continuar">
+    <div class="hero-art" role="button" tabindex="0" aria-pressed="true"
+         aria-label="Toca-discos: clique para pausar ou continuar o disco" title="Clique para pausar/continuar">
       <div class="vinyl-platter"></div>
       <div class="vinyl-disc">
         <div class="vinyl-label">
@@ -315,14 +315,8 @@
 
       <div class="comments-panel">
         <h3 style="font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--navy-950);margin-bottom:16px;">COMENTÁRIOS &amp; INDICAÇÕES</h3>
-        <form class="comment-form" id="commentForm">
-          <textarea id="commentText" placeholder="Comente, indique uma música ou artista..." required></textarea>
-          <div class="comment-form-row">
-            <input type="text" id="commentName" placeholder="Nome (opcional)">
-            <button type="submit" class="btn">Enviar</button>
-          </div>
-        </form>
-        <ul class="comment-list" id="commentList"></ul>
+        <div class="fav-buttons" id="favButtons"></div>
+        <div id="favSections"></div>
       </div>
     </div>
   </section>
