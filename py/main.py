@@ -15,12 +15,20 @@ from datetime import timedelta
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # O main.py está na pasta "py/", mas o index.html, script.js e a pasta
-# "styles/" ficam um nível acima (na pasta "Site"). Por isso apontamos o
-# static_folder para o diretório pai, usando caminho absoluto — assim
-# funciona não importa de onde você rode "python main.py".
+# "styles/" ficam um nível acima (na pasta "Site"). Por isso usamos caminho
+# absoluto — assim funciona não importa de onde você rode "python main.py".
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SITE_DIR = os.path.join(BASE_DIR, '..')
-app = Flask(__name__, static_folder=SITE_DIR, static_url_path='')
+
+# static_folder=None: o Flask NÃO serve a pasta inteira. Só entregamos os
+# arquivos listados abaixo, para que py/main.py, database.db e outros arquivos
+# internos nunca fiquem acessíveis pelo navegador.
+app = Flask(__name__, static_folder=None)
+
+PASTA_STYLES = os.path.join(SITE_DIR, 'styles')
+# Arquivos soltos (na pasta "Site") que o site pode baixar.
+# Se você adicionar outro arquivo ao site (ex.: robots.txt), inclua o nome aqui.
+ARQUIVOS_PUBLICOS = {'script.js', 'favicon.svg', 'og-image.png'}
 
 # ===================== SESSÃO (LOGIN) =====================
 # SECRET_KEY assina o cookie de sessão. No Render, crie a variável de ambiente
@@ -66,9 +74,9 @@ if USE_POSTGRES:
 else:
     ERROS_INTEGRIDADE = (sqlite3.IntegrityError,)
 
-# Senha de moderação (apagar comentários). Vem de uma variável de ambiente
-# configurada no Render (Environment > ADMIN_TOKEN). NUNCA escreva a senha
-# aqui no código: o repositório do GitHub pode ser público.
+# Senha de moderação (apagar comentários e zerar a votação). Vem de uma variável
+# de ambiente configurada no Render (Environment > ADMIN_TOKEN). NUNCA escreva a
+# senha aqui no código: o repositório do GitHub pode ser público.
 ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN")
 
 # Tipos aceitos nas respostas de favoritos (seções dentro de "Comentários &
@@ -99,10 +107,30 @@ def q(sql):
     return sql.replace("?", "%s") if USE_POSTGRES else sql
 
 
-# --- Rota que serve a página principal ---
+def token_admin_valido():
+    """True se o cabeçalho X-Admin-Token bate com o ADMIN_TOKEN configurado."""
+    enviado = request.headers.get('X-Admin-Token', '')
+    return hmac.compare_digest(enviado.encode('utf-8'), ADMIN_TOKEN.encode('utf-8'))
+
+
+# ===================== PÁGINAS E ARQUIVOS DO SITE =====================
 @app.route('/')
 def index():
-    return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory(SITE_DIR, 'index.html')
+
+
+# Tudo dentro da pasta "styles/" (send_from_directory já bloqueia "../")
+@app.route('/styles/<path:nome>')
+def estilos(nome):
+    return send_from_directory(PASTA_STYLES, nome)
+
+
+# Arquivos soltos permitidos (lista ARQUIVOS_PUBLICOS lá em cima)
+@app.route('/<nome>')
+def arquivo_publico(nome):
+    if nome not in ARQUIVOS_PUBLICOS:
+        return jsonify({"error": "Não encontrado"}), 404
+    return send_from_directory(SITE_DIR, nome)
 
 
 def garantir_coluna_usuario(cursor, tabela):
@@ -517,9 +545,7 @@ def add_comentario():
 def apagar_comentario(comentario_id):
     if not ADMIN_TOKEN:
         return jsonify({"error": "Moderação desativada"}), 503
-
-    enviado = request.headers.get('X-Admin-Token', '')
-    if not hmac.compare_digest(enviado.encode('utf-8'), ADMIN_TOKEN.encode('utf-8')):
+    if not token_admin_valido():
         return jsonify({"error": "Não autorizado"}), 401
 
     conn = get_conn()
@@ -590,9 +616,7 @@ def apagar_favorito(tipo, favorito_id):
         return jsonify({"error": "Tipo inválido"}), 400
     if not ADMIN_TOKEN:
         return jsonify({"error": "Moderação desativada"}), 503
-
-    enviado = request.headers.get('X-Admin-Token', '')
-    if not hmac.compare_digest(enviado.encode('utf-8'), ADMIN_TOKEN.encode('utf-8')):
+    if not token_admin_valido():
         return jsonify({"error": "Não autorizado"}), 401
 
     conn = get_conn()
@@ -627,8 +651,10 @@ def registrar_voto():
     tipo = data.get('tipo')  # 'artista' ou 'musica'
     item_nome = data.get('item_nome')
 
-    if not tipo or not item_nome:
-        return jsonify({"error": "Dados incompletos"}), 400
+    # Só aceita as categorias do site e nomes de texto simples (evita criar itens falsos)
+    if tipo not in TIPOS_VOTO or not isinstance(item_nome, str) or not item_nome.strip() or len(item_nome) > 100:
+        return jsonify({"error": "Dados inválidos"}), 400
+    item_nome = item_nome.strip()
 
     conn = get_conn()
     cursor = conn.cursor()
@@ -645,6 +671,23 @@ def registrar_voto():
     conn.commit()
     conn.close()
 
+    return jsonify({"success": True})
+
+# Zera a votação da semana (contagens gerais e votos das contas).
+# Protegida pela mesma senha de moderação (cabeçalho X-Admin-Token).
+@app.route('/api/votos/reset', methods=['POST'])
+def resetar_votos():
+    if not ADMIN_TOKEN:
+        return jsonify({"error": "Moderação desativada"}), 503
+    if not token_admin_valido():
+        return jsonify({"error": "Não autorizado"}), 401
+
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM votos")
+    cursor.execute("DELETE FROM votos_usuario")
+    conn.commit()
+    conn.close()
     return jsonify({"success": True})
 
 if __name__ == '__main__':
