@@ -64,7 +64,6 @@ Som-e-Cultura/
 ├── script.js
 ├── styles/
 │   └── style.css
-├── images/            # imagens do site
 ├── docs/              # prints usados neste README
 └── py/
     └── main.py        # servidor Flask + API
